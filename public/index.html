@@ -889,7 +889,7 @@ async function handleUpload() {
   showToast('⏳ Uploading, please wait...');
 
   try {
-    const res = await fetch('https://studyvault-api.onrender.com/api/upload', { method: 'POST', body: formData });
+    const res  = await fetch('https://studyvault-api.onrender.com/api/upload', { method: 'POST', body: formData });
     const data = await res.json();
 
     if (data.success) {
