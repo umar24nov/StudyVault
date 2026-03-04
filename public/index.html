@@ -202,7 +202,7 @@
       <textarea class="upload-input" placeholder="Your message..." id="contactMsg" rows="4" style="resize:vertical"></textarea>
     </div>
     <div style="color:var(--muted);font-size:0.82rem;margin-bottom:1rem">
-      📧 Or email us directly at <strong>hello@studyvault.in</strong><br>
+      📧 Or email us directly at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0c64696060634c7f787968757a6d796078226562">[email&#160;protected]</a></strong><br>
       💬 Response time: within 48 hours
     </div>
     <div class="modal-actions">
@@ -222,7 +222,7 @@
       <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">How We Use It</strong><br>Your data is used solely to display and serve study materials. We do not sell or share your personal information with third parties.</p>
       <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">Uploaded Content</strong><br>Files you upload are stored securely on Cloudinary. By uploading, you confirm you have the right to share the content.</p>
       <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">Cookies</strong><br>We use minimal cookies for basic site functionality only. No tracking or advertising cookies are used.</p>
-      <p><strong style="color:var(--text)">Contact</strong><br>For privacy concerns, email us at privacy@studyvault.in</p>
+      <p><strong style="color:var(--text)">Contact</strong><br>For privacy concerns, email us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4c3c3e253a2d2f350c3f383928353a2d392038622522">[email&#160;protected]</a></p>
     </div>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('privacyModal').classList.remove('open')">Got it</button></div>
   </div>
@@ -233,10 +233,7 @@
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('dmcaModal').classList.remove('open')">✕</button>
     <h3>DMCA & Content Policy</h3>
-    <p style="margin-bottom:1rem">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please let us know and we will remove it within 24 hours.</p>
-    <div style="background:var(--surface2);border-radius:10px;padding:1rem;font-size:0.85rem;color:var(--muted);margin-bottom:1rem">
-      To file a DMCA takedown request, email us at:<br>
-      <strong style="color:var(--accent)">dmca@studyvault.in</strong><br><br>
+    <p style="margin-bottom:1rem">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please let us know andle="color:var(--accent)">dmca@studyvault.in</strong><br><br>
       Include: your name, the infringing URL, and proof of ownership.
     </div>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('dmcaModal').classList.remove('open')">Understood</button></div>
@@ -313,7 +310,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-bottom-left">© 2024 StudyVault · Built by Mohammad Umar, B.Tech CSE Student· Free forever for every student.</div>
+    <div class="footer-bottom-left">© 2024 StudyVault · Built by Mohammad Umar, B.Tech CSE · Free forever for every student.</div>
     <div class="footer-bottom-right">
       <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy</a>
       <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
@@ -327,4 +324,20 @@
 
 <!-- MODAL -->
 <div class="modal-overlay" id="modal">
-  <div class
+  <div class    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>Join StudyVault</h3>
+    <p>Sign in with your college email to unlock unlimited downloads and upload your own papers.</p>
+    <div style="display:flex;flex-direction:column;gap:0.8rem">
+      <input class="upload-input" type="email" placeholder="your@college.edu">
+      <input class="upload-input" type="password" placeholder="Password">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="closeModal();showToast('Welcome to StudyVault! 🎉')">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
