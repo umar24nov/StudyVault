@@ -281,6 +281,62 @@ footer {
 .footer-bottom-right a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
 .footer-bottom-right a:hover { color: var(--text); }
 
+/* TESTIMONIALS */
+.testimonials-section {
+  position: relative; z-index: 1;
+  max-width: 1100px; margin: 0 auto 6rem;
+  padding: 0 2rem;
+}
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+}
+.testimonial-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.8rem;
+  transition: border-color 0.2s, transform 0.2s;
+  display: flex; flex-direction: column; gap: 0.8rem;
+}
+.testimonial-card:hover { border-color: rgba(108,99,255,0.3); transform: translateY(-2px); }
+.testimonial-stars { font-size: 1.2rem; color: #f5c518; letter-spacing: 2px; }
+.testimonial-msg {
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  font-style: italic;
+  flex: 1;
+}
+.testimonial-name {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+.testimonial-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--muted);
+  padding: 2rem;
+  font-size: 0.95rem;
+}
+
+/* STAR PICKER */
+.star-picker {
+  display: flex; justify-content: center;
+  gap: 0.5rem; margin-bottom: 0.5rem;
+}
+.star {
+  font-size: 2.2rem;
+  color: var(--border);
+  cursor: pointer;
+  transition: color 0.15s, transform 0.15s;
+  user-select: none;
+}
+.star:hover, .star.active { color: #f5c518; transform: scale(1.15); }
+
 /* FOOTER FEEDBACK FORM */
 .footer-feedback-desc {
   font-size: 0.88rem;

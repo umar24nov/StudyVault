@@ -155,6 +155,7 @@ async function handleUpload() {
       document.getElementById('fileChosen').textContent = '';
       // Reload papers list
       loadPapers();
+loadTestimonials();
     } else {
       showToast('❌ Upload failed: ' + (data.error || 'Unknown error'));
     }
@@ -163,12 +164,86 @@ async function handleUpload() {
   }
 }
 
-// ── MODAL ─────────────────────────────────────────────
-function openModal()  { document.getElementById('modal').classList.add('open'); }
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-document.getElementById('modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
+// ── REVIEW MODAL ──────────────────────────────────────
+let selectedStar = 0;
+const starLabels = ['', '😞 Poor', '😐 Fair', '🙂 Good', '😊 Great', '🤩 Excellent!'];
+
+function openReviewModal()  { document.getElementById('reviewModal').classList.add('open'); }
+function closeReviewModal() {
+  document.getElementById('reviewModal').classList.remove('open');
+  selectedStar = 0; renderStars(0);
+  document.getElementById('starLabel').textContent = '';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('reviewModal').addEventListener('click', function(e) {
+    if (e.target === this) closeReviewModal();
+  });
+  document.getElementById('reviewMsg').addEventListener('input', function() {
+    document.getElementById('reviewCharCount').textContent = this.value.length + ' / 150';
+  });
 });
+
+function selectStar(val) {
+  selectedStar = val;
+  renderStars(val);
+  document.getElementById('starLabel').textContent = starLabels[val];
+}
+
+function renderStars(val) {
+  document.querySelectorAll('.star').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+  });
+}
+
+async function submitReview() {
+  const name = document.getElementById('reviewName').value.trim();
+  const msg  = document.getElementById('reviewMsg').value.trim();
+  if (!selectedStar) { showToast('⚠️ Please select a star rating.'); return; }
+  if (!name)         { showToast('⚠️ Please enter your name.'); return; }
+  if (!msg)          { showToast('⚠️ Please write a short review.'); return; }
+  try {
+    const res  = await fetch('https://studyvault-api.onrender.com/api/reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, message: msg, stars: selectedStar })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeReviewModal();
+      document.getElementById('reviewName').value = '';
+      document.getElementById('reviewMsg').value  = '';
+      document.getElementById('reviewCharCount').textContent = '0 / 150';
+      showToast('🎉 Thanks for your review!');
+      loadTestimonials();
+    } else {
+      showToast('❌ Could not submit. Try again.');
+    }
+  } catch(e) { showToast('❌ Could not reach server.'); }
+}
+
+// ── TESTIMONIALS ──────────────────────────────────────
+async function loadTestimonials() {
+  try {
+    const res  = await fetch('https://studyvault-api.onrender.com/api/reviews');
+    const data = await res.json();
+    const grid = document.getElementById('testimonialsGrid');
+    if (!data.length) {
+      grid.innerHTML = '<div class="testimonial-loading">No reviews yet — be the first! ⭐</div>';
+      return;
+    }
+    grid.innerHTML = data.map(r => `
+      <div class="testimonial-card">
+        <div class="testimonial-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</div>
+        <div class="testimonial-msg">"${r.message}"</div>
+        <div class="testimonial-name">— ${r.name}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('testimonialsGrid').innerHTML =
+      '<div class="testimonial-loading">Could not load reviews.</div>';
+  }
+}
 
 // ── TOAST ─────────────────────────────────────────────
 let toastTimer;
@@ -181,28 +256,13 @@ function showToast(msg) {
 }
 
 // ── FOOTER FEEDBACK ───────────────────────────────────
-async function submitFooterFeedback() {
+function submitFooterFeedback() {
   const type = document.getElementById('feedbackType').value;
   const msg  = document.getElementById('feedbackMsg').value.trim();
   if (!msg) { showToast('⚠️ Please write your feedback first.'); return; }
-
-  try {
-    const res = await fetch('https://studyvault-api.onrender.com/api/feedback', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, message: msg })
-    });
-    const data = await res.json();
-    if (data.success) {
-      document.getElementById('feedbackType').value = '';
-      document.getElementById('feedbackMsg').value  = '';
-      showToast('✅ Thanks for your feedback! We\'ll look into it.');
-    } else {
-      showToast('❌ Could not send feedback. Try again.');
-    }
-  } catch(e) {
-    showToast('❌ Could not reach server.');
-  }
+  document.getElementById('feedbackType').value = '';
+  document.getElementById('feedbackMsg').value  = '';
+  showToast('✅ Thanks for your feedback! We\'ll look into it.');
 }
 
 // ── CONTACT FORM ──────────────────────────────────────
@@ -220,3 +280,4 @@ function submitContact() {
 
 // ── INIT ──────────────────────────────────────────────
 loadPapers();
+loadTestimonials();

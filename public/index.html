@@ -16,7 +16,7 @@
     <li><a href="#search">Search</a></li>
     <li><a href="#courses">Courses</a></li>
     <li><a href="#upload">Upload</a></li>
-    <li><a href="#" class="nav-btn" onclick="openModal()">Sign In</a></li>
+    <li><a href="#" class="nav-btn" onclick="openReviewModal()">⭐ Rate Us</a></li>
   </ul>
 </nav>
 
@@ -116,6 +116,19 @@
     <div class="feature-card"><div class="feature-icon fi-yellow">⬇️</div><div class="feature-title">Free Downloads</div><div class="feature-desc">Download any paper or notes as PDF instantly. No sign-up required. Always free.</div></div>
     <div class="feature-card"><div class="feature-icon fi-blue">🔍</div><div class="feature-title">Smart Search</div><div class="feature-desc">Search by subject name, university, year, or topic. Find exactly what you're looking for in seconds.</div></div>
     <div class="feature-card"><div class="feature-icon fi-pink">🏆</div><div class="feature-title">Verified Content</div><div class="feature-desc">All uploads go through community verification. Ratings and reports ensure only quality material stays up.</div></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section" id="testimonials">
+  <div class="section-label">Student Reviews</div>
+  <div class="section-title">What Students Say</div>
+  <div class="section-sub">Real feedback from students across India who use StudyVault every day.</div>
+  <div class="testimonials-grid" id="testimonialsGrid">
+    <div class="testimonial-loading">Loading reviews...</div>
+  </div>
+  <div style="text-align:center;margin-top:2.5rem">
+    <button class="btn-primary" onclick="openReviewModal()">⭐ Leave a Review</button>
   </div>
 </section>
 
@@ -233,7 +246,7 @@
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('dmcaModal').classList.remove('open')">✕</button>
     <h3>DMCA & Content Policy</h3>
-    <p style="margin-bottom:1rem">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please let us know andle="color:var(--accent)">dmca@studyvault.in</strong><br><br>
+    <p style="margin-bottom:1rem">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please let us know andle="color:var(--accent)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d7b3bab4b697a4a3a2b3aea1b6a2bba3f9beb9">[email&#160;protected]</a></strong><br><br>
       Include: your name, the infringing URL, and proof of ownership.
     </div>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('dmcaModal').classList.remove('open')">Understood</button></div>
@@ -257,7 +270,7 @@
         📢 <strong>Spread the word</strong> — Share StudyVault with your classmates and college groups.
       </div>
       <div style="background:var(--surface2);border-radius:10px;padding:1rem;font-size:0.88rem">
-        🐛 <strong>Report bugs</strong> — Found something broken? Email us at hello@studyvault.in
+        🐛 <strong>Report bugs</strong> — Found something broken? Email us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6a020f0606052a191e1f0e131c0b1f061e440304">[email&#160;protected]</a>
       </div>
     </div>
     <div class="modal-actions">
@@ -273,7 +286,7 @@
       <div class="footer-logo-wrap">Study<span>Vault</span></div>
       <p class="footer-tagline">Built by students, for students across India. Free forever — no paywalls, no ads, no nonsense.</p>
       <div class="footer-badges">
-        <div class="footer-badge-item">📧 <span>hello@studyvault.in</span></div>
+        <div class="footer-badge-item">📧 <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ee868b828281ae9d9a9b8a97988f9b829ac08780">[email&#160;protected]</a></span></div>
         <div class="footer-badge-item">📍 <span>India</span></div>
         <div class="footer-badge-item">🕐 <span>Mon–Sat, 10am–6pm IST</span></div>
       </div>
@@ -322,22 +335,30 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modal">
-  <div class    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h3>Join StudyVault</h3>
-    <p>Sign in with your college email to unlock unlimited downloads and upload your own papers.</p>
-    <div style="display:flex;flex-direction:column;gap:0.8rem">
-      <input class="upload-input" type="email" placeholder="your@college.edu">
-      <input class="upload-input" type="password" placeholder="Password">
+<!-- REVIEW MODAL -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeReviewModal()">✕</button>
+    <h3>Rate StudyVault ⭐</h3>
+    <p>How has your experience been? Your feedback helps us improve.</p>
+    <div class="star-picker" id="starPicker">
+      <span class="star" data-val="1" onclick="selectStar(1)">★</span>
+      <span class="star" data-val="2" onclick="selectStar(2)">★</span>
+      <span class="star" data-val="3" onclick="selectStar(3)">★</span>
+      <span class="star" data-val="4" onclick="selectStar(4)">★</span>
+      <span class="star" data-val="5" onclick="selectStar(5)">★</span>
     </div>
+    <div id="starLabel" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;min-height:1.2rem;text-align:center"></div>
+    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Rahul, CSE 3rd year)" style="margin-bottom:0.7rem">
+    <textarea class="upload-input" id="reviewMsg" placeholder="Write a short review... (max 150 characters)" maxlength="150" rows="3" style="resize:none;margin-bottom:0.3rem"></textarea>
+    <div id="reviewCharCount" style="font-size:0.75rem;color:var(--muted);text-align:right;margin-bottom:1rem">0 / 150</div>
     <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" onclick="closeModal();showToast('Welcome to StudyVault! 🎉')">Sign In</button>
+      <button class="btn-secondary" onclick="closeReviewModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitReview()">Submit Review</button>
     </div>
   </div>
 </div>
 
-<script src="script.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
