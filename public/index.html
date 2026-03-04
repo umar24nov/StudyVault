@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyVault - Your Academic Arsenal</title>
+<meta name="description"
+content="StudyVault provides previous year question papers, notes, and study resources shared by students. Upload, search, and learn smarter.">
+<title>StudyVault — Previous Year Papers, Notes & Study Resources</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -16,8 +18,6 @@
     <li><a href="#search">Search</a></li>
     <li><a href="#courses">Courses</a></li>
     <li><a href="#upload">Upload</a></li>
-    <li><a href="#" onclick="document.getElementById('developerModal').classList.add('open')">Developer</a></li>
-    <li><a href="#" onclick="document.getElementById('manualModal').classList.add('open')">Manual</a></li>
     <li><a href="#" class="nav-btn" onclick="openReviewModal()">⭐ Rate Us</a></li>
   </ul>
 </nav>
@@ -25,7 +25,7 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-badge">🎓 Free for all students</div>
-  <h1>Your Academic<br><em>Arsenal</em> is <span class="hl2">Here</span></h1>
+  <h1>Your Study<br><em>Companion</em> is <span class="hl2">Here</span></h1>
   <p>Access thousands of previous year question papers, notes & study material. Upload your own and help fellow students ace their exams.</p>
   <div class="hero-actions">
     <button class="btn-primary" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'})">Browse Papers ↓</button>
@@ -200,7 +200,7 @@
         <div style="font-size:0.8rem;color:var(--muted)">B.Tech CSE Student · Founder & Developer</div>
       </div>
     </div>
-    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0">Founded in 2024 · Based in India · Built with ❤️ for every student</p>
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0">Founded in 2025 · Based in India · Built with ❤️ for every student</p>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button></div>
   </div>
 </div>
@@ -217,7 +217,7 @@
       <textarea class="upload-input" placeholder="Your message..." id="contactMsg" rows="4" style="resize:vertical"></textarea>
     </div>
     <div style="color:var(--muted);font-size:0.82rem;margin-bottom:1rem">
-      📧 Or email us directly at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="caa2afa6a6a58ab9bebfaeb3bcabbfa6bee4a3a4">[email&#160;protected]</a></strong><br>
+      📧 Or email us directly at <strong>hello@studyvault.in</strong><br>
       💬 Response time: within 48 hours
     </div>
     <div class="modal-actions">
@@ -237,7 +237,7 @@
       <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">How We Use It</strong><br>Your data is used solely to display and serve study materials. We do not sell or share your personal information with third parties.</p>
       <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">Uploaded Content</strong><br>Files you upload are stored securely on Cloudinary. By uploading, you confirm you have the right to share the content.</p>
       <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">Cookies</strong><br>We use minimal cookies for basic site functionality only. No tracking or advertising cookies are used.</p>
-      <p><strong style="color:var(--text)">Contact</strong><br>For privacy concerns, email us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3242405b4453514b72414647564b4453475e461c5b5c">[email&#160;protected]</a></p>
+      <p><strong style="color:var(--text)">Contact</strong><br>For privacy concerns, email us at privacy@studyvault.in</p>
     </div>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('privacyModal').classList.remove('open')">Got it</button></div>
   </div>
@@ -246,12 +246,25 @@
 <!-- DMCA MODAL -->
 <div class="modal-overlay" id="dmcaModal">
   <div class="modal">
-    <button class="modal-close" onclick="document.getElementById('dmcaModal').classList.remove('open')">✕</button>
+    <button class="modal-close"
+      onclick="document.getElementById('dmcaModal').classList.remove('open')">✕</button>
+
     <h3>DMCA & Content Policy</h3>
-    <p style="margin-bottom:1rem">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please let us know andle="color:var(--accent)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1e767b7272715e6d6a6b7a67687f6b726a307770">[email&#160;protected]</a></strong><br><br>
+
+    <p style="margin-bottom:1rem">
+      StudyVault respects intellectual property rights. If you believe any
+      content on our platform infringes your copyright, please contact us at
+      <strong style="color:var(--accent)">hello@studyvault.in</strong>.
+      <br><br>
       Include: your name, the infringing URL, and proof of ownership.
+    </p>
+
+    <div class="modal-actions">
+      <button class="btn-primary"
+        onclick="document.getElementById('dmcaModal').classList.remove('open')">
+        Understood
+      </button>
     </div>
-    <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('dmcaModal').classList.remove('open')">Understood</button></div>
   </div>
 </div>
 
@@ -272,12 +285,12 @@
         📢 <strong>Spread the word</strong> — Share StudyVault with your classmates and college groups.
       </div>
       <div style="background:var(--surface2);border-radius:10px;padding:1rem;font-size:0.88rem">
-        🐛 <strong>Report bugs</strong> — Found something broken? Email us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e48c8188888ba4979091809d9285918890ca8d8a">[email&#160;protected]</a>
+        🐛 <strong>Report bugs</strong> — Found something broken? Email us at hello@studyvault.in
       </div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="document.getElementById('contributeModal').classList.remove('open')">Close</button>
-      <button class="btn-primary" onclick="window.open('https://github.com','_blank')">View on GitHub</button>
+      <button class="btn-primary" onclick="window.open('https://github.com/umar24nov/iStudyVault.git','_blank')">View on GitHub</button>
     </div>
   </div>
 </div>
@@ -288,7 +301,7 @@
       <div class="footer-logo-wrap">Study<span>Vault</span></div>
       <p class="footer-tagline">Built by students, for students across India. Free forever — no paywalls, no ads, no nonsense.</p>
       <div class="footer-badges">
-        <div class="footer-badge-item">📧 <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b7dfd2dbdbd8f7c4c3c2d3cec1d6c2dbc399ded9">[email&#160;protected]</a></span></div>
+        <div class="footer-badge-item">📧 <span>hello@studyvault.in</span></div>
         <div class="footer-badge-item">📍 <span>India</span></div>
         <div class="footer-badge-item">🕐 <span>Mon–Sat, 10am–6pm IST</span></div>
       </div>
@@ -325,7 +338,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-bottom-left">© 2024 StudyVault · Built by Mohammad Umar, B.Tech CSE · Free forever for every student.</div>
+    <div class="footer-bottom-left">© 2025 StudyVault · Built by Mohammad Umar, B.Tech CSE Student· Free forever for every student.</div>
     <div class="footer-bottom-right">
       <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy</a>
       <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
@@ -336,111 +349,6 @@
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
-
-<!-- DEVELOPER MODAL -->
-<div class="modal-overlay" id="developerModal">
-  <div class="modal" style="max-width:520px">
-    <button class="modal-close" onclick="document.getElementById('developerModal').classList.remove('open')">✕</button>
-    <h3>👨‍💻 The Developer</h3>
-    <div style="display:flex;align-items:center;gap:1.2rem;margin-bottom:1.5rem;background:var(--surface2);padding:1.2rem;border-radius:14px;border:1px solid var(--border)">
-      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">👨‍💻</div>
-      <div>
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem">Mohammad Umar</div>
-        <div style="font-size:0.85rem;color:var(--muted);margin-top:0.2rem">B.Tech CSE Student · Founder & Developer</div>
-        <div style="font-size:0.8rem;color:var(--accent3);margin-top:0.3rem">📍 India · Building cool things 🚀</div>
-      </div>
-    </div>
-    <p style="margin-bottom:1rem;line-height:1.75;font-size:0.95rem">Hey! I'm Umar, a Computer Science student who built StudyVault from scratch. I was frustrated with how scattered study resources were — no single place had PYQs, notes, and guides for Indian university students. So I built one.</p>
-    <p style="margin-bottom:1.5rem;line-height:1.75;color:var(--muted);font-size:0.9rem">This is my first full-stack project — built with Node.js, Firebase, and Cloudinary. It's completely free and always will be. If it helps even one student, it was worth it.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.8rem;margin-bottom:1.5rem">
-      <div style="background:var(--surface2);border-radius:10px;padding:0.9rem;text-align:center;border:1px solid var(--border)">
-        <div style="font-size:1.2rem;margin-bottom:0.3rem">🛠️</div>
-        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.2rem">Stack</div>
-        <div style="font-size:0.78rem;font-weight:600">Node.js · Firebase</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:10px;padding:0.9rem;text-align:center;border:1px solid var(--border)">
-        <div style="font-size:1.2rem;margin-bottom:0.3rem">☁️</div>
-        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.2rem">Storage</div>
-        <div style="font-size:0.78rem;font-weight:600">Cloudinary</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:10px;padding:0.9rem;text-align:center;border:1px solid var(--border)">
-        <div style="font-size:1.2rem;margin-bottom:0.3rem">📅</div>
-        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.2rem">Since</div>
-        <div style="font-size:0.78rem;font-weight:600">2025 · Growing</div>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="window.open('https://github.com/umar24nov/iStudyVault.git','_blank')">GitHub ↗</button>
-      <button class="btn-primary" onclick="document.getElementById('developerModal').classList.remove('open');document.getElementById('contactModal').classList.add('open')">Get in Touch</button>
-    </div>
-  </div>
-</div>
-
-<!-- MANUAL MODAL -->
-<div class="modal-overlay" id="manualModal">
-  <div class="modal" style="max-width:580px">
-    <button class="modal-close" onclick="document.getElementById('manualModal').classList.remove('open')">✕</button>
-    <h3>📖 How to Run StudyVault</h3>
-    <p style="margin-bottom:1.2rem;font-size:0.9rem">Want to run your own instance locally or deploy it yourself? Here's everything you need.</p>
-    <div style="display:flex;flex-direction:column;gap:0.9rem;max-height:400px;overflow-y:auto;padding-right:0.4rem">
-      <div style="background:var(--surface2);border-radius:12px;padding:1.1rem;border:1px solid var(--border)">
-        <div style="font-weight:700;font-size:0.88rem;margin-bottom:0.6rem">⚙️ Prerequisites</div>
-        <div style="font-size:0.84rem;color:var(--muted);line-height:1.9">
-          • Node.js v18+ installed<br>
-          • A Firebase project (free tier works)<br>
-          • A Cloudinary account (free 25GB)<br>
-          • Git installed on your machine
-        </div>
-      </div>
-      <div style="background:var(--surface2);border-radius:12px;padding:1.1rem;border:1px solid var(--border)">
-        <div style="font-weight:700;font-size:0.88rem;margin-bottom:0.6rem">📥 Step 1 — Clone & Install</div>
-        <div style="background:var(--bg);border-radius:8px;padding:0.7rem 1rem;font-family:monospace;font-size:0.8rem;color:var(--accent3);border:1px solid var(--border);line-height:1.9">
-          git clone https://github.com/umar24nov/iStudyVault.git<br>
-          cd iStudyVault<br>
-          npm install
-        </div>
-      </div>
-      <div style="background:var(--surface2);border-radius:12px;padding:1.1rem;border:1px solid var(--border)">
-        <div style="font-weight:700;font-size:0.88rem;margin-bottom:0.6rem">🔑 Step 2 — Create .env File</div>
-        <div style="font-size:0.84rem;color:var(--muted);margin-bottom:0.6rem">Create a <code style="background:var(--bg);padding:0.1rem 0.4rem;border-radius:4px;color:var(--accent)">.env</code> file in the root folder:</div>
-        <div style="background:var(--bg);border-radius:8px;padding:0.7rem 1rem;font-family:monospace;font-size:0.8rem;color:var(--accent3);border:1px solid var(--border);line-height:1.9">
-          FIREBASE_PROJECT_ID=your-project-id<br>
-          FIREBASE_CLIENT_EMAIL=your-client-email<br>
-          FIREBASE_PRIVATE_KEY=your-private-key<br>
-          CLOUDINARY_CLOUD_NAME=your-cloud-name<br>
-          CLOUDINARY_API_KEY=your-api-key<br>
-          CLOUDINARY_API_SECRET=your-api-secret
-        </div>
-      </div>
-      <div style="background:var(--surface2);border-radius:12px;padding:1.1rem;border:1px solid var(--border)">
-        <div style="font-weight:700;font-size:0.88rem;margin-bottom:0.6rem">🔥 Step 3 — Firebase Setup</div>
-        <div style="font-size:0.84rem;color:var(--muted);line-height:1.9">
-          1. Go to <strong style="color:var(--text)">console.firebase.google.com</strong><br>
-          2. Create a project → Enable Firestore Database<br>
-          3. Project Settings → Service Accounts → Generate private key<br>
-          4. Copy the values into your .env file
-        </div>
-      </div>
-      <div style="background:var(--surface2);border-radius:12px;padding:1.1rem;border:1px solid var(--border)">
-        <div style="font-weight:700;font-size:0.88rem;margin-bottom:0.6rem">☁️ Step 4 — Cloudinary Setup</div>
-        <div style="font-size:0.84rem;color:var(--muted);line-height:1.9">
-          1. Sign up at <strong style="color:var(--text)">cloudinary.com</strong> (free)<br>
-          2. Dashboard → copy Cloud Name, API Key, API Secret<br>
-          3. Paste into your .env file
-        </div>
-      </div>
-      <div style="background:var(--surface2);border-radius:12px;padding:1.1rem;border:1px solid var(--border)">
-        <div style="font-weight:700;font-size:0.88rem;margin-bottom:0.6rem">🚀 Step 5 — Run It!</div>
-        <div style="background:var(--bg);border-radius:8px;padding:0.7rem 1rem;font-family:monospace;font-size:0.8rem;color:var(--accent3);border:1px solid var(--border)">node server.js</div>
-        <div style="font-size:0.82rem;color:var(--muted);margin-top:0.6rem">Open <strong style="color:var(--text)">http://localhost:3000</strong> in your browser. That's it! 🎉</div>
-      </div>
-    </div>
-    <div class="modal-actions" style="margin-top:1.5rem">
-      <button class="btn-secondary" onclick="document.getElementById('manualModal').classList.remove('open')">Close</button>
-      <button class="btn-primary" onclick="window.open('https://github.com/umar24nov/iStudyVault.git','_blank')">View on GitHub ↗</button>
-    </div>
-  </div>
-</div>
 
 <!-- REVIEW MODAL -->
 <div class="modal-overlay" id="reviewModal">
@@ -456,4 +364,16 @@
       <span class="star" data-val="5" onclick="selectStar(5)">★</span>
     </div>
     <div id="starLabel" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;min-height:1.2rem;text-align:center"></div>
-    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Rahul, CSE 3rd year)" 
+    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Rahul, CSE 3rd year)" style="margin-bottom:0.7rem">
+    <textarea class="upload-input" id="reviewMsg" placeholder="Write a short review... (max 150 characters)" maxlength="150" rows="3" style="resize:none;margin-bottom:0.3rem"></textarea>
+    <div id="reviewCharCount" style="font-size:0.75rem;color:var(--muted);text-align:right;margin-bottom:1rem">0 / 150</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeReviewModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitReview()">Submit Review</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
