@@ -3,38 +3,50 @@ const multer = require('multer');
 const cors = require('cors');
 const admin = require('firebase-admin');
 const cloudinary = require('cloudinary').v2;
-const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+
+// ── CORS ───────────────────────────────────────────────
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.options('*', cors());
+
 app.use(express.json());
 app.use(express.static('public'));
 
-// ── Firebase (Firestore only) ──────────────────────────
-admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId:   process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey:  process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-  })
-});
+// ── Firebase ───────────────────────────────────────────
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId:   process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey:  process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+    })
+  });
+}
 const db = admin.firestore();
 
-// ── Cloudinary (File Storage) ──────────────────────────
+// ── Cloudinary ─────────────────────────────────────────
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
+  api_key:    process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// ── Multer (temp local storage before upload) ──────────
-const upload = multer({ dest: 'uploads/' });
+// ── Multer ─────────────────────────────────────────────
+const upload = multer({ dest: '/tmp/uploads/' });
 
-// ── ROUTES ─────────────────────────────────────────────
+// ── HEALTH CHECK ───────────────────────────────────────
+app.get('/', (req, res) => {
+  res.json({ status: 'StudyVault API is running!' });
+});
 
-// GET all papers (with optional filters)
+// ── GET papers ─────────────────────────────────────────
 app.get('/api/papers', async (req, res) => {
   try {
     let query = db.collection('papers').orderBy('createdAt', 'desc');
@@ -42,34 +54,32 @@ app.get('/api/papers', async (req, res) => {
     if (req.query.type)   query = query.where('type',   '==', req.query.type);
     const snapshot = await query.get();
     const papers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    res.json(papers);
+    res.status(200).json(papers);
   } catch (err) {
+    console.error('GET /api/papers error:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// POST upload a paper
+// ── POST upload ────────────────────────────────────────
 app.post('/api/upload', upload.single('file'), async (req, res) => {
   try {
     const { title, course, type, year, university } = req.body;
     const file = req.file;
 
-    if (!file)  return res.status(400).json({ error: 'No file uploaded' });
-    if (!title) return res.status(400).json({ error: 'Title is required' });
+    if (!file)   return res.status(400).json({ error: 'No file uploaded' });
+    if (!title)  return res.status(400).json({ error: 'Title is required' });
     if (!course) return res.status(400).json({ error: 'Course is required' });
 
-    // Upload file to Cloudinary
     const result = await cloudinary.uploader.upload(file.path, {
       folder: 'studyvault',
-      resource_type: 'auto',   // handles PDF, images, docs
-      public_id: `${Date.now()}_${file.originalname}`
+      resource_type: 'auto'
     });
 
-    // Delete temp file from local uploads/ folder
-    fs.unlinkSync(file.path);
+    // Delete temp file
+    try { fs.unlinkSync(file.path); } catch(e) {}
 
-    // Save metadata to Firestore
-    const docRef = await db.collection('papers').add({
+    await db.collection('papers').add({
       title,
       course,
       type:        type || 'pyq',
@@ -80,36 +90,25 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       createdAt:   admin.firestore.FieldValue.serverTimestamp()
     });
 
-    res.json({ success: true, id: docRef.id, downloadURL: result.secure_url });
-
+    res.status(200).json({ success: true, downloadURL: result.secure_url });
   } catch (err) {
+    console.error('POST /api/upload error:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET single paper by ID
-app.get('/api/papers/:id', async (req, res) => {
-  try {
-    const doc = await db.collection('papers').doc(req.params.id).get();
-    if (!doc.exists) return res.status(404).json({ error: 'Not found' });
-    res.json({ id: doc.id, ...doc.data() });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// DELETE a paper by ID
+// ── DELETE paper ───────────────────────────────────────
 app.delete('/api/papers/:id', async (req, res) => {
   try {
     await db.collection('papers').doc(req.params.id).delete();
-    res.json({ success: true });
+    res.status(200).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── START SERVER ───────────────────────────────────────
+// ── START ──────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ StudyVault running at http://localhost:${PORT}`);
+  console.log(`✅ StudyVault API running on port ${PORT}`);
 });
