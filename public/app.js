@@ -255,27 +255,46 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
+
 // ── FOOTER FEEDBACK ───────────────────────────────────
-function submitFooterFeedback() {
+async function submitFooterFeedback() {
   const type = document.getElementById('feedbackType').value;
   const msg  = document.getElementById('feedbackMsg').value.trim();
   if (!msg) { showToast('⚠️ Please write your feedback first.'); return; }
-  document.getElementById('feedbackType').value = '';
-  document.getElementById('feedbackMsg').value  = '';
-  showToast('✅ Thanks for your feedback! We\'ll look into it.');
+  try {
+    const res  = await fetch('https://studyvault-api.onrender.com/api/feedback', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, message: msg })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('feedbackType').value = '';
+      document.getElementById('feedbackMsg').value  = '';
+      showToast('✅ Thanks for your feedback!');
+    } else { showToast('❌ Could not send. Try again.'); }
+  } catch(e) { showToast('❌ Could not reach server.'); }
 }
 
 // ── CONTACT FORM ──────────────────────────────────────
-function submitContact() {
+async function submitContact() {
   const name  = document.getElementById('contactName').value.trim();
   const email = document.getElementById('contactEmail').value.trim();
   const msg   = document.getElementById('contactMsg').value.trim();
   if (!name || !email || !msg) { showToast('⚠️ Please fill in all fields.'); return; }
-  document.getElementById('contactModal').classList.remove('open');
-  document.getElementById('contactName').value  = '';
-  document.getElementById('contactEmail').value = '';
-  document.getElementById('contactMsg').value   = '';
-  showToast('✅ Message sent! We\'ll reply within 48 hours.');
+  try {
+    const res  = await fetch('https://studyvault-api.onrender.com/api/contact', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, message: msg })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('contactModal').classList.remove('open');
+      document.getElementById('contactName').value  = '';
+      document.getElementById('contactEmail').value = '';
+      document.getElementById('contactMsg').value   = '';
+      showToast('✅ Message sent! We'll reply within 48 hours.');
+    } else { showToast('❌ Could not send. Try again.'); }
+  } catch(e) { showToast('❌ Could not reach server.'); }
 }
 
 // ── INIT ──────────────────────────────────────────────
