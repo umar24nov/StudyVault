@@ -75,6 +75,38 @@ app.post('/api/feedback', async (req, res) => {
   }
 });
 
+// ── GET reviews ────────────────────────────────────────
+app.get('/api/reviews', async (req, res) => {
+  try {
+    const snapshot = await db.collection('reviews')
+      .orderBy('createdAt', 'desc')
+      .limit(12)
+      .get();
+    const reviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    res.status(200).json(reviews);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST review ────────────────────────────────────────
+app.post('/api/reviews', async (req, res) => {
+  try {
+    const { name, message, stars } = req.body;
+    if (!name || !message || !stars)
+      return res.status(400).json({ error: 'All fields required' });
+
+    await db.collection('reviews').add({
+      name, message,
+      stars: parseInt(stars),
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // ── GET reviews ────────────────────────────────────────
 app.get('/api/reviews', async (req, res) => {
