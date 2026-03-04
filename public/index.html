@@ -33,9 +33,9 @@
 
 <!-- STATS -->
 <div class="stats-bar" style="position:relative;z-index:1;padding:0 2rem">
-  <div class="stat"><div class="stat-num" id="statPapers">—</div><div class="stat-lbl">Question Papers</div></div>
-  <div class="stat"><div class="stat-num">Free</div><div class="stat-lbl">Always Free</div></div>
-  <div class="stat"><div class="stat-num">24h</div><div class="stat-lbl">Review Time</div></div>
+  <div class="stat"><div class="stat-num" id="statPapers">—</div><div class="stat-lbl">Papers Uploaded</div></div>
+  <div class="stat"><div class="stat-num">Free</div><div class="stat-lbl">Always & Forever</div></div>
+  <div class="stat"><div class="stat-num">📈</div><div class="stat-lbl">Boost Your Performance</div></div>
   <div class="stat"><div class="stat-num">🇮🇳</div><div class="stat-lbl">Made for India</div></div>
 </div>
 
@@ -176,8 +176,16 @@
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open')">✕</button>
     <h3>About StudyVault</h3>
-    <p style="margin-bottom:1rem">StudyVault is a free platform built by students, for students across India. Our mission is to make quality study material — previous year papers, notes, and guides — accessible to every student regardless of their college or background.</p>
-    <p style="margin-bottom:1rem;color:var(--muted);font-size:0.88rem">Founded in 2024 · Based in India · 45,000+ students helped</p>
+    <p style="margin-bottom:1rem">StudyVault is a free platform built by students, for students across India. The goal is simple — make quality study material like previous year papers, notes, and guides accessible to every student regardless of their college or background.</p>
+    <p style="margin-bottom:1rem">Whether you're preparing for exams, trying to understand patterns, or just want a head start — StudyVault can help you study smarter, boost your performance, and save hours of searching.</p>
+    <div style="background:var(--surface2);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem">
+      <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">👨‍💻</div>
+      <div>
+        <div style="font-weight:700;font-size:0.95rem">Mohammad Umar</div>
+        <div style="font-size:0.8rem;color:var(--muted)">B.Tech CSE Student · Founder & Developer</div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0">Founded in 2024 · Based in India · Built with ❤️ for every student</p>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button></div>
   </div>
 </div>
@@ -268,20 +276,10 @@
       <div class="footer-logo-wrap">Study<span>Vault</span></div>
       <p class="footer-tagline">Built by students, for students across India. Free forever — no paywalls, no ads, no nonsense.</p>
       <div class="footer-badges">
-        <div class="footer-badge-item">📧 <span>hello@studyvault.in</span></div>
+        <div class="footer-badge-item">📧 <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="036b666f6f6c43707776677a7562766f772d6a6d">[email&#160;protected]</a></span></div>
         <div class="footer-badge-item">📍 <span>India</span></div>
         <div class="footer-badge-item">🕐 <span>Mon–Sat, 10am–6pm IST</span></div>
       </div>
-    </div>
-    <div class="footer-col">
-      <div class="footer-col-title">Courses</div>
-      <a href="#" onclick="filterByCourse('engineering');return false">⚙️ Engineering</a>
-      <a href="#" onclick="filterByCourse('medical');return false">🩺 Medical</a>
-      <a href="#" onclick="filterByCourse('law');return false">⚖️ Law</a>
-      <a href="#" onclick="filterByCourse('management');return false">📊 Management</a>
-      <a href="#" onclick="filterByCourse('cs');return false">💻 CS / IT</a>
-      <a href="#" onclick="filterByCourse('humanities');return false">🎭 Humanities</a>
-      <a href="#" onclick="filterByCourse('commerce');return false">💰 Commerce</a>
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Resources</div>
@@ -300,7 +298,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-bottom-left">© 2024 StudyVault. All rights reserved. Built with ❤️ for students everywhere.</div>
+    <div class="footer-bottom-left">© 2024 StudyVault · Built by Mohammad Umar, B.Tech CSE · Free forever for every student.</div>
     <div class="footer-bottom-right">
       <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy</a>
       <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
@@ -314,7 +312,4 @@
 
 <!-- MODAL -->
 <div class="modal-overlay" id="modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h3>Join StudyVault</h3>
-    <p>Sign in 
+  <div class
