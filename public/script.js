@@ -181,13 +181,28 @@ function showToast(msg) {
 }
 
 // ── FOOTER FEEDBACK ───────────────────────────────────
-function submitFooterFeedback() {
+async function submitFooterFeedback() {
   const type = document.getElementById('feedbackType').value;
   const msg  = document.getElementById('feedbackMsg').value.trim();
   if (!msg) { showToast('⚠️ Please write your feedback first.'); return; }
-  document.getElementById('feedbackType').value = '';
-  document.getElementById('feedbackMsg').value  = '';
-  showToast('✅ Thanks for your feedback! We\'ll look into it.');
+
+  try {
+    const res = await fetch('https://studyvault-api.onrender.com/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, message: msg })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('feedbackType').value = '';
+      document.getElementById('feedbackMsg').value  = '';
+      showToast('✅ Thanks for your feedback! We\'ll look into it.');
+    } else {
+      showToast('❌ Could not send feedback. Try again.');
+    }
+  } catch(e) {
+    showToast('❌ Could not reach server.');
+  }
 }
 
 // ── CONTACT FORM ──────────────────────────────────────

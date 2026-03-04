@@ -56,6 +56,25 @@ app.get('/api/papers', async (req, res) => {
   }
 });
 
+// ── POST feedback ──────────────────────────────────────
+app.post('/api/feedback', async (req, res) => {
+  try {
+    const { type, message } = req.body;
+    if (!message) return res.status(400).json({ error: 'Message is required' });
+
+    await db.collection('feedback').add({
+      type:      type || 'other',
+      message,
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('POST /api/feedback error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST upload ────────────────────────────────────────
 app.post('/api/upload', upload.single('file'), async (req, res) => {
   try {
