@@ -180,6 +180,16 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
+// ── FOOTER FEEDBACK ───────────────────────────────────
+function submitFooterFeedback() {
+  const type = document.getElementById('feedbackType').value;
+  const msg  = document.getElementById('feedbackMsg').value.trim();
+  if (!msg) { showToast('⚠️ Please write your feedback first.'); return; }
+  document.getElementById('feedbackType').value = '';
+  document.getElementById('feedbackMsg').value  = '';
+  showToast('✅ Thanks for your feedback! We\'ll look into it.');
+}
+
 // ── CONTACT FORM ──────────────────────────────────────
 function submitContact() {
   const name  = document.getElementById('contactName').value.trim();

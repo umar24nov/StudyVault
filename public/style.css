@@ -208,7 +208,7 @@ footer {
   margin: 0 auto;
   padding: 5rem 3rem 4rem;
   display: grid;
-  grid-template-columns: 2.2fr 1fr 1fr;
+  grid-template-columns: 2.2fr 1fr 1fr 1.4fr;
   gap: 4rem;
   align-items: start;
 }
@@ -281,6 +281,48 @@ footer {
 .footer-bottom-right a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
 .footer-bottom-right a:hover { color: var(--text); }
 
+/* FOOTER FEEDBACK FORM */
+.footer-feedback-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+.footer-feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.footer-feedback-select,
+.footer-feedback-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  padding: 0.6rem 0.9rem;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.footer-feedback-select:focus,
+.footer-feedback-input:focus { border-color: var(--accent); }
+.footer-feedback-select option { background: var(--surface); }
+.footer-feedback-input { resize: vertical; min-height: 80px; }
+.footer-feedback-input::placeholder { color: var(--muted); }
+.footer-feedback-btn {
+  background: linear-gradient(135deg, var(--accent), #9b88ff);
+  color: #fff; border: none; cursor: pointer;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; font-weight: 600;
+  transition: opacity 0.2s, transform 0.2s;
+  text-align: center;
+}
+.footer-feedback-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
 /* TOAST */
 .toast {
   position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
@@ -318,6 +360,10 @@ footer {
 @media (max-width: 960px) {
   .footer-inner { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
   .footer-brand { grid-column: 1 / -1; }
+  .footer-feedback { grid-column: 1 / -1; }
+  .footer-feedback-form { flex-direction: row; flex-wrap: wrap; }
+  .footer-feedback-form select,
+  .footer-feedback-form textarea { flex: 1; min-width: 160px; }
   .footer-tagline { max-width: 100%; }
 }
 @media (max-width: 640px) {
