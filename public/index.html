@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyVault | Your Study Companion</title>
+<title>StudyVault - Your Academic Arsenal</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -23,7 +23,7 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-badge">🎓 Free for all students</div>
-  <h1>Your Study<br><em>Companion</em> is <span class="hl2">Here</span></h1>
+  <h1>Your Academic<br><em>Arsenal</em> is <span class="hl2">Here</span></h1>
   <p>Access thousands of previous year question papers, notes & study material. Upload your own and help fellow students ace their exams.</p>
   <div class="hero-actions">
     <button class="btn-primary" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'})">Browse Papers ↓</button>
@@ -108,7 +108,7 @@
 <section class="features">
   <div class="section-label">Why StudyVault</div>
   <div class="section-title">Everything You Need to Excel</div>
-  <div class="section-sub">Built by students, for students. No paywalls, no nonsense.</div>
+  <div class="section-sub">Built by students, for students. No paywalls, no BS.</div>
   <div class="features-grid">
     <div class="feature-card"><div class="feature-icon fi-purple">📄</div><div class="feature-title">Previous Year Papers</div><div class="feature-desc">Solved and unsolved PYQs across hundreds of universities. Filter by year, subject, and exam type.</div></div>
     <div class="feature-card"><div class="feature-icon fi-green">📝</div><div class="feature-title">Community Notes</div><div class="feature-desc">Handwritten and typed notes shared by toppers and professors. Verified and rated by the community.</div></div>
@@ -194,7 +194,7 @@
       <textarea class="upload-input" placeholder="Your message..." id="contactMsg" rows="4" style="resize:vertical"></textarea>
     </div>
     <div style="color:var(--muted);font-size:0.82rem;margin-bottom:1rem">
-      📧 Or email us directly at <strong>hello@studyvault.in</strong><br>
+      📧 Or email us directly at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9ef6fbf2f2f1deedeaebfae7e8ffebf2eab0f7f0">[email&#160;protected]</a></strong><br>
       💬 Response time: within 48 hours
     </div>
     <div class="modal-actions">
@@ -214,7 +214,7 @@
       <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">How We Use It</strong><br>Your data is used solely to display and serve study materials. We do not sell or share your personal information with third parties.</p>
       <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">Uploaded Content</strong><br>Files you upload are stored securely on Cloudinary. By uploading, you confirm you have the right to share the content.</p>
       <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">Cookies</strong><br>We use minimal cookies for basic site functionality only. No tracking or advertising cookies are used.</p>
-      <p><strong style="color:var(--text)">Contact</strong><br>For privacy concerns, email us at privacy@studyvault.in</p>
+      <p><strong style="color:var(--text)">Contact</strong><br>For privacy concerns, email us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="68181a011e090b11281b1c1d0c111e091d041c460106">[email&#160;protected]</a></p>
     </div>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('privacyModal').classList.remove('open')">Got it</button></div>
   </div>
@@ -228,7 +228,7 @@
     <p style="margin-bottom:1rem">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please let us know and we will remove it within 24 hours.</p>
     <div style="background:var(--surface2);border-radius:10px;padding:1rem;font-size:0.85rem;color:var(--muted);margin-bottom:1rem">
       To file a DMCA takedown request, email us at:<br>
-      <strong style="color:var(--accent)">dmca@studyvault.in</strong><br><br>
+      <strong style="color:var(--accent)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="13777e707253606766776a6572667f673d7a7d">[email&#160;protected]</a></strong><br><br>
       Include: your name, the infringing URL, and proof of ownership.
     </div>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('dmcaModal').classList.remove('open')">Understood</button></div>
@@ -252,7 +252,7 @@
         📢 <strong>Spread the word</strong> — Share StudyVault with your classmates and college groups.
       </div>
       <div style="background:var(--surface2);border-radius:10px;padding:1rem;font-size:0.88rem">
-        🐛 <strong>Report bugs</strong> — Found something broken? Email us at hello@studyvault.in
+        🐛 <strong>Report bugs</strong> — Found something broken? Email us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="523a373e3e3d12212627362b2433273e267c3b3c">[email&#160;protected]</a>
       </div>
     </div>
     <div class="modal-actions">
@@ -263,22 +263,60 @@
 </div>
 
 <footer>
-  <div class="footer-logo">StudyVault</div>
-  <p>Built with ❤️ for students everywhere. Free forever.</p>
-  <div style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:1.5rem;font-size:0.82rem;color:var(--muted)">
-    <span>📧 hello@studyvault.in</span>
-    <span>📍 India</span>
-    <span>🕐 Support: Mon–Sat, 10am–6pm IST</span>
+  <div class="footer-inner">
+
+    <!-- Brand Column -->
+    <div class="footer-brand">
+      <div class="footer-logo">Study<span>Vault</span></div>
+      <p class="footer-tagline">Built by students, for students across India. Free forever — no paywalls, no ads.</p>
+      <div class="footer-contact-info">
+        <div class="footer-contact-item">📧 hello@studyvault.in</div>
+        <div class="footer-contact-item">📍 India</div>
+        <div class="footer-contact-item">🕐 Mon–Sat, 10am–6pm IST</div>
+      </div>
+    </div>
+
+    <!-- Courses Column -->
+    <div class="footer-col">
+      <div class="footer-col-title">Courses</div>
+      <a href="#" onclick="filterByCourse('engineering');return false">Engineering</a>
+      <a href="#" onclick="filterByCourse('medical');return false">Medical</a>
+      <a href="#" onclick="filterByCourse('law');return false">Law</a>
+      <a href="#" onclick="filterByCourse('management');return false">Management</a>
+      <a href="#" onclick="filterByCourse('cs');return false">CS / IT</a>
+      <a href="#" onclick="filterByCourse('humanities');return false">Humanities</a>
+    </div>
+
+    <!-- Resources Column -->
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <a href="#" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'});return false">Browse Papers</a>
+      <a href="#" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'});return false">Upload Material</a>
+      <a href="#" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'});return false">All Courses</a>
+      <a href="#" onclick="document.getElementById('contributeModal').classList.add('open');return false">Contribute</a>
+      <a href="https://github.com" target="_blank">GitHub ↗</a>
+    </div>
+
+    <!-- Company Column -->
+    <div class="footer-col">
+      <div class="footer-col-title">Company</div>
+      <a href="#" onclick="document.getElementById('aboutModal').classList.add('open');return false">About Us</a>
+      <a href="#" onclick="document.getElementById('contactModal').classList.add('open');return false">Contact</a>
+      <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy Policy</a>
+      <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
+    </div>
+
   </div>
-  <div class="footer-links">
-    <a href="#" onclick="document.getElementById('aboutModal').classList.add('open');return false">About</a>
-    <a href="#" onclick="document.getElementById('contactModal').classList.add('open');return false">Contact</a>
-    <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy Policy</a>
-    <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
-    <a href="#" onclick="document.getElementById('contributeModal').classList.add('open');return false">Contribute</a>
-    <a href="https://github.com" target="_blank">GitHub</a>
+
+  <!-- Bottom Bar -->
+  <div class="footer-bottom">
+    <span>© 2024 StudyVault. All rights reserved.</span>
+    <div class="footer-bottom-links">
+      <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy</a>
+      <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
+      <a href="#" onclick="document.getElementById('contactModal').classList.add('open');return false">Contact</a>
+    </div>
   </div>
-  <p style="margin-top:1.5rem;font-size:0.78rem;color:var(--muted)">© 2024 StudyVault. All rights reserved.</p>
 </footer>
 
 <!-- TOAST -->
@@ -289,19 +327,4 @@
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <h3>Join StudyVault</h3>
-    <p>Sign in with your college email to unlock unlimited downloads and upload your own papers.</p>
-    <div style="display:flex;flex-direction:column;gap:0.8rem">
-      <input class="upload-input" type="email" placeholder="your@college.edu">
-      <input class="upload-input" type="password" placeholder="Password">
-    </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" onclick="closeModal();showToast('Welcome to StudyVault! 🎉')">Sign In</button>
-    </div>
-  </div>
-</div>
-
-
-<script src="script.js"></script>
-</body>
-</html>
+    <p>Sign in 
