@@ -203,7 +203,7 @@
         <div class="dev-role">B.Tech CSE Student &middot; Founder &amp; Developer</div>
       </div>
     </div>
-    <p class="modal-footer-note">Founded in 2024 &middot; Based in India &middot; Built with &#10084;&#65039; for every student</p>
+    <p class="modal-footer-note">Founded in 2025 &middot; Based in India &middot; Built with &#10084;&#65039; for every student</p>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button></div>
   </div>
 </div>
@@ -220,7 +220,7 @@
       <textarea class="upload-input modal-textarea" placeholder="Your message..." id="contactMsg" rows="4"></textarea>
     </div>
     <div class="modal-hint">
-      &#128231; Or email us directly at <strong>hello@studyvault.in</strong><br>
+      &#128231; Or email us directly at <strong>studyvaultapp@gmail.com</strong><br>
       &#128172; Response time: within 48 hours
     </div>
     <div class="modal-actions">
@@ -239,8 +239,7 @@
       <p class="modal-p"><strong class="text-bright">Data We Collect</strong><br>We collect only the information necessary to provide our service — such as uploaded file metadata (title, course, year) and basic usage analytics.</p>
       <p class="modal-p"><strong class="text-bright">How We Use It</strong><br>Your data is used solely to display and serve study materials. We do not sell or share your personal information with third parties.</p>
       <p class="modal-p"><strong class="text-bright">Uploaded Content</strong><br>Files you upload are stored securely on Cloudinary. By uploading, you confirm you have the right to share the content.</p>
-      <p class="modal-p"><strong class="text-bright">Cookies</strong><br>We use minimal cookies for basic site functionality only. No tracking or advertising cookies are used.</p>
-      <p class="modal-p"><strong class="text-bright">Contact</strong><br>For privacy concerns, email us at privacy@studyvault.in</p>
+      <p class="modal-p"><strong class="text-bright">Contact</strong><br>For privacy concerns, email us at studyvaultapp@gmail.com</p>
     </div>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('privacyModal').classList.remove('open')">Got it</button></div>
   </div>
@@ -251,7 +250,7 @@
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('dmcaModal').classList.remove('open')">&#10005;</button>
     <h3>DMCA &amp; Content Policy</h3>
-    <p class="modal-p">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please contact us at <strong class="text-accent">dmca@studyvault.in</strong>.<br><br>Include: your name, the infringing URL, and proof of ownership.</p>
+    <p class="modal-p">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please contact us at <strong class="text-accent">studyvaultapp@gmail.com  </strong>.<br><br>Include: your name, the infringing URL, and proof of ownership.</p>
     <div class="modal-actions">
       <button class="btn-primary" onclick="document.getElementById('dmcaModal').classList.remove('open')">Understood</button>
     </div>
@@ -268,7 +267,7 @@
       <div class="modal-info-block">&#128196; <strong>Upload Papers</strong> — Share your old question papers and notes using the Upload section above.</div>
       <div class="modal-info-block">&#128187; <strong>Code</strong> — Help us build new features. Star and fork us on GitHub.</div>
       <div class="modal-info-block">&#128226; <strong>Spread the word</strong> — Share StudyVault with your classmates and college groups.</div>
-      <div class="modal-info-block">&#128027; <strong>Report bugs</strong> — Found something broken? Email us at hello@studyvault.in</div>
+      <div class="modal-info-block">&#128027; <strong>Report bugs</strong> — Found something broken? Email us at studyvaultapp@gmail.com</div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="document.getElementById('contributeModal').classList.remove('open')">Close</button>
@@ -337,12 +336,7 @@
         <div class="manual-code">git clone https://github.com/umar24nov/iStudyVault.git<br>cd iStudyVault<br>npm install</div>
       </div>
       <div class="manual-step">
-        <div class="manual-step-title">&#128273; Step 2 — Create .env File</div>
-        <div class="manual-step-body">Create a <code class="inline-code">.env</code> file in the root folder:</div>
-        <div class="manual-code">FIREBASE_PROJECT_ID=your-project-id<br>FIREBASE_CLIENT_EMAIL=your-client-email<br>FIREBASE_PRIVATE_KEY=your-private-key<br>CLOUDINARY_CLOUD_NAME=your-cloud-name<br>CLOUDINARY_API_KEY=your-api-key<br>CLOUDINARY_API_SECRET=your-api-secret</div>
-      </div>
-      <div class="manual-step">
-        <div class="manual-step-title">&#128293; Step 3 — Firebase Setup</div>
+        <div class="manual-step-title">&#128293; Step 2 — Firebase Setup</div>
         <div class="manual-step-body">
           1. Go to <strong>console.firebase.google.com</strong><br>
           2. Create a project &rarr; Enable Firestore Database<br>
@@ -351,7 +345,7 @@
         </div>
       </div>
       <div class="manual-step">
-        <div class="manual-step-title">&#9925; Step 4 — Cloudinary Setup</div>
+        <div class="manual-step-title">&#9925; Step 3 — Cloudinary Setup</div>
         <div class="manual-step-body">
           1. Sign up at <strong>cloudinary.com</strong> (free)<br>
           2. Dashboard &rarr; copy Cloud Name, API Key, API Secret<br>
@@ -359,9 +353,17 @@
         </div>
       </div>
       <div class="manual-step">
+        <div class="manual-step-title">&#128273; Step 4 — Create .env File</div>
+        <div class="manual-step-body">Create a <code class="inline-code">.env</code> file in the root folder:</div>
+        <div class="manual-code">FIREBASE_PROJECT_ID=your-project-id<br>FIREBASE_CLIENT_EMAIL=your-client-email<br>FIREBASE_PRIVATE_KEY=your-private-key<br>CLOUDINARY_CLOUD_NAME=your-cloud-name<br>CLOUDINARY_API_KEY=your-api-key<br>CLOUDINARY_API_SECRET=your-api-secret</div>
+      </div>
+      <div class="manual-step">
         <div class="manual-step-title">&#128640; Step 5 — Run It!</div>
         <div class="manual-code">node server.js</div>
         <div class="manual-step-body">Open <strong>http://localhost:3000</strong> in your browser. That's it! &#127881;</div>
+        <div class="manual-step-body">
+          ⭐ If this project helps you, consider giving it a star on GitHub or mentioning StudyVault when you use it. Your support is appreciated!
+        </div>
       </div>
     </div>
     <div class="modal-actions">
@@ -378,7 +380,7 @@
       <div class="footer-logo-wrap">Study<span>Vault</span></div>
       <p class="footer-tagline">Built by students, for students across India. Free forever — no paywalls, no ads, no nonsense.</p>
       <div class="footer-badges">
-        <div class="footer-badge-item">&#128231; <span>hello@studyvault.in</span></div>
+        <div class="footer-badge-item">&#128231; <span>studyvaultapp@gmail.com</span></div>
         <div class="footer-badge-item">&#128205; <span>India</span></div>
         <div class="footer-badge-item">&#128336; <span>Mon&ndash;Sat, 10am&ndash;6pm IST</span></div>
       </div>
@@ -415,7 +417,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-bottom-left">&copy; 2024 StudyVault &middot; Built by Mohammad Umar, B.Tech CSE Student &middot; Free forever for every student.</div>
+    <div class="footer-bottom-left">&copy; 2025 StudyVault &middot; Built by Mohammad Umar, B.Tech CSE Student &middot; Free forever for every student.</div>
     <div class="footer-bottom-right">
       <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy</a>
       <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
@@ -441,7 +443,7 @@
       <span class="star" data-val="5" onclick="selectStar(5)">&#9733;</span>
     </div>
     <div id="starLabel" class="star-label"></div>
-    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Rahul, CSE 3rd year)">
+    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Mohammad Umar, CSE 3rd year)">
     <textarea class="upload-input modal-textarea" id="reviewMsg" placeholder="Write a short review... (max 150 characters)" maxlength="150" rows="3"></textarea>
     <div id="reviewCharCount" class="review-char-count">0 / 150</div>
     <div class="modal-actions">
