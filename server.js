@@ -59,14 +59,16 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     if (!title)  return res.status(400).json({ error: 'Title is required' });
     if (!course) return res.status(400).json({ error: 'Course is required' });
     const result = await cloudinary.uploader.upload(file.path, {
-      folder: 'studyvault', resource_type: 'auto',
-      type: 'upload', access_mode: 'public',
-      use_filename: true, unique_filename: true
+      folder: 'studyvault',
+      resource_type: 'auto',
+      upload_preset: 'studyvault_public',
+      use_filename: true,
+      unique_filename: true,
+      invalidate: true
     });
     try { fs.unlinkSync(file.path); } catch(e) {}
 
-    // Insert fl_attachment into the URL so browsers download the file
-    // instead of opening it as plain text
+    // fl_attachment forces browser to download instead of display
     const rawURL = result.secure_url;
     const downloadURL = rawURL.replace('/upload/', '/upload/fl_attachment/');
 
