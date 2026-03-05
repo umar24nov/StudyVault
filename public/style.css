@@ -601,25 +601,7 @@ footer {
 .manual-step-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 0.6rem; color: var(--text); }
 .manual-step-body { font-size: 0.84rem; color: var(--muted); line-height: 1.9; }
 .manual-step-body strong { color: var(--text); }
-/* .manual-code { background: var(--bg); border-radius: 8px; padding: 0.7rem 1rem; font-family: monospace; font-size: 0.8rem; color: var(--accent3); border: 1px solid var(--border); line-height: 1.9; margin: 0.5rem 0; } */
-
-.manual-code {
-  background: var(--bg);
-  border-radius: 8px;
-  padding: 0.7rem 1rem;
-  font-family: monospace;
-  font-size: 0.8rem;
-  color: var(--accent3);
-  border: 1px solid var(--border);
-  line-height: 1.9;
-  margin: 0.5rem 0;
-  overflow-x: auto;
-}
-
-.manual-code pre {
-  margin: 0;
-  white-space: pre;
-}
+.manual-code { background: var(--bg); border-radius: 8px; padding: 0.7rem 1rem; font-family: monospace; font-size: 0.8rem; color: var(--accent3); border: 1px solid var(--border); line-height: 1.9; margin: 0.5rem 0; }
 
 /* STATS BAR (remove old inline) */
 .stats-bar { position: relative; z-index: 1; padding: 0 2rem; }
