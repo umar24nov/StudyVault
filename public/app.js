@@ -66,7 +66,7 @@ function renderCards(data) {
           ${course ? `<span class="tag">${course}</span>` : ''}
         </div>
         ${safeURL
-          ? `<a class="dl-btn" href="${safeURL}" target="_blank" rel="noopener">⬇ Download</a>`
+          ? `<a class="dl-btn" href="${safeURL}" target="_blank" rel="noopener" download>⬇ Download</a>`
           : `<button class="dl-btn" onclick="showToast('No file attached yet.')">⬇ Download</button>`
         }
       </div>
@@ -295,62 +295,25 @@ async function submitFooterFeedback() {
 }
 
 // ── CONTACT FORM ──────────────────────────────────────
-// ── CONTACT FORM ──────────────────────────────────────
 async function submitContact() {
   const name  = document.getElementById('contactName').value.trim();
   const email = document.getElementById('contactEmail').value.trim();
   const msg   = document.getElementById('contactMsg').value.trim();
-
-  // Check empty fields
-  if (!name || !email || !msg) {
-    showToast('⚠️ Please fill in all fields.');
-    return;
-  }
-
-  // Basic email validation
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailPattern.test(email)) {
-    showToast('⚠️ Please enter a valid email address.');
-    return;
-  }
-
+  if (!name || !email || !msg) { showToast('⚠️ Please fill in all fields.'); return; }
   try {
-    const res = await fetch('https://studyvault-api.onrender.com/api/contact', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: name,
-        email: email,
-        message: msg
-      })
+    const res  = await fetch('https://studyvault-api.onrender.com/api/contact', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, message: msg })
     });
-
-    if (!res.ok) {
-      throw new Error('Server error');
-    }
-
     const data = await res.json();
-
     if (data.success) {
-      // Close modal
       document.getElementById('contactModal').classList.remove('open');
-
-      // Clear inputs
-      document.getElementById('contactName').value = '';
+      document.getElementById('contactName').value  = '';
       document.getElementById('contactEmail').value = '';
-      document.getElementById('contactMsg').value = '';
-
-      showToast("✅ Message sent! We'll reply within 48 hours.");
-    } else {
-      showToast('❌ Could not send. Try again.');
-    }
-
-  } catch (error) {
-    console.error(error);
-    showToast('❌ Could not reach server.');
-  }
+      document.getElementById('contactMsg').value   = '';
+      showToast('✅ Message sent! We\'ll reply within 48 hours.');
+    } else { showToast('❌ Could not send. Try again.'); }
+  } catch(e) { showToast('❌ Could not reach server.'); }
 }
 
 // ── INIT ──────────────────────────────────────────────

@@ -60,19 +60,26 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     if (!course) return res.status(400).json({ error: 'Course is required' });
     const result = await cloudinary.uploader.upload(file.path, {
       folder: 'studyvault', resource_type: 'raw',
-      type: 'upload', access_mode: 'public'
+      type: 'upload', access_mode: 'public',
+      use_filename: true, unique_filename: true
     });
     try { fs.unlinkSync(file.path); } catch(e) {}
+
+    // Insert fl_attachment into the URL so browsers download the file
+    // instead of opening it as plain text
+    const rawURL = result.secure_url;
+    const downloadURL = rawURL.replace('/upload/', '/upload/fl_attachment/');
+
     await db.collection('papers').add({
       title, course,
       type:       type       || 'pyq',
       year:       year       || '',
       university: university || '',
-      downloadURL: result.secure_url,
+      downloadURL,
       fileName:    file.originalname,
       createdAt:   admin.firestore.FieldValue.serverTimestamp()
     });
-    res.status(200).json({ success: true, downloadURL: result.secure_url });
+    res.status(200).json({ success: true, downloadURL });
   } catch (err) {
     console.error('POST /api/upload error:', err);
     res.status(500).json({ error: err.message });
