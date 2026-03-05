@@ -13,7 +13,7 @@
 <!-- NAV -->
 <nav>
   <div class="logo">Study<span>Vault</span></div>
-  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+  <button class="hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
   <ul id="navMenu">
@@ -22,33 +22,33 @@
     <li><a href="#upload">Upload</a></li>
     <li><a href="#" onclick="document.getElementById('developerModal').classList.add('open')">Developer</a></li>
     <li><a href="#" onclick="document.getElementById('manualModal').classList.add('open')">Manual</a></li>
-    <li><a href="#" class="nav-btn" onclick="openReviewModal()">⭐ Rate Us</a></li>
+    <li><a href="#" class="nav-btn" onclick="openReviewModal()">&#11088; Rate Us</a></li>
   </ul>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">🎓 Free for all students</div>
+  <div class="hero-badge">&#127891; Free for all students</div>
   <h1>Your Academic<br><em>Arsenal</em> is <span class="hl2">Here</span></h1>
-  <p>Access thousands of previous year question papers, notes & study material. Upload your own and help fellow students ace their exams.</p>
+  <p>Access thousands of previous year question papers, notes &amp; study material. Upload your own and help fellow students ace their exams.</p>
   <div class="hero-actions">
-    <button class="btn-primary" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'})">Browse Papers ↓</button>
+    <button class="btn-primary" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'})">Browse Papers &#8595;</button>
     <button class="btn-secondary" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'})">Upload Material</button>
   </div>
 </section>
 
 <!-- STATS -->
 <div class="stats-bar">
-  <div class="stat"><div class="stat-num" id="statPapers">—</div><div class="stat-lbl">Papers Uploaded</div></div>
-  <div class="stat"><div class="stat-num">Free</div><div class="stat-lbl">Always & Forever</div></div>
-  <div class="stat"><div class="stat-num">📈</div><div class="stat-lbl">Boost Your Performance</div></div>
-  <div class="stat"><div class="stat-num">🇮🇳</div><div class="stat-lbl">Made for India</div></div>
+  <div class="stat"><div class="stat-num" id="statPapers">&#8212;</div><div class="stat-lbl">Papers Uploaded</div></div>
+  <div class="stat"><div class="stat-num">Free</div><div class="stat-lbl">Always &amp; Forever</div></div>
+  <div class="stat"><div class="stat-num">&#128200;</div><div class="stat-lbl">Boost Your Performance</div></div>
+  <div class="stat"><div class="stat-num">&#127470;&#127475;</div><div class="stat-lbl">Made for India</div></div>
 </div>
 
 <!-- SEARCH -->
 <section class="search-section" id="search">
   <h2>Find Your Papers</h2>
-  <p>Search across Engineering, Management, Law, Medical, Humanities & more</p>
+  <p>Search across Engineering, Management, Law, Medical, Humanities &amp; more</p>
   <div class="search-box">
     <div class="search-input-wrap">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -74,15 +74,15 @@
     <button class="search-btn" onclick="performSearch()">Search</button>
   </div>
   <div class="category-chips" id="chips">
-    <div class="chip active" onclick="setChip(this,'')">🔥 All</div>
-    <div class="chip" onclick="setChip(this,'engineering')">⚙️ Engineering</div>
-    <div class="chip" onclick="setChip(this,'management')">📊 Management</div>
-    <div class="chip" onclick="setChip(this,'law')">⚖️ Law</div>
-    <div class="chip" onclick="setChip(this,'medical')">🩺 Medical</div>
-    <div class="chip" onclick="setChip(this,'humanities')">🎭 Humanities</div>
-    <div class="chip" onclick="setChip(this,'commerce')">💰 Commerce</div>
-    <div class="chip" onclick="setChip(this,'cs')">💻 CS / IT</div>
-    <div class="chip" onclick="setChip(this,'science')">🔬 Science</div>
+    <div class="chip active" onclick="setChip(this,'')">&#128293; All</div>
+    <div class="chip" onclick="setChip(this,'engineering')">&#9881;&#65039; Engineering</div>
+    <div class="chip" onclick="setChip(this,'management')">&#128202; Management</div>
+    <div class="chip" onclick="setChip(this,'law')">&#9878;&#65039; Law</div>
+    <div class="chip" onclick="setChip(this,'medical')">&#129514; Medical</div>
+    <div class="chip" onclick="setChip(this,'humanities')">&#127917; Humanities</div>
+    <div class="chip" onclick="setChip(this,'commerce')">&#128176; Commerce</div>
+    <div class="chip" onclick="setChip(this,'cs')">&#128187; CS / IT</div>
+    <div class="chip" onclick="setChip(this,'science')">&#128300; Science</div>
   </div>
   <div class="results-area" id="resultsArea">
     <div class="loading">Loading papers</div>
@@ -95,18 +95,18 @@
   <div class="section-title">All Disciplines Covered</div>
   <div class="section-sub">From first-year basics to final-year papers — every course, every university.</div>
   <div class="courses-grid">
-    <div class="course-card" onclick="filterByCourse('engineering')"><span class="course-icon">⚙️</span><div class="course-name">Engineering</div><div class="course-count">B.Tech / B.E</div></div>
-    <div class="course-card" onclick="filterByCourse('management')"><span class="course-icon">📊</span><div class="course-name">Management</div><div class="course-count">MBA / BBA</div></div>
-    <div class="course-card" onclick="filterByCourse('law')"><span class="course-icon">⚖️</span><div class="course-name">Law</div><div class="course-count">LLB / LLM</div></div>
-    <div class="course-card" onclick="filterByCourse('medical')"><span class="course-icon">🩺</span><div class="course-name">Medical</div><div class="course-count">MBBS / BDS</div></div>
-    <div class="course-card" onclick="filterByCourse('humanities')"><span class="course-icon">🎭</span><div class="course-name">Humanities</div><div class="course-count">BA / MA</div></div>
-    <div class="course-card" onclick="filterByCourse('cs')"><span class="course-icon">💻</span><div class="course-name">CS / IT</div><div class="course-count">BCA / MCA</div></div>
-    <div class="course-card" onclick="filterByCourse('commerce')"><span class="course-icon">💰</span><div class="course-name">Commerce</div><div class="course-count">B.Com / M.Com</div></div>
-    <div class="course-card" onclick="filterByCourse('science')"><span class="course-icon">🔬</span><div class="course-name">Pure Science</div><div class="course-count">BSc / MSc</div></div>
-    <div class="course-card" onclick="filterByCourse('architecture')"><span class="course-icon">🏛️</span><div class="course-name">Architecture</div><div class="course-count">B.Arch</div></div>
-    <div class="course-card" onclick="filterByCourse('pharmacy')"><span class="course-icon">💊</span><div class="course-name">Pharmacy</div><div class="course-count">B.Pharm</div></div>
-    <div class="course-card" onclick="filterByCourse('agriculture')"><span class="course-icon">🌾</span><div class="course-name">Agriculture</div><div class="course-count">B.Sc Agri</div></div>
-    <div class="course-card" onclick="filterByCourse('education')"><span class="course-icon">📚</span><div class="course-name">Education</div><div class="course-count">B.Ed / M.Ed</div></div>
+    <div class="course-card" onclick="filterByCourse('engineering')"><span class="course-icon">&#9881;&#65039;</span><div class="course-name">Engineering</div><div class="course-count">B.Tech / B.E</div></div>
+    <div class="course-card" onclick="filterByCourse('management')"><span class="course-icon">&#128202;</span><div class="course-name">Management</div><div class="course-count">MBA / BBA</div></div>
+    <div class="course-card" onclick="filterByCourse('law')"><span class="course-icon">&#9878;&#65039;</span><div class="course-name">Law</div><div class="course-count">LLB / LLM</div></div>
+    <div class="course-card" onclick="filterByCourse('medical')"><span class="course-icon">&#129514;</span><div class="course-name">Medical</div><div class="course-count">MBBS / BDS</div></div>
+    <div class="course-card" onclick="filterByCourse('humanities')"><span class="course-icon">&#127917;</span><div class="course-name">Humanities</div><div class="course-count">BA / MA</div></div>
+    <div class="course-card" onclick="filterByCourse('cs')"><span class="course-icon">&#128187;</span><div class="course-name">CS / IT</div><div class="course-count">BCA / MCA</div></div>
+    <div class="course-card" onclick="filterByCourse('commerce')"><span class="course-icon">&#128176;</span><div class="course-name">Commerce</div><div class="course-count">B.Com / M.Com</div></div>
+    <div class="course-card" onclick="filterByCourse('science')"><span class="course-icon">&#128300;</span><div class="course-name">Pure Science</div><div class="course-count">BSc / MSc</div></div>
+    <div class="course-card" onclick="filterByCourse('architecture')"><span class="course-icon">&#127963;&#65039;</span><div class="course-name">Architecture</div><div class="course-count">B.Arch</div></div>
+    <div class="course-card" onclick="filterByCourse('pharmacy')"><span class="course-icon">&#128138;</span><div class="course-name">Pharmacy</div><div class="course-count">B.Pharm</div></div>
+    <div class="course-card" onclick="filterByCourse('agriculture')"><span class="course-icon">&#127806;</span><div class="course-name">Agriculture</div><div class="course-count">B.Sc Agri</div></div>
+    <div class="course-card" onclick="filterByCourse('education')"><span class="course-icon">&#128218;</span><div class="course-name">Education</div><div class="course-count">B.Ed / M.Ed</div></div>
   </div>
 </section>
 
@@ -116,12 +116,12 @@
   <div class="section-title">Everything You Need to Excel</div>
   <div class="section-sub">Built by students, for students. No paywalls, no BS.</div>
   <div class="features-grid">
-    <div class="feature-card"><div class="feature-icon fi-purple">📄</div><div class="feature-title">Previous Year Papers</div><div class="feature-desc">Solved and unsolved PYQs across hundreds of universities. Filter by year, subject, and exam type.</div></div>
-    <div class="feature-card"><div class="feature-icon fi-green">📝</div><div class="feature-title">Community Notes</div><div class="feature-desc">Handwritten and typed notes shared by toppers and professors. Verified and rated by the community.</div></div>
-    <div class="feature-card"><div class="feature-icon fi-red">⬆️</div><div class="feature-title">Upload & Contribute</div><div class="feature-desc">Have a question paper or notes? Upload directly to StudyVault and help your peers.</div></div>
-    <div class="feature-card"><div class="feature-icon fi-yellow">⬇️</div><div class="feature-title">Free Downloads</div><div class="feature-desc">Download any paper or notes as PDF instantly. No sign-up required. Always free.</div></div>
-    <div class="feature-card"><div class="feature-icon fi-blue">🔍</div><div class="feature-title">Smart Search</div><div class="feature-desc">Search by subject name, university, year, or topic. Find exactly what you're looking for in seconds.</div></div>
-    <div class="feature-card"><div class="feature-icon fi-pink">🏆</div><div class="feature-title">Verified Content</div><div class="feature-desc">All uploads go through community verification. Ratings and reports ensure only quality material stays up.</div></div>
+    <div class="feature-card"><div class="feature-icon fi-purple">&#128196;</div><div class="feature-title">Previous Year Papers</div><div class="feature-desc">Solved and unsolved PYQs across hundreds of universities. Filter by year, subject, and exam type.</div></div>
+    <div class="feature-card"><div class="feature-icon fi-green">&#128221;</div><div class="feature-title">Community Notes</div><div class="feature-desc">Handwritten and typed notes shared by toppers and professors. Verified and rated by the community.</div></div>
+    <div class="feature-card"><div class="feature-icon fi-red">&#11014;&#65039;</div><div class="feature-title">Upload &amp; Contribute</div><div class="feature-desc">Have a question paper or notes? Upload directly to StudyVault and help your peers.</div></div>
+    <div class="feature-card"><div class="feature-icon fi-yellow">&#11015;&#65039;</div><div class="feature-title">Free Downloads</div><div class="feature-desc">Download any paper or notes as PDF instantly. No sign-up required. Always free.</div></div>
+    <div class="feature-card"><div class="feature-icon fi-blue">&#128269;</div><div class="feature-title">Smart Search</div><div class="feature-desc">Search by subject name, university, year, or topic. Find exactly what you're looking for in seconds.</div></div>
+    <div class="feature-card"><div class="feature-icon fi-pink">&#127942;</div><div class="feature-title">Verified Content</div><div class="feature-desc">All uploads go through community verification. Ratings and reports ensure only quality material stays up.</div></div>
   </div>
 </section>
 
@@ -134,7 +134,7 @@
     <div class="testimonial-loading">Loading reviews...</div>
   </div>
   <div class="testimonials-cta">
-    <button class="btn-primary" onclick="openReviewModal()">⭐ Leave a Review</button>
+    <button class="btn-primary" onclick="openReviewModal()">&#11088; Leave a Review</button>
   </div>
 </section>
 
@@ -157,9 +157,9 @@
         ondragleave="dragLeave()"
         ondrop="dropFile(event)"
         onclick="document.getElementById('fileInput').click()">
-        <div class="upload-icon">📤</div>
+        <div class="upload-icon">&#128228;</div>
         <h3>Drop your file here</h3>
-        <p>or click to browse · PDF, DOC, JPG, PNG</p>
+        <p>or click to browse &middot; PDF, DOC, JPG, PNG</p>
         <div class="file-chosen" id="fileChosen"></div>
         <div class="upload-fields" onclick="event.stopPropagation()">
           <input type="text" class="upload-input" placeholder="Subject / Paper Title" id="uploadTitle">
@@ -183,7 +183,7 @@
           <input type="text" class="upload-input" placeholder="University name (optional)" id="uploadUniv">
         </div>
         <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onchange="handleFile(this)">
-        <button class="btn-primary btn-full" onclick="event.stopPropagation(); handleUpload()">Upload Now ↑</button>
+        <button class="btn-primary btn-full" onclick="event.stopPropagation(); handleUpload()">Upload Now &#8593;</button>
       </div>
     </div>
   </div>
@@ -192,18 +192,18 @@
 <!-- ABOUT MODAL -->
 <div class="modal-overlay" id="aboutModal">
   <div class="modal">
-    <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open')">✕</button>
+    <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open')">&#10005;</button>
     <h3>About StudyVault</h3>
     <p class="modal-p">StudyVault is a free platform built by students, for students across India. The goal is simple — make quality study material like previous year papers, notes, and guides accessible to every student regardless of their college or background.</p>
     <p class="modal-p">Whether you're preparing for exams, trying to understand patterns, or just want a head start — StudyVault can help you study smarter, boost your performance, and save hours of searching.</p>
     <div class="dev-card">
-      <div class="dev-avatar">👨‍💻</div>
+      <div class="dev-avatar">&#128104;&#8205;&#128187;</div>
       <div>
         <div class="dev-name">Mohammad Umar</div>
-        <div class="dev-role">B.Tech CSE Student · Founder & Developer</div>
+        <div class="dev-role">B.Tech CSE Student &middot; Founder &amp; Developer</div>
       </div>
     </div>
-    <p class="modal-footer-note">Founded in 2024 · Based in India · Built with ❤️ for every student</p>
+    <p class="modal-footer-note">Founded in 2024 &middot; Based in India &middot; Built with &#10084;&#65039; for every student</p>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button></div>
   </div>
 </div>
@@ -211,7 +211,7 @@
 <!-- CONTACT MODAL -->
 <div class="modal-overlay" id="contactModal">
   <div class="modal">
-    <button class="modal-close" onclick="document.getElementById('contactModal').classList.remove('open')">✕</button>
+    <button class="modal-close" onclick="document.getElementById('contactModal').classList.remove('open')">&#10005;</button>
     <h3>Contact Us</h3>
     <p>Have a question, suggestion, or want to report something? Reach out to us.</p>
     <div class="modal-form-stack">
@@ -220,8 +220,8 @@
       <textarea class="upload-input modal-textarea" placeholder="Your message..." id="contactMsg" rows="4"></textarea>
     </div>
     <div class="modal-hint">
-      📧 Or email us directly at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cea6aba2a2a18ebdbabbaab7b8afbba2bae0a7a0">[email&#160;protected]</a></strong><br>
-      💬 Response time: within 48 hours
+      &#128231; Or email us directly at <strong>hello@studyvault.in</strong><br>
+      &#128172; Response time: within 48 hours
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="document.getElementById('contactModal').classList.remove('open')">Cancel</button>
@@ -233,14 +233,14 @@
 <!-- PRIVACY MODAL -->
 <div class="modal-overlay" id="privacyModal">
   <div class="modal modal-wide">
-    <button class="modal-close" onclick="document.getElementById('privacyModal').classList.remove('open')">✕</button>
+    <button class="modal-close" onclick="document.getElementById('privacyModal').classList.remove('open')">&#10005;</button>
     <h3>Privacy Policy</h3>
     <div class="modal-scroll-content">
       <p class="modal-p"><strong class="text-bright">Data We Collect</strong><br>We collect only the information necessary to provide our service — such as uploaded file metadata (title, course, year) and basic usage analytics.</p>
       <p class="modal-p"><strong class="text-bright">How We Use It</strong><br>Your data is used solely to display and serve study materials. We do not sell or share your personal information with third parties.</p>
       <p class="modal-p"><strong class="text-bright">Uploaded Content</strong><br>Files you upload are stored securely on Cloudinary. By uploading, you confirm you have the right to share the content.</p>
       <p class="modal-p"><strong class="text-bright">Cookies</strong><br>We use minimal cookies for basic site functionality only. No tracking or advertising cookies are used.</p>
-      <p class="modal-p"><strong class="text-bright">Contact</strong><br>For privacy concerns, email us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b3c3c1dac5d2d0caf3c0c7c6d7cac5d2c6dfc79ddadd">[email&#160;protected]</a></p>
+      <p class="modal-p"><strong class="text-bright">Contact</strong><br>For privacy concerns, email us at privacy@studyvault.in</p>
     </div>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('privacyModal').classList.remove('open')">Got it</button></div>
   </div>
@@ -249,9 +249,9 @@
 <!-- DMCA MODAL -->
 <div class="modal-overlay" id="dmcaModal">
   <div class="modal">
-    <button class="modal-close" onclick="document.getElementById('dmcaModal').classList.remove('open')">✕</button>
-    <h3>DMCA & Content Policy</h3>
-    <p class="modal-p">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please contact us at <strong class="text-accent"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5e3a333d3f1e2d2a2b3a27283f2b322a703730">[email&#160;protected]</a></strong>.<br><br>Include: your name, the infringing URL, and proof of ownership.</p>
+    <button class="modal-close" onclick="document.getElementById('dmcaModal').classList.remove('open')">&#10005;</button>
+    <h3>DMCA &amp; Content Policy</h3>
+    <p class="modal-p">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please contact us at <strong class="text-accent">dmca@studyvault.in</strong>.<br><br>Include: your name, the infringing URL, and proof of ownership.</p>
     <div class="modal-actions">
       <button class="btn-primary" onclick="document.getElementById('dmcaModal').classList.remove('open')">Understood</button>
     </div>
@@ -261,14 +261,14 @@
 <!-- CONTRIBUTE MODAL -->
 <div class="modal-overlay" id="contributeModal">
   <div class="modal">
-    <button class="modal-close" onclick="document.getElementById('contributeModal').classList.remove('open')">✕</button>
-    <h3>Contribute to StudyVault 🚀</h3>
+    <button class="modal-close" onclick="document.getElementById('contributeModal').classList.remove('open')">&#10005;</button>
+    <h3>Contribute to StudyVault &#128640;</h3>
     <p class="modal-p">StudyVault is open source and community driven. Here's how you can help:</p>
     <div class="modal-form-stack">
-      <div class="modal-info-block">📄 <strong>Upload Papers</strong> — Share your old question papers and notes using the Upload section above.</div>
-      <div class="modal-info-block">💻 <strong>Code</strong> — Help us build new features. Star and fork us on GitHub.</div>
-      <div class="modal-info-block">📢 <strong>Spread the word</strong> — Share StudyVault with your classmates and college groups.</div>
-      <div class="modal-info-block">🐛 <strong>Report bugs</strong> — Found something broken? Email us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e28a878e8e8da2919697869b9483978e96cc8b8c">[email&#160;protected]</a></div>
+      <div class="modal-info-block">&#128196; <strong>Upload Papers</strong> — Share your old question papers and notes using the Upload section above.</div>
+      <div class="modal-info-block">&#128187; <strong>Code</strong> — Help us build new features. Star and fork us on GitHub.</div>
+      <div class="modal-info-block">&#128226; <strong>Spread the word</strong> — Share StudyVault with your classmates and college groups.</div>
+      <div class="modal-info-block">&#128027; <strong>Report bugs</strong> — Found something broken? Email us at hello@studyvault.in</div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="document.getElementById('contributeModal').classList.remove('open')">Close</button>
@@ -280,37 +280,37 @@
 <!-- DEVELOPER MODAL -->
 <div class="modal-overlay" id="developerModal">
   <div class="modal modal-dev">
-    <button class="modal-close" onclick="document.getElementById('developerModal').classList.remove('open')">✕</button>
-    <h3>👨‍💻 The Developer</h3>
+    <button class="modal-close" onclick="document.getElementById('developerModal').classList.remove('open')">&#10005;</button>
+    <h3>&#128104;&#8205;&#128187; The Developer</h3>
     <div class="dev-profile-card">
-      <div class="dev-avatar-lg">👨‍💻</div>
+      <div class="dev-avatar-lg">&#128104;&#8205;&#128187;</div>
       <div>
         <div class="dev-name-lg">Mohammad Umar</div>
-        <div class="dev-role">B.Tech CSE Student · Founder & Developer</div>
-        <div class="dev-location">📍 India · Building cool things 🚀</div>
+        <div class="dev-role">B.Tech CSE Student &middot; Founder &amp; Developer</div>
+        <div class="dev-location">&#128205; India &middot; Building cool things &#128640;</div>
       </div>
     </div>
     <p class="modal-p">Hey! I'm Umar, a Computer Science student who built StudyVault from scratch. I was frustrated with how scattered study resources were — no single place had PYQs, notes, and guides for Indian university students. So I built one.</p>
     <p class="modal-p modal-p-muted">This is my first full-stack project — built with Node.js, Firebase, and Cloudinary. It's completely free and always will be. If it helps even one student, it was worth it.</p>
     <div class="dev-stack-grid">
       <div class="dev-stack-item">
-        <div class="dev-stack-icon">🛠️</div>
+        <div class="dev-stack-icon">&#128736;&#65039;</div>
         <div class="dev-stack-label">Stack</div>
-        <div class="dev-stack-value">Node.js · Firebase</div>
+        <div class="dev-stack-value">Node.js &middot; Firebase</div>
       </div>
       <div class="dev-stack-item">
-        <div class="dev-stack-icon">☁️</div>
+        <div class="dev-stack-icon">&#9925;</div>
         <div class="dev-stack-label">Storage</div>
         <div class="dev-stack-value">Cloudinary</div>
       </div>
       <div class="dev-stack-item">
-        <div class="dev-stack-icon">📅</div>
+        <div class="dev-stack-icon">&#128197;</div>
         <div class="dev-stack-label">Since</div>
-        <div class="dev-stack-value">2025 · Growing</div>
+        <div class="dev-stack-value">2025 &middot; Growing</div>
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-secondary" onclick="window.open('https://github.com/umar24nov/iStudyVault.git','_blank')">GitHub ↗</button>
+      <button class="btn-secondary" onclick="window.open('https://github.com/umar24nov/iStudyVault.git','_blank')">GitHub &#8599;</button>
       <button class="btn-primary" onclick="document.getElementById('developerModal').classList.remove('open');document.getElementById('contactModal').classList.add('open')">Get in Touch</button>
     </div>
   </div>
@@ -319,54 +319,54 @@
 <!-- MANUAL MODAL -->
 <div class="modal-overlay" id="manualModal">
   <div class="modal modal-manual">
-    <button class="modal-close" onclick="document.getElementById('manualModal').classList.remove('open')">✕</button>
-    <h3>📖 How to Run StudyVault</h3>
+    <button class="modal-close" onclick="document.getElementById('manualModal').classList.remove('open')">&#10005;</button>
+    <h3>&#128218; How to Run StudyVault</h3>
     <p class="modal-p">Want to run your own instance locally or deploy it yourself? Here's everything you need.</p>
     <div class="manual-steps">
       <div class="manual-step">
-        <div class="manual-step-title">⚙️ Prerequisites</div>
+        <div class="manual-step-title">&#9881;&#65039; Prerequisites</div>
         <div class="manual-step-body">
-          • Node.js v18+ installed<br>
-          • A Firebase project (free tier works)<br>
-          • A Cloudinary account (free 25GB)<br>
-          • Git installed on your machine
+          &bull; Node.js v18+ installed<br>
+          &bull; A Firebase project (free tier works)<br>
+          &bull; A Cloudinary account (free 25GB)<br>
+          &bull; Git installed on your machine
         </div>
       </div>
       <div class="manual-step">
-        <div class="manual-step-title">📥 Step 1 — Clone & Install</div>
+        <div class="manual-step-title">&#128229; Step 1 — Clone &amp; Install</div>
         <div class="manual-code">git clone https://github.com/umar24nov/iStudyVault.git<br>cd iStudyVault<br>npm install</div>
       </div>
       <div class="manual-step">
-        <div class="manual-step-title">🔑 Step 2 — Create .env File</div>
+        <div class="manual-step-title">&#128273; Step 2 — Create .env File</div>
         <div class="manual-step-body">Create a <code class="inline-code">.env</code> file in the root folder:</div>
         <div class="manual-code">FIREBASE_PROJECT_ID=your-project-id<br>FIREBASE_CLIENT_EMAIL=your-client-email<br>FIREBASE_PRIVATE_KEY=your-private-key<br>CLOUDINARY_CLOUD_NAME=your-cloud-name<br>CLOUDINARY_API_KEY=your-api-key<br>CLOUDINARY_API_SECRET=your-api-secret</div>
       </div>
       <div class="manual-step">
-        <div class="manual-step-title">🔥 Step 3 — Firebase Setup</div>
+        <div class="manual-step-title">&#128293; Step 3 — Firebase Setup</div>
         <div class="manual-step-body">
           1. Go to <strong>console.firebase.google.com</strong><br>
-          2. Create a project → Enable Firestore Database<br>
-          3. Project Settings → Service Accounts → Generate private key<br>
+          2. Create a project &rarr; Enable Firestore Database<br>
+          3. Project Settings &rarr; Service Accounts &rarr; Generate private key<br>
           4. Copy the values into your .env file
         </div>
       </div>
       <div class="manual-step">
-        <div class="manual-step-title">☁️ Step 4 — Cloudinary Setup</div>
+        <div class="manual-step-title">&#9925; Step 4 — Cloudinary Setup</div>
         <div class="manual-step-body">
           1. Sign up at <strong>cloudinary.com</strong> (free)<br>
-          2. Dashboard → copy Cloud Name, API Key, API Secret<br>
+          2. Dashboard &rarr; copy Cloud Name, API Key, API Secret<br>
           3. Paste into your .env file
         </div>
       </div>
       <div class="manual-step">
-        <div class="manual-step-title">🚀 Step 5 — Run It!</div>
+        <div class="manual-step-title">&#128640; Step 5 — Run It!</div>
         <div class="manual-code">node server.js</div>
-        <div class="manual-step-body">Open <strong>http://localhost:3000</strong> in your browser. That's it! 🎉</div>
+        <div class="manual-step-body">Open <strong>http://localhost:3000</strong> in your browser. That's it! &#127881;</div>
       </div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="document.getElementById('manualModal').classList.remove('open')">Close</button>
-      <button class="btn-primary" onclick="window.open('https://github.com/umar24nov/iStudyVault.git','_blank')">View on GitHub ↗</button>
+      <button class="btn-primary" onclick="window.open('https://github.com/umar24nov/iStudyVault.git','_blank')">View on GitHub &#8599;</button>
     </div>
   </div>
 </div>
@@ -378,9 +378,9 @@
       <div class="footer-logo-wrap">Study<span>Vault</span></div>
       <p class="footer-tagline">Built by students, for students across India. Free forever — no paywalls, no ads, no nonsense.</p>
       <div class="footer-badges">
-        <div class="footer-badge-item">📧 <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f69e939a9a99b6858283928f8097839a82d89f98">[email&#160;protected]</a></span></div>
-        <div class="footer-badge-item">📍 <span>India</span></div>
-        <div class="footer-badge-item">🕐 <span>Mon–Sat, 10am–6pm IST</span></div>
+        <div class="footer-badge-item">&#128231; <span>hello@studyvault.in</span></div>
+        <div class="footer-badge-item">&#128205; <span>India</span></div>
+        <div class="footer-badge-item">&#128336; <span>Mon&ndash;Sat, 10am&ndash;6pm IST</span></div>
       </div>
     </div>
     <div class="footer-col">
@@ -389,7 +389,7 @@
       <a href="#" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'});return false">Upload Material</a>
       <a href="#" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'});return false">All Courses</a>
       <a href="#" onclick="document.getElementById('contributeModal').classList.add('open');return false">Contribute</a>
-      <a href="https://github.com/umar24nov/iStudyVault.git" target="_blank">GitHub ↗</a>
+      <a href="https://github.com/umar24nov/iStudyVault.git" target="_blank">GitHub &#8599;</a>
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Company</div>
@@ -404,18 +404,18 @@
       <div class="footer-feedback-form">
         <select class="footer-feedback-select" id="feedbackType">
           <option value="">What's this about?</option>
-          <option value="suggestion">💡 Suggestion</option>
-          <option value="bug">🐛 Bug Report</option>
-          <option value="missing">📄 Missing Paper</option>
-          <option value="other">💬 Other</option>
+          <option value="suggestion">&#128161; Suggestion</option>
+          <option value="bug">&#128027; Bug Report</option>
+          <option value="missing">&#128196; Missing Paper</option>
+          <option value="other">&#128172; Other</option>
         </select>
         <textarea class="footer-feedback-input" id="feedbackMsg" placeholder="Tell us what you think..." rows="3"></textarea>
-        <button class="footer-feedback-btn" onclick="submitFooterFeedback()">Send Feedback →</button>
+        <button class="footer-feedback-btn" onclick="submitFooterFeedback()">Send Feedback &rarr;</button>
       </div>
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-bottom-left">© 2024 StudyVault · Built by Mohammad Umar, B.Tech CSE Student · Free forever for every student.</div>
+    <div class="footer-bottom-left">&copy; 2024 StudyVault &middot; Built by Mohammad Umar, B.Tech CSE Student &middot; Free forever for every student.</div>
     <div class="footer-bottom-right">
       <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy</a>
       <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
@@ -430,15 +430,27 @@
 <!-- REVIEW MODAL -->
 <div class="modal-overlay" id="reviewModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeReviewModal()">✕</button>
-    <h3>Rate StudyVault ⭐</h3>
+    <button class="modal-close" onclick="closeReviewModal()">&#10005;</button>
+    <h3>Rate StudyVault &#11088;</h3>
     <p>How has your experience been? Your feedback helps us improve.</p>
     <div class="star-picker" id="starPicker">
-      <span class="star" data-val="1" onclick="selectStar(1)">★</span>
-      <span class="star" data-val="2" onclick="selectStar(2)">★</span>
-      <span class="star" data-val="3" onclick="selectStar(3)">★</span>
-      <span class="star" data-val="4" onclick="selectStar(4)">★</span>
-      <span class="star" data-val="5" onclick="selectStar(5)">★</span>
+      <span class="star" data-val="1" onclick="selectStar(1)">&#9733;</span>
+      <span class="star" data-val="2" onclick="selectStar(2)">&#9733;</span>
+      <span class="star" data-val="3" onclick="selectStar(3)">&#9733;</span>
+      <span class="star" data-val="4" onclick="selectStar(4)">&#9733;</span>
+      <span class="star" data-val="5" onclick="selectStar(5)">&#9733;</span>
     </div>
     <div id="starLabel" class="star-label"></div>
-  
+    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Rahul, CSE 3rd year)">
+    <textarea class="upload-input modal-textarea" id="reviewMsg" placeholder="Write a short review... (max 150 characters)" maxlength="150" rows="3"></textarea>
+    <div id="reviewCharCount" class="review-char-count">0 / 150</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeReviewModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitReview()">Submit Review</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
