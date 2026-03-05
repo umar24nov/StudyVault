@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyVault - Your Academic Arsenal</title>
+<meta name="description" content="StudyVault provides previous year question papers, notes, and study resources shared by students. Upload, search, and learn smarter.">
+<title>StudyVault — Previous Year Papers, Notes & Study Resources</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -185,7 +186,6 @@
   </div>
 </section>
 
-<!-- FOOTER -->
 <!-- ABOUT MODAL -->
 <div class="modal-overlay" id="aboutModal">
   <div class="modal">
@@ -237,7 +237,7 @@
       <p class="modal-p"><strong class="text-bright">How We Use It</strong><br>Your data is used solely to display and serve study materials. We do not sell or share your personal information with third parties.</p>
       <p class="modal-p"><strong class="text-bright">Uploaded Content</strong><br>Files you upload are stored securely on Cloudinary. By uploading, you confirm you have the right to share the content.</p>
       <p class="modal-p"><strong class="text-bright">Cookies</strong><br>We use minimal cookies for basic site functionality only. No tracking or advertising cookies are used.</p>
-      <p><strong class="text-bright">Contact</strong><br>For privacy concerns, email us at hello@studyvault.in</p>
+      <p class="modal-p"><strong class="text-bright">Contact</strong><br>For privacy concerns, email us at privacy@studyvault.in</p>
     </div>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('privacyModal').classList.remove('open')">Got it</button></div>
   </div>
@@ -248,10 +248,10 @@
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('dmcaModal').classList.remove('open')">✕</button>
     <h3>DMCA & Content Policy</h3>
-    <p style="margin-bottom:1rem">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please let us know andle="color:var(--accent)">hello@studyvault.in</strong><br><br>
-      Include: your name, the infringing URL, and proof of ownership.
+    <p class="modal-p">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please contact us at <strong class="text-accent">dmca@studyvault.in</strong>.<br><br>Include: your name, the infringing URL, and proof of ownership.</p>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="document.getElementById('dmcaModal').classList.remove('open')">Understood</button>
     </div>
-    <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('dmcaModal').classList.remove('open')">Understood</button></div>
   </div>
 </div>
 
@@ -262,80 +262,17 @@
     <h3>Contribute to StudyVault 🚀</h3>
     <p class="modal-p">StudyVault is open source and community driven. Here's how you can help:</p>
     <div class="modal-form-stack">
-      <div class="modal-info-block">
-        📄 <strong>Upload Papers</strong> — Share your old question papers and notes using the Upload section above.
-      </div>
-      <div class="modal-info-block">
-        💻 <strong>Code</strong> — Help us build new features. Star and fork us on GitHub.
-      </div>
-      <div class="modal-info-block">
-        📢 <strong>Spread the word</strong> — Share StudyVault with your classmates and college groups.
-      </div>
-      <div class="modal-info-block">
-        🐛 <strong>Report bugs</strong> — Found something broken? Email us at hello@studyvault.in
-      </div>
+      <div class="modal-info-block">📄 <strong>Upload Papers</strong> — Share your old question papers and notes using the Upload section above.</div>
+      <div class="modal-info-block">💻 <strong>Code</strong> — Help us build new features. Star and fork us on GitHub.</div>
+      <div class="modal-info-block">📢 <strong>Spread the word</strong> — Share StudyVault with your classmates and college groups.</div>
+      <div class="modal-info-block">🐛 <strong>Report bugs</strong> — Found something broken? Email us at hello@studyvault.in</div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="document.getElementById('contributeModal').classList.remove('open')">Close</button>
-      <button class="btn-primary" onclick="window.open('https://github.com','_blank')">View on GitHub</button>
+      <button class="btn-primary" onclick="window.open('https://github.com/umar24nov/iStudyVault.git','_blank')">View on GitHub</button>
     </div>
   </div>
 </div>
-
-<footer>
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <div class="footer-logo-wrap">Study<span>Vault</span></div>
-      <p class="footer-tagline">Built by students, for students across India. Free forever — no paywalls, no ads, no nonsense.</p>
-      <div class="footer-badges">
-        <div class="footer-badge-item">📧 <span>hello@studyvault.in</span></div>
-        <div class="footer-badge-item">📍 <span>India</span></div>
-        <div class="footer-badge-item">🕐 <span>Mon–Sat, 10am–6pm IST</span></div>
-      </div>
-    </div>
-    <div class="footer-col">
-      <div class="footer-col-title">Resources</div>
-      <a href="#" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'});return false">Browse Papers</a>
-      <a href="#" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'});return false">Upload Material</a>
-      <a href="#" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'});return false">All Courses</a>
-      <a href="#" onclick="document.getElementById('contributeModal').classList.add('open');return false">Contribute</a>
-      <a href="https://github.com" target="_blank">GitHub ↗</a>
-    </div>
-    <div class="footer-col">
-      <div class="footer-col-title">Company</div>
-      <a href="#" onclick="document.getElementById('aboutModal').classList.add('open');return false">About Us</a>
-      <a href="#" onclick="document.getElementById('contactModal').classList.add('open');return false">Contact</a>
-      <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy Policy</a>
-      <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
-    </div>
-    <div class="footer-col footer-feedback">
-      <div class="footer-col-title">Feedback</div>
-      <p class="footer-feedback-desc">Got a suggestion? We'd love to hear it.</p>
-      <div class="footer-feedback-form">
-        <select class="footer-feedback-select" id="feedbackType">
-          <option value="">What's this about?</option>
-          <option value="suggestion">💡 Suggestion</option>
-          <option value="bug">🐛 Bug Report</option>
-          <option value="missing">📄 Missing Paper</option>
-          <option value="other">💬 Other</option>
-        </select>
-        <textarea class="footer-feedback-input" id="feedbackMsg" placeholder="Tell us what you think..." rows="3"></textarea>
-        <button class="footer-feedback-btn" onclick="submitFooterFeedback()">Send Feedback →</button>
-      </div>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <div class="footer-bottom-left">© 2024 StudyVault · Built by Mohammad Umar, B.Tech CSE · Free forever for every student.</div>
-    <div class="footer-bottom-right">
-      <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy</a>
-      <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
-      <a href="#" onclick="document.getElementById('contactModal').classList.add('open');return false">Contact</a>
-    </div>
-  </div>
-</footer>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
 
 <!-- DEVELOPER MODAL -->
 <div class="modal-overlay" id="developerModal">
@@ -431,6 +368,62 @@
   </div>
 </div>
 
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo-wrap">Study<span>Vault</span></div>
+      <p class="footer-tagline">Built by students, for students across India. Free forever — no paywalls, no ads, no nonsense.</p>
+      <div class="footer-badges">
+        <div class="footer-badge-item">📧 <span>hello@studyvault.in</span></div>
+        <div class="footer-badge-item">📍 <span>India</span></div>
+        <div class="footer-badge-item">🕐 <span>Mon–Sat, 10am–6pm IST</span></div>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <a href="#" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'});return false">Browse Papers</a>
+      <a href="#" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'});return false">Upload Material</a>
+      <a href="#" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'});return false">All Courses</a>
+      <a href="#" onclick="document.getElementById('contributeModal').classList.add('open');return false">Contribute</a>
+      <a href="https://github.com/umar24nov/iStudyVault.git" target="_blank">GitHub ↗</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Company</div>
+      <a href="#" onclick="document.getElementById('aboutModal').classList.add('open');return false">About Us</a>
+      <a href="#" onclick="document.getElementById('contactModal').classList.add('open');return false">Contact</a>
+      <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy Policy</a>
+      <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
+    </div>
+    <div class="footer-col footer-feedback">
+      <div class="footer-col-title">Feedback</div>
+      <p class="footer-feedback-desc">Got a suggestion? We'd love to hear it.</p>
+      <div class="footer-feedback-form">
+        <select class="footer-feedback-select" id="feedbackType">
+          <option value="">What's this about?</option>
+          <option value="suggestion">💡 Suggestion</option>
+          <option value="bug">🐛 Bug Report</option>
+          <option value="missing">📄 Missing Paper</option>
+          <option value="other">💬 Other</option>
+        </select>
+        <textarea class="footer-feedback-input" id="feedbackMsg" placeholder="Tell us what you think..." rows="3"></textarea>
+        <button class="footer-feedback-btn" onclick="submitFooterFeedback()">Send Feedback →</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-bottom-left">© 2024 StudyVault · Built by Mohammad Umar, B.Tech CSE Student · Free forever for every student.</div>
+    <div class="footer-bottom-right">
+      <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy</a>
+      <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
+      <a href="#" onclick="document.getElementById('contactModal').classList.add('open');return false">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <!-- REVIEW MODAL -->
 <div class="modal-overlay" id="reviewModal">
   <div class="modal">
@@ -445,4 +438,16 @@
       <span class="star" data-val="5" onclick="selectStar(5)">★</span>
     </div>
     <div id="starLabel" class="star-label"></div>
-    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Rahul, CSE 3rd year)" 
+    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Rahul, CSE 3rd year)">
+    <textarea class="upload-input modal-textarea" id="reviewMsg" placeholder="Write a short review... (max 150 characters)" maxlength="150" rows="3"></textarea>
+    <div id="reviewCharCount" class="review-char-count">0 / 150</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeReviewModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitReview()">Submit Review</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
