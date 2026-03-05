@@ -59,7 +59,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     if (!title)  return res.status(400).json({ error: 'Title is required' });
     if (!course) return res.status(400).json({ error: 'Course is required' });
     const result = await cloudinary.uploader.upload(file.path, {
-      folder: 'studyvault', resource_type: 'raw',
+      folder: 'studyvault', resource_type: 'auto',
       type: 'upload', access_mode: 'public',
       use_filename: true, unique_filename: true
     });
