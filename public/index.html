@@ -13,7 +13,10 @@
 <!-- NAV -->
 <nav>
   <div class="logo">Study<span>Vault</span></div>
-  <ul>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul id="navMenu">
     <li><a href="#search">Search</a></li>
     <li><a href="#courses">Courses</a></li>
     <li><a href="#upload">Upload</a></li>
@@ -217,7 +220,7 @@
       <textarea class="upload-input modal-textarea" placeholder="Your message..." id="contactMsg" rows="4"></textarea>
     </div>
     <div class="modal-hint">
-      📧 Or email us directly at <strong>hello@studyvault.in</strong><br>
+      📧 Or email us directly at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cea6aba2a2a18ebdbabbaab7b8afbba2bae0a7a0">[email&#160;protected]</a></strong><br>
       💬 Response time: within 48 hours
     </div>
     <div class="modal-actions">
@@ -237,7 +240,7 @@
       <p class="modal-p"><strong class="text-bright">How We Use It</strong><br>Your data is used solely to display and serve study materials. We do not sell or share your personal information with third parties.</p>
       <p class="modal-p"><strong class="text-bright">Uploaded Content</strong><br>Files you upload are stored securely on Cloudinary. By uploading, you confirm you have the right to share the content.</p>
       <p class="modal-p"><strong class="text-bright">Cookies</strong><br>We use minimal cookies for basic site functionality only. No tracking or advertising cookies are used.</p>
-      <p class="modal-p"><strong class="text-bright">Contact</strong><br>For privacy concerns, email us at privacy@studyvault.in</p>
+      <p class="modal-p"><strong class="text-bright">Contact</strong><br>For privacy concerns, email us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b3c3c1dac5d2d0caf3c0c7c6d7cac5d2c6dfc79ddadd">[email&#160;protected]</a></p>
     </div>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('privacyModal').classList.remove('open')">Got it</button></div>
   </div>
@@ -248,7 +251,7 @@
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('dmcaModal').classList.remove('open')">✕</button>
     <h3>DMCA & Content Policy</h3>
-    <p class="modal-p">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please contact us at <strong class="text-accent">dmca@studyvault.in</strong>.<br><br>Include: your name, the infringing URL, and proof of ownership.</p>
+    <p class="modal-p">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please contact us at <strong class="text-accent"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5e3a333d3f1e2d2a2b3a27283f2b322a703730">[email&#160;protected]</a></strong>.<br><br>Include: your name, the infringing URL, and proof of ownership.</p>
     <div class="modal-actions">
       <button class="btn-primary" onclick="document.getElementById('dmcaModal').classList.remove('open')">Understood</button>
     </div>
@@ -265,7 +268,7 @@
       <div class="modal-info-block">📄 <strong>Upload Papers</strong> — Share your old question papers and notes using the Upload section above.</div>
       <div class="modal-info-block">💻 <strong>Code</strong> — Help us build new features. Star and fork us on GitHub.</div>
       <div class="modal-info-block">📢 <strong>Spread the word</strong> — Share StudyVault with your classmates and college groups.</div>
-      <div class="modal-info-block">🐛 <strong>Report bugs</strong> — Found something broken? Email us at hello@studyvault.in</div>
+      <div class="modal-info-block">🐛 <strong>Report bugs</strong> — Found something broken? Email us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e28a878e8e8da2919697869b9483978e96cc8b8c">[email&#160;protected]</a></div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="document.getElementById('contributeModal').classList.remove('open')">Close</button>
@@ -375,7 +378,7 @@
       <div class="footer-logo-wrap">Study<span>Vault</span></div>
       <p class="footer-tagline">Built by students, for students across India. Free forever — no paywalls, no ads, no nonsense.</p>
       <div class="footer-badges">
-        <div class="footer-badge-item">📧 <span>hello@studyvault.in</span></div>
+        <div class="footer-badge-item">📧 <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f69e939a9a99b6858283928f8097839a82d89f98">[email&#160;protected]</a></span></div>
         <div class="footer-badge-item">📍 <span>India</span></div>
         <div class="footer-badge-item">🕐 <span>Mon–Sat, 10am–6pm IST</span></div>
       </div>
@@ -438,16 +441,4 @@
       <span class="star" data-val="5" onclick="selectStar(5)">★</span>
     </div>
     <div id="starLabel" class="star-label"></div>
-    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Rahul, CSE 3rd year)">
-    <textarea class="upload-input modal-textarea" id="reviewMsg" placeholder="Write a short review... (max 150 characters)" maxlength="150" rows="3"></textarea>
-    <div id="reviewCharCount" class="review-char-count">0 / 150</div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeReviewModal()">Cancel</button>
-      <button class="btn-primary" onclick="submitReview()">Submit Review</button>
-    </div>
-  </div>
-</div>
-
-<script src="app.js"></script>
-</body>
-</html>
+  
