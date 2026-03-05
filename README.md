@@ -52,8 +52,8 @@ git --version
 Open your terminal and run the following commands:
 
 ```bash
-git clone https://github.com/umar24nov/iStudyVault.git
-cd iStudyVault
+git clone https://github.com/umar24nov/StudyVault.git
+cd StudyVault
 ```
 
 This will create a local copy of the project and navigate you into the project folder.
