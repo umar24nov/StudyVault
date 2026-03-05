@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description"
-content="StudyVault provides previous year question papers, notes, and study resources shared by students. Upload, search, and learn smarter.">
-<title>StudyVault — Previous Year Papers, Notes & Study Resources</title>
+<title>StudyVault - Your Academic Arsenal</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -18,6 +16,8 @@ content="StudyVault provides previous year question papers, notes, and study res
     <li><a href="#search">Search</a></li>
     <li><a href="#courses">Courses</a></li>
     <li><a href="#upload">Upload</a></li>
+    <li><a href="#" onclick="document.getElementById('developerModal').classList.add('open')">Developer</a></li>
+    <li><a href="#" onclick="document.getElementById('manualModal').classList.add('open')">Manual</a></li>
     <li><a href="#" class="nav-btn" onclick="openReviewModal()">⭐ Rate Us</a></li>
   </ul>
 </nav>
@@ -25,7 +25,7 @@ content="StudyVault provides previous year question papers, notes, and study res
 <!-- HERO -->
 <section class="hero">
   <div class="hero-badge">🎓 Free for all students</div>
-  <h1>Your Study<br><em>Companion</em> is <span class="hl2">Here</span></h1>
+  <h1>Your Academic<br><em>Arsenal</em> is <span class="hl2">Here</span></h1>
   <p>Access thousands of previous year question papers, notes & study material. Upload your own and help fellow students ace their exams.</p>
   <div class="hero-actions">
     <button class="btn-primary" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'})">Browse Papers ↓</button>
@@ -34,7 +34,7 @@ content="StudyVault provides previous year question papers, notes, and study res
 </section>
 
 <!-- STATS -->
-<div class="stats-bar" style="position:relative;z-index:1;padding:0 2rem">
+<div class="stats-bar">
   <div class="stat"><div class="stat-num" id="statPapers">—</div><div class="stat-lbl">Papers Uploaded</div></div>
   <div class="stat"><div class="stat-num">Free</div><div class="stat-lbl">Always & Forever</div></div>
   <div class="stat"><div class="stat-num">📈</div><div class="stat-lbl">Boost Your Performance</div></div>
@@ -129,7 +129,7 @@ content="StudyVault provides previous year question papers, notes, and study res
   <div class="testimonials-grid" id="testimonialsGrid">
     <div class="testimonial-loading">Loading reviews...</div>
   </div>
-  <div style="text-align:center;margin-top:2.5rem">
+  <div class="testimonials-cta">
     <button class="btn-primary" onclick="openReviewModal()">⭐ Leave a Review</button>
   </div>
 </section>
@@ -178,8 +178,8 @@ content="StudyVault provides previous year question papers, notes, and study res
           <input type="text" class="upload-input" placeholder="Year (e.g. 2023)" id="uploadYear">
           <input type="text" class="upload-input" placeholder="University name (optional)" id="uploadUniv">
         </div>
-        <input type="file" id="fileInput" style="display:none" accept=".pdf,.doc,.docx,.jpg,.png" onchange="handleFile(this)">
-        <button class="btn-primary" onclick="event.stopPropagation(); handleUpload()" style="width:100%;margin-top:0.5rem">Upload Now ↑</button>
+        <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onchange="handleFile(this)">
+        <button class="btn-primary btn-full" onclick="event.stopPropagation(); handleUpload()">Upload Now ↑</button>
       </div>
     </div>
   </div>
@@ -191,16 +191,16 @@ content="StudyVault provides previous year question papers, notes, and study res
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open')">✕</button>
     <h3>About StudyVault</h3>
-    <p style="margin-bottom:1rem">StudyVault is a free platform built by students, for students across India. The goal is simple — make quality study material like previous year papers, notes, and guides accessible to every student regardless of their college or background.</p>
-    <p style="margin-bottom:1rem">Whether you're preparing for exams, trying to understand patterns, or just want a head start — StudyVault can help you study smarter, boost your performance, and save hours of searching.</p>
-    <div style="background:var(--surface2);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem">
-      <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">👨‍💻</div>
+    <p class="modal-p">StudyVault is a free platform built by students, for students across India. The goal is simple — make quality study material like previous year papers, notes, and guides accessible to every student regardless of their college or background.</p>
+    <p class="modal-p">Whether you're preparing for exams, trying to understand patterns, or just want a head start — StudyVault can help you study smarter, boost your performance, and save hours of searching.</p>
+    <div class="dev-card">
+      <div class="dev-avatar">👨‍💻</div>
       <div>
-        <div style="font-weight:700;font-size:0.95rem">Mohammad Umar</div>
-        <div style="font-size:0.8rem;color:var(--muted)">B.Tech CSE Student · Founder & Developer</div>
+        <div class="dev-name">Mohammad Umar</div>
+        <div class="dev-role">B.Tech CSE Student · Founder & Developer</div>
       </div>
     </div>
-    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0">Founded in 2025 · Based in India · Built with ❤️ for every student</p>
+    <p class="modal-footer-note">Founded in 2024 · Based in India · Built with ❤️ for every student</p>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button></div>
   </div>
 </div>
@@ -211,12 +211,12 @@ content="StudyVault provides previous year question papers, notes, and study res
     <button class="modal-close" onclick="document.getElementById('contactModal').classList.remove('open')">✕</button>
     <h3>Contact Us</h3>
     <p>Have a question, suggestion, or want to report something? Reach out to us.</p>
-    <div style="display:flex;flex-direction:column;gap:0.8rem;margin-bottom:1rem">
+    <div class="modal-form-stack">
       <input class="upload-input" type="text" placeholder="Your Name" id="contactName">
       <input class="upload-input" type="email" placeholder="Your Email" id="contactEmail">
-      <textarea class="upload-input" placeholder="Your message..." id="contactMsg" rows="4" style="resize:vertical"></textarea>
+      <textarea class="upload-input modal-textarea" placeholder="Your message..." id="contactMsg" rows="4"></textarea>
     </div>
-    <div style="color:var(--muted);font-size:0.82rem;margin-bottom:1rem">
+    <div class="modal-hint">
       📧 Or email us directly at <strong>hello@studyvault.in</strong><br>
       💬 Response time: within 48 hours
     </div>
@@ -229,15 +229,15 @@ content="StudyVault provides previous year question papers, notes, and study res
 
 <!-- PRIVACY MODAL -->
 <div class="modal-overlay" id="privacyModal">
-  <div class="modal" style="max-width:560px">
+  <div class="modal modal-wide">
     <button class="modal-close" onclick="document.getElementById('privacyModal').classList.remove('open')">✕</button>
     <h3>Privacy Policy</h3>
-    <div style="color:var(--muted);font-size:0.88rem;line-height:1.8;max-height:320px;overflow-y:auto;padding-right:0.5rem">
-      <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">Data We Collect</strong><br>We collect only the information necessary to provide our service — such as uploaded file metadata (title, course, year) and basic usage analytics.</p>
-      <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">How We Use It</strong><br>Your data is used solely to display and serve study materials. We do not sell or share your personal information with third parties.</p>
-      <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">Uploaded Content</strong><br>Files you upload are stored securely on Cloudinary. By uploading, you confirm you have the right to share the content.</p>
-      <p style="margin-bottom:0.8rem"><strong style="color:var(--text)">Cookies</strong><br>We use minimal cookies for basic site functionality only. No tracking or advertising cookies are used.</p>
-      <p><strong style="color:var(--text)">Contact</strong><br>For privacy concerns, email us at privacy@studyvault.in</p>
+    <div class="modal-scroll-content">
+      <p class="modal-p"><strong class="text-bright">Data We Collect</strong><br>We collect only the information necessary to provide our service — such as uploaded file metadata (title, course, year) and basic usage analytics.</p>
+      <p class="modal-p"><strong class="text-bright">How We Use It</strong><br>Your data is used solely to display and serve study materials. We do not sell or share your personal information with third parties.</p>
+      <p class="modal-p"><strong class="text-bright">Uploaded Content</strong><br>Files you upload are stored securely on Cloudinary. By uploading, you confirm you have the right to share the content.</p>
+      <p class="modal-p"><strong class="text-bright">Cookies</strong><br>We use minimal cookies for basic site functionality only. No tracking or advertising cookies are used.</p>
+      <p><strong class="text-bright">Contact</strong><br>For privacy concerns, email us at hello@studyvault.in</p>
     </div>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('privacyModal').classList.remove('open')">Got it</button></div>
   </div>
@@ -246,25 +246,12 @@ content="StudyVault provides previous year question papers, notes, and study res
 <!-- DMCA MODAL -->
 <div class="modal-overlay" id="dmcaModal">
   <div class="modal">
-    <button class="modal-close"
-      onclick="document.getElementById('dmcaModal').classList.remove('open')">✕</button>
-
+    <button class="modal-close" onclick="document.getElementById('dmcaModal').classList.remove('open')">✕</button>
     <h3>DMCA & Content Policy</h3>
-
-    <p style="margin-bottom:1rem">
-      StudyVault respects intellectual property rights. If you believe any
-      content on our platform infringes your copyright, please contact us at
-      <strong style="color:var(--accent)">hello@studyvault.in</strong>.
-      <br><br>
+    <p style="margin-bottom:1rem">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please let us know andle="color:var(--accent)">hello@studyvault.in</strong><br><br>
       Include: your name, the infringing URL, and proof of ownership.
-    </p>
-
-    <div class="modal-actions">
-      <button class="btn-primary"
-        onclick="document.getElementById('dmcaModal').classList.remove('open')">
-        Understood
-      </button>
     </div>
+    <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('dmcaModal').classList.remove('open')">Understood</button></div>
   </div>
 </div>
 
@@ -273,24 +260,24 @@ content="StudyVault provides previous year question papers, notes, and study res
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('contributeModal').classList.remove('open')">✕</button>
     <h3>Contribute to StudyVault 🚀</h3>
-    <p style="margin-bottom:1rem">StudyVault is open source and community driven. Here's how you can help:</p>
-    <div style="display:flex;flex-direction:column;gap:0.8rem;margin-bottom:1.5rem">
-      <div style="background:var(--surface2);border-radius:10px;padding:1rem;font-size:0.88rem">
+    <p class="modal-p">StudyVault is open source and community driven. Here's how you can help:</p>
+    <div class="modal-form-stack">
+      <div class="modal-info-block">
         📄 <strong>Upload Papers</strong> — Share your old question papers and notes using the Upload section above.
       </div>
-      <div style="background:var(--surface2);border-radius:10px;padding:1rem;font-size:0.88rem">
+      <div class="modal-info-block">
         💻 <strong>Code</strong> — Help us build new features. Star and fork us on GitHub.
       </div>
-      <div style="background:var(--surface2);border-radius:10px;padding:1rem;font-size:0.88rem">
+      <div class="modal-info-block">
         📢 <strong>Spread the word</strong> — Share StudyVault with your classmates and college groups.
       </div>
-      <div style="background:var(--surface2);border-radius:10px;padding:1rem;font-size:0.88rem">
+      <div class="modal-info-block">
         🐛 <strong>Report bugs</strong> — Found something broken? Email us at hello@studyvault.in
       </div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="document.getElementById('contributeModal').classList.remove('open')">Close</button>
-      <button class="btn-primary" onclick="window.open('https://github.com/umar24nov/iStudyVault.git','_blank')">View on GitHub</button>
+      <button class="btn-primary" onclick="window.open('https://github.com','_blank')">View on GitHub</button>
     </div>
   </div>
 </div>
@@ -338,7 +325,7 @@ content="StudyVault provides previous year question papers, notes, and study res
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-bottom-left">© 2025 StudyVault · Built by Mohammad Umar, B.Tech CSE Student· Free forever for every student.</div>
+    <div class="footer-bottom-left">© 2024 StudyVault · Built by Mohammad Umar, B.Tech CSE · Free forever for every student.</div>
     <div class="footer-bottom-right">
       <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy</a>
       <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
@@ -349,6 +336,100 @@ content="StudyVault provides previous year question papers, notes, and study res
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- DEVELOPER MODAL -->
+<div class="modal-overlay" id="developerModal">
+  <div class="modal modal-dev">
+    <button class="modal-close" onclick="document.getElementById('developerModal').classList.remove('open')">✕</button>
+    <h3>👨‍💻 The Developer</h3>
+    <div class="dev-profile-card">
+      <div class="dev-avatar-lg">👨‍💻</div>
+      <div>
+        <div class="dev-name-lg">Mohammad Umar</div>
+        <div class="dev-role">B.Tech CSE Student · Founder & Developer</div>
+        <div class="dev-location">📍 India · Building cool things 🚀</div>
+      </div>
+    </div>
+    <p class="modal-p">Hey! I'm Umar, a Computer Science student who built StudyVault from scratch. I was frustrated with how scattered study resources were — no single place had PYQs, notes, and guides for Indian university students. So I built one.</p>
+    <p class="modal-p modal-p-muted">This is my first full-stack project — built with Node.js, Firebase, and Cloudinary. It's completely free and always will be. If it helps even one student, it was worth it.</p>
+    <div class="dev-stack-grid">
+      <div class="dev-stack-item">
+        <div class="dev-stack-icon">🛠️</div>
+        <div class="dev-stack-label">Stack</div>
+        <div class="dev-stack-value">Node.js · Firebase</div>
+      </div>
+      <div class="dev-stack-item">
+        <div class="dev-stack-icon">☁️</div>
+        <div class="dev-stack-label">Storage</div>
+        <div class="dev-stack-value">Cloudinary</div>
+      </div>
+      <div class="dev-stack-item">
+        <div class="dev-stack-icon">📅</div>
+        <div class="dev-stack-label">Since</div>
+        <div class="dev-stack-value">2025 · Growing</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="window.open('https://github.com/umar24nov/iStudyVault.git','_blank')">GitHub ↗</button>
+      <button class="btn-primary" onclick="document.getElementById('developerModal').classList.remove('open');document.getElementById('contactModal').classList.add('open')">Get in Touch</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANUAL MODAL -->
+<div class="modal-overlay" id="manualModal">
+  <div class="modal modal-manual">
+    <button class="modal-close" onclick="document.getElementById('manualModal').classList.remove('open')">✕</button>
+    <h3>📖 How to Run StudyVault</h3>
+    <p class="modal-p">Want to run your own instance locally or deploy it yourself? Here's everything you need.</p>
+    <div class="manual-steps">
+      <div class="manual-step">
+        <div class="manual-step-title">⚙️ Prerequisites</div>
+        <div class="manual-step-body">
+          • Node.js v18+ installed<br>
+          • A Firebase project (free tier works)<br>
+          • A Cloudinary account (free 25GB)<br>
+          • Git installed on your machine
+        </div>
+      </div>
+      <div class="manual-step">
+        <div class="manual-step-title">📥 Step 1 — Clone & Install</div>
+        <div class="manual-code">git clone https://github.com/umar24nov/iStudyVault.git<br>cd iStudyVault<br>npm install</div>
+      </div>
+      <div class="manual-step">
+        <div class="manual-step-title">🔑 Step 2 — Create .env File</div>
+        <div class="manual-step-body">Create a <code class="inline-code">.env</code> file in the root folder:</div>
+        <div class="manual-code">FIREBASE_PROJECT_ID=your-project-id<br>FIREBASE_CLIENT_EMAIL=your-client-email<br>FIREBASE_PRIVATE_KEY=your-private-key<br>CLOUDINARY_CLOUD_NAME=your-cloud-name<br>CLOUDINARY_API_KEY=your-api-key<br>CLOUDINARY_API_SECRET=your-api-secret</div>
+      </div>
+      <div class="manual-step">
+        <div class="manual-step-title">🔥 Step 3 — Firebase Setup</div>
+        <div class="manual-step-body">
+          1. Go to <strong>console.firebase.google.com</strong><br>
+          2. Create a project → Enable Firestore Database<br>
+          3. Project Settings → Service Accounts → Generate private key<br>
+          4. Copy the values into your .env file
+        </div>
+      </div>
+      <div class="manual-step">
+        <div class="manual-step-title">☁️ Step 4 — Cloudinary Setup</div>
+        <div class="manual-step-body">
+          1. Sign up at <strong>cloudinary.com</strong> (free)<br>
+          2. Dashboard → copy Cloud Name, API Key, API Secret<br>
+          3. Paste into your .env file
+        </div>
+      </div>
+      <div class="manual-step">
+        <div class="manual-step-title">🚀 Step 5 — Run It!</div>
+        <div class="manual-code">node server.js</div>
+        <div class="manual-step-body">Open <strong>http://localhost:3000</strong> in your browser. That's it! 🎉</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="document.getElementById('manualModal').classList.remove('open')">Close</button>
+      <button class="btn-primary" onclick="window.open('https://github.com/umar24nov/iStudyVault.git','_blank')">View on GitHub ↗</button>
+    </div>
+  </div>
+</div>
 
 <!-- REVIEW MODAL -->
 <div class="modal-overlay" id="reviewModal">
@@ -363,17 +444,5 @@ content="StudyVault provides previous year question papers, notes, and study res
       <span class="star" data-val="4" onclick="selectStar(4)">★</span>
       <span class="star" data-val="5" onclick="selectStar(5)">★</span>
     </div>
-    <div id="starLabel" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;min-height:1.2rem;text-align:center"></div>
-    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Rahul, CSE 3rd year)" style="margin-bottom:0.7rem">
-    <textarea class="upload-input" id="reviewMsg" placeholder="Write a short review... (max 150 characters)" maxlength="150" rows="3" style="resize:none;margin-bottom:0.3rem"></textarea>
-    <div id="reviewCharCount" style="font-size:0.75rem;color:var(--muted);text-align:right;margin-bottom:1rem">0 / 150</div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeReviewModal()">Cancel</button>
-      <button class="btn-primary" onclick="submitReview()">Submit Review</button>
-    </div>
-  </div>
-</div>
-
-<script src="app.js"></script>
-</body>
-</html>
+    <div id="starLabel" class="star-label"></div>
+    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Rahul, CSE 3rd year)" 

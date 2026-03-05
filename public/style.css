@@ -431,3 +431,60 @@ footer {
 @media (max-width: 400px) {
   .footer-inner { grid-template-columns: 1fr; }
 }
+
+/* UTILITY */
+.hidden { display: none; }
+.btn-full { width: 100%; margin-top: 0.5rem; }
+.text-bright { color: var(--text); }
+.text-accent { color: var(--accent); }
+.inline-code { background: var(--bg); padding: 0.1rem 0.4rem; border-radius: 4px; color: var(--accent); font-family: monospace; }
+
+/* MODAL UTILITIES */
+.modal-wide { max-width: 560px; }
+.modal-dev  { max-width: 520px; }
+.modal-manual { max-width: 580px; }
+.modal-p { color: var(--muted); font-size: 0.9rem; line-height: 1.75; margin-bottom: 1rem; }
+.modal-p-muted { color: var(--muted); }
+.modal-footer-note { font-size: 0.82rem; color: var(--muted); margin-bottom: 0; }
+.modal-hint { color: var(--muted); font-size: 0.82rem; margin-bottom: 1rem; }
+.modal-form-stack { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem; }
+.modal-textarea { resize: vertical; }
+.modal-scroll-content { color: var(--muted); font-size: 0.88rem; line-height: 1.8; max-height: 320px; overflow-y: auto; padding-right: 0.5rem; }
+.modal-info-block { background: var(--surface2); border-radius: 10px; padding: 1rem; font-size: 0.88rem; }
+
+/* ABOUT MODAL - DEV CARD */
+.dev-card { background: var(--surface2); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; border: 1px solid var(--border); }
+.dev-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent3)); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.dev-name { font-weight: 700; font-size: 0.95rem; }
+.dev-role { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+/* DEVELOPER MODAL */
+.dev-profile-card { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.5rem; background: var(--surface2); padding: 1.2rem; border-radius: 14px; border: 1px solid var(--border); }
+.dev-avatar-lg { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent3)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.dev-name-lg { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; }
+.dev-location { font-size: 0.8rem; color: var(--accent3); margin-top: 0.3rem; }
+.dev-stack-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; margin-bottom: 1.5rem; }
+.dev-stack-item { background: var(--surface2); border-radius: 10px; padding: 0.9rem; text-align: center; border: 1px solid var(--border); }
+.dev-stack-icon { font-size: 1.2rem; margin-bottom: 0.3rem; }
+.dev-stack-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.2rem; }
+.dev-stack-value { font-size: 0.78rem; font-weight: 600; }
+
+/* MANUAL MODAL */
+.manual-steps { display: flex; flex-direction: column; gap: 0.9rem; max-height: 400px; overflow-y: auto; padding-right: 0.4rem; margin-bottom: 0.5rem; }
+.manual-step { background: var(--surface2); border-radius: 12px; padding: 1.1rem; border: 1px solid var(--border); }
+.manual-step-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 0.6rem; color: var(--text); }
+.manual-step-body { font-size: 0.84rem; color: var(--muted); line-height: 1.9; }
+.manual-step-body strong { color: var(--text); }
+.manual-code { background: var(--bg); border-radius: 8px; padding: 0.7rem 1rem; font-family: monospace; font-size: 0.8rem; color: var(--accent3); border: 1px solid var(--border); line-height: 1.9; margin: 0.5rem 0; }
+
+/* STATS BAR (remove old inline) */
+.stats-bar { position: relative; z-index: 1; padding: 0 2rem; }
+
+/* TESTIMONIALS CTA */
+.testimonials-cta { text-align: center; margin-top: 2.5rem; }
+
+/* STAR LABEL */
+.star-label { font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; min-height: 1.2rem; text-align: center; }
+
+/* REVIEW CHAR COUNT */
+.review-char-count { font-size: 0.75rem; color: var(--muted); text-align: right; margin-bottom: 1rem; }
