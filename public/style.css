@@ -51,6 +51,11 @@ nav {
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
 }
+
+.logo-link {
+  text-decoration: none;
+}
+
 .logo span { color: var(--accent2); -webkit-text-fill-color: var(--accent2); }
 nav ul { list-style: none; display: flex; gap: 2rem; align-items: center; }
 nav ul li a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
