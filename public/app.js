@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     hamburger.classList.toggle('active');
   });
 
-  // Close menu when any nav link is clicked
   navMenu.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
       navMenu.classList.remove('open');
@@ -23,17 +22,33 @@ let currentChipCourse = '';
 
 // ── LOAD PAPERS FROM SERVER ───────────────────────────
 async function loadPapers() {
+  // Show waking up message after 4 seconds if still loading
+  const wakeTimer = setTimeout(() => {
+    const area = document.getElementById('resultsArea');
+    if (area && area.querySelector('.loading')) {
+      area.innerHTML = '<div class="loading-wake">Server is waking up, please wait 30-60 seconds...</div>';
+    }
+  }, 4000);
+
   try {
-    const res = await fetch('https://studyvault-api.onrender.com/api/papers');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 90000);
+    const res = await fetch('https://studyvault-api.onrender.com/api/papers', { signal: controller.signal });
+    clearTimeout(timeout);
+    clearTimeout(wakeTimer);
     if (!res.ok) throw new Error('Server error');
     allPapers = await res.json();
-    // Update stat counter
     const statEl = document.getElementById('statPapers');
     if (statEl) statEl.textContent = allPapers.length + '+';
     performSearch();
   } catch(e) {
-    document.getElementById('resultsArea').innerHTML =
-      '<div class="no-results">⚠️ Could not connect to server. Make sure <code>node server.js</code> is running.</div>';
+    clearTimeout(wakeTimer);
+    const area = document.getElementById('resultsArea');
+    if (e.name === 'AbortError') {
+      area.innerHTML = '<div class="no-results">Server took too long to respond. <a href="#" onclick="loadPapers();return false;" style="color:var(--accent)">Try again</a></div>';
+    } else {
+      area.innerHTML = '<div class="no-results">Could not connect to server. <a href="#" onclick="loadPapers();return false;" style="color:var(--accent)">Try again</a></div>';
+    }
   }
 }
 
@@ -41,20 +56,19 @@ async function loadPapers() {
 function renderCards(data) {
   const area = document.getElementById('resultsArea');
   if (!data || !data.length) {
-    area.innerHTML = '<div class="no-results">😕 No results found. Try a different search or upload the first one!</div>';
+    area.innerHTML = '<div class="no-results">No results found. Try a different search or upload the first one!</div>';
     return;
   }
 
   const typeBadge = { pyq: 'type-pyq', notes: 'type-notes', paper: 'type-paper', booklet: 'type-booklet' };
-  const typeLabel = { pyq: '📄 PYQ', notes: '📝 Notes', paper: '📋 Model Paper', booklet: '📚 Booklet' };
+  const typeLabel = { pyq: 'PYQ', notes: 'Notes', paper: 'Model Paper', booklet: 'Booklet' };
 
   area.innerHTML = `<div class="results-grid">${data.map(p => {
-    const safeTitle = (p.title || 'Untitled').replace(/'/g, "\\'");
-    const safeURL   = (p.downloadURL || '').replace(/'/g, "\\'");
-    const course    = p.course || '';
-    const univ      = p.university || 'Unknown University';
-    const year      = p.year || '';
-    const type      = p.type || 'pyq';
+    const safeURL = (p.downloadURL || '').replace(/'/g, "\\'");
+    const course  = p.course || '';
+    const univ    = p.university || 'Unknown University';
+    const year    = p.year || '';
+    const type    = p.type || 'pyq';
 
     return `
     <div class="result-card">
@@ -66,8 +80,8 @@ function renderCards(data) {
           ${course ? `<span class="tag">${course}</span>` : ''}
         </div>
         ${safeURL
-          ? `<a class="dl-btn" href="${safeURL}" target="_blank" rel="noopener" download>⬇ Download</a>`
-          : `<button class="dl-btn" onclick="showToast('No file attached yet.')">⬇ Download</button>`
+          ? `<a class="dl-btn" href="${safeURL}" target="_blank" rel="noopener" download>Download</a>`
+          : `<button class="dl-btn" onclick="showToast('No file attached yet.')">Download</button>`
         }
       </div>
     </div>`;
@@ -134,14 +148,13 @@ function handleFile(input) {
 function showFileChosen(name, size) {
   const sizeTxt = size ? ` (${(size / (1024*1024)).toFixed(1)} MB)` : '';
   const el = document.getElementById('fileChosen');
-  el.textContent = '📎 ' + name + sizeTxt;
-  // Warn if close to limit
+  el.textContent = name + sizeTxt;
   if (size && size > 15 * 1024 * 1024) {
     el.style.color = '#ff6b6b';
-    showToast(`❌ File too large (${(size/(1024*1024)).toFixed(1)} MB). Max is 15 MB.`);
+    showToast(`File too large (${(size/(1024*1024)).toFixed(1)} MB). Max is 15 MB.`);
   } else {
     el.style.color = '';
-    showToast(`📎 "${name}" selected`);
+    showToast(`"${name}" selected`);
   }
 }
 
@@ -153,16 +166,14 @@ async function handleUpload() {
   const univ   = document.getElementById('uploadUniv').value.trim();
   const file   = document.getElementById('fileInput').files[0];
 
-  if (!title)  { showToast('⚠️ Please enter a title.'); return; }
-  if (!course) { showToast('⚠️ Please select a course.'); return; }
-  if (!file)   { showToast('⚠️ Please select a file to upload.'); return; }
+  if (!title)  { showToast('Please enter a title.'); return; }
+  if (!course) { showToast('Please select a course.'); return; }
+  if (!file)   { showToast('Please select a file to upload.'); return; }
 
-  // File size limit: 10MB
-  const MAX_SIZE_MB = 15;
+  const MAX_SIZE_MB    = 15;
   const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
   if (file.size > MAX_SIZE_BYTES) {
-    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-    showToast(`❌ File too large (${sizeMB} MB). Maximum allowed size is ${MAX_SIZE_MB} MB.`);
+    showToast(`File too large (${(file.size/(1024*1024)).toFixed(1)} MB). Maximum is ${MAX_SIZE_MB} MB.`);
     return;
   }
 
@@ -174,41 +185,39 @@ async function handleUpload() {
   formData.append('year',       year);
   formData.append('university', univ);
 
-  showToast('⏳ Uploading, please wait...');
+  showToast('Uploading, please wait...');
 
   try {
     const res  = await fetch('https://studyvault-api.onrender.com/api/upload', { method: 'POST', body: formData });
     const data = await res.json();
-
     if (data.success) {
-      showToast('✅ Uploaded successfully! Now visible to everyone.');
-      // Clear form
-      document.getElementById('uploadTitle').value  = '';
-      document.getElementById('uploadYear').value   = '';
-      document.getElementById('uploadUniv').value   = '';
-      document.getElementById('uploadCourse').value = '';
-      document.getElementById('uploadType').value   = 'pyq';
-      document.getElementById('fileInput').value    = '';
+      showToast('Uploaded successfully! Now visible to everyone.');
+      document.getElementById('uploadTitle').value      = '';
+      document.getElementById('uploadYear').value       = '';
+      document.getElementById('uploadUniv').value       = '';
+      document.getElementById('uploadCourse').value     = '';
+      document.getElementById('uploadType').value       = 'pyq';
+      document.getElementById('fileInput').value        = '';
       document.getElementById('fileChosen').textContent = '';
-      // Reload papers list
       loadPapers();
-loadTestimonials();
+      loadTestimonials();
     } else {
-      showToast('❌ Upload failed: ' + (data.error || 'Unknown error'));
+      showToast('Upload failed: ' + (data.error || 'Unknown error'));
     }
   } catch(e) {
-    showToast('❌ Cannot reach server. Is node server.js running?');
+    showToast('Cannot reach server.');
   }
 }
 
 // ── REVIEW MODAL ──────────────────────────────────────
 let selectedStar = 0;
-const starLabels = ['', '😞 Poor', '😐 Fair', '🙂 Good', '😊 Great', '🤩 Excellent!'];
+const starLabels = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent!'];
 
 function openReviewModal()  { document.getElementById('reviewModal').classList.add('open'); }
 function closeReviewModal() {
   document.getElementById('reviewModal').classList.remove('open');
-  selectedStar = 0; renderStars(0);
+  selectedStar = 0;
+  renderStars(0);
   document.getElementById('starLabel').textContent = '';
 }
 
@@ -236,9 +245,9 @@ function renderStars(val) {
 async function submitReview() {
   const name = document.getElementById('reviewName').value.trim();
   const msg  = document.getElementById('reviewMsg').value.trim();
-  if (!selectedStar) { showToast('⚠️ Please select a star rating.'); return; }
-  if (!name)         { showToast('⚠️ Please enter your name.'); return; }
-  if (!msg)          { showToast('⚠️ Please write a short review.'); return; }
+  if (!selectedStar) { showToast('Please select a star rating.'); return; }
+  if (!name)         { showToast('Please enter your name.'); return; }
+  if (!msg)          { showToast('Please write a short review.'); return; }
   try {
     const res  = await fetch('https://studyvault-api.onrender.com/api/reviews', {
       method: 'POST',
@@ -251,12 +260,12 @@ async function submitReview() {
       document.getElementById('reviewName').value = '';
       document.getElementById('reviewMsg').value  = '';
       document.getElementById('reviewCharCount').textContent = '0 / 150';
-      showToast('🎉 Thanks for your review!');
+      showToast('Thanks for your review!');
       loadTestimonials();
     } else {
-      showToast('❌ Could not submit. Try again.');
+      showToast('Could not submit. Try again.');
     }
-  } catch(e) { showToast('❌ Could not reach server.'); }
+  } catch(e) { showToast('Could not reach server.'); }
 }
 
 // ── TESTIMONIALS ──────────────────────────────────────
@@ -266,7 +275,7 @@ async function loadTestimonials() {
     const data = await res.json();
     const grid = document.getElementById('testimonialsGrid');
     if (!data.length) {
-      grid.innerHTML = '<div class="testimonial-loading">No reviews yet — be the first! ⭐</div>';
+      grid.innerHTML = '<div class="testimonial-loading">No reviews yet — be the first!</div>';
       return;
     }
     grid.innerHTML = data.map(r => `
@@ -292,12 +301,11 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-
 // ── FOOTER FEEDBACK ───────────────────────────────────
 async function submitFooterFeedback() {
   const type = document.getElementById('feedbackType').value;
   const msg  = document.getElementById('feedbackMsg').value.trim();
-  if (!msg) { showToast('⚠️ Please write your feedback first.'); return; }
+  if (!msg) { showToast('Please write your feedback first.'); return; }
   try {
     const res  = await fetch('https://studyvault-api.onrender.com/api/feedback', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -307,9 +315,9 @@ async function submitFooterFeedback() {
     if (data.success) {
       document.getElementById('feedbackType').value = '';
       document.getElementById('feedbackMsg').value  = '';
-      showToast('✅ Thanks for your feedback!');
-    } else { showToast('❌ Could not send. Try again.'); }
-  } catch(e) { showToast('❌ Could not reach server.'); }
+      showToast('Thanks for your feedback!');
+    } else { showToast('Could not send. Try again.'); }
+  } catch(e) { showToast('Could not reach server.'); }
 }
 
 // ── CONTACT FORM ──────────────────────────────────────
@@ -317,7 +325,7 @@ async function submitContact() {
   const name  = document.getElementById('contactName').value.trim();
   const email = document.getElementById('contactEmail').value.trim();
   const msg   = document.getElementById('contactMsg').value.trim();
-  if (!name || !email || !msg) { showToast('⚠️ Please fill in all fields.'); return; }
+  if (!name || !email || !msg) { showToast('Please fill in all fields.'); return; }
   try {
     const res  = await fetch('https://studyvault-api.onrender.com/api/contact', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -329,9 +337,9 @@ async function submitContact() {
       document.getElementById('contactName').value  = '';
       document.getElementById('contactEmail').value = '';
       document.getElementById('contactMsg').value   = '';
-      showToast('✅ Message sent! We will reply within 48 hours.');
-    } else { showToast('❌ Could not send. Try again.'); }
-  } catch(e) { showToast('❌ Could not reach server.'); }
+      showToast('Message sent! We\'ll reply within 48 hours.');
+    } else { showToast('Could not send. Try again.'); }
+  } catch(e) { showToast('Could not reach server.'); }
 }
 
 // ── INIT ──────────────────────────────────────────────
