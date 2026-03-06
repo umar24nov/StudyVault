@@ -45,8 +45,8 @@ function renderCards(data) {
     return;
   }
 
-  const typeBadge = { pyq: 'type-pyq', notes: 'type-notes', paper: 'type-paper' };
-  const typeLabel = { pyq: '📄 PYQ', notes: '📝 Notes', paper: '📋 Model Paper' };
+  const typeBadge = { pyq: 'type-pyq', notes: 'type-notes', paper: 'type-paper', booklet: 'type-booklet' };
+  const typeLabel = { pyq: '📄 PYQ', notes: '📝 Notes', paper: '📋 Model Paper', booklet: '📚 Booklet' };
 
   area.innerHTML = `<div class="results-grid">${data.map(p => {
     const safeTitle = (p.title || 'Untitled').replace(/'/g, "\\'");
@@ -123,17 +123,26 @@ function dropFile(e) {
   const files = e.dataTransfer.files;
   if (files.length) {
     document.getElementById('fileInput').files = files;
-    showFileChosen(files[0].name);
+    showFileChosen(files[0].name, files[0].size);
   }
 }
 
 function handleFile(input) {
-  if (input.files[0]) showFileChosen(input.files[0].name);
+  if (input.files[0]) showFileChosen(input.files[0].name, input.files[0].size);
 }
 
-function showFileChosen(name) {
-  document.getElementById('fileChosen').textContent = '📎 ' + name;
-  showToast(`📎 "${name}" selected`);
+function showFileChosen(name, size) {
+  const sizeTxt = size ? ` (${(size / (1024*1024)).toFixed(1)} MB)` : '';
+  const el = document.getElementById('fileChosen');
+  el.textContent = '📎 ' + name + sizeTxt;
+  // Warn if close to limit
+  if (size && size > 15 * 1024 * 1024) {
+    el.style.color = '#ff6b6b';
+    showToast(`❌ File too large (${(size/(1024*1024)).toFixed(1)} MB). Max is 15 MB.`);
+  } else {
+    el.style.color = '';
+    showToast(`📎 "${name}" selected`);
+  }
 }
 
 async function handleUpload() {
@@ -147,6 +156,15 @@ async function handleUpload() {
   if (!title)  { showToast('⚠️ Please enter a title.'); return; }
   if (!course) { showToast('⚠️ Please select a course.'); return; }
   if (!file)   { showToast('⚠️ Please select a file to upload.'); return; }
+
+  // File size limit: 10MB
+  const MAX_SIZE_MB = 15;
+  const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+  if (file.size > MAX_SIZE_BYTES) {
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    showToast(`❌ File too large (${sizeMB} MB). Maximum allowed size is ${MAX_SIZE_MB} MB.`);
+    return;
+  }
 
   const formData = new FormData();
   formData.append('file',       file);
@@ -311,7 +329,7 @@ async function submitContact() {
       document.getElementById('contactName').value  = '';
       document.getElementById('contactEmail').value = '';
       document.getElementById('contactMsg').value   = '';
-      showToast('✅ Message sent! We\'ll reply within 48 hours.');
+      showToast('✅ Message sent! We will reply within 48 hours.');
     } else { showToast('❌ Could not send. Try again.'); }
   } catch(e) { showToast('❌ Could not reach server.'); }
 }

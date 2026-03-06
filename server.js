@@ -31,7 +31,16 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-const upload = multer({ dest: '/tmp/uploads/' });
+const upload = multer({
+  dest: '/tmp/uploads/',
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB max
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png'];
+    const ext = require('path').extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) cb(null, true);
+    else cb(new Error('Invalid file type. Only PDF, DOC, DOCX, JPG, PNG allowed.'));
+  }
+});
 
 // ── HEALTH CHECK ───────────────────────────────────────
 app.get('/', (req, res) => res.json({ status: 'StudyVault API is running!' }));
@@ -86,6 +95,17 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     console.error('POST /api/upload error:', err);
     res.status(500).json({ error: err.message });
   }
+});
+
+// ── MULTER ERROR HANDLER ──────────────────────────────
+app.use((err, req, res, next) => {
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({ error: 'File too large. Maximum size is 15 MB.' });
+  }
+  if (err.message && err.message.includes('Invalid file type')) {
+    return res.status(400).json({ error: err.message });
+  }
+  next(err);
 });
 
 // ── DELETE paper ───────────────────────────────────────
