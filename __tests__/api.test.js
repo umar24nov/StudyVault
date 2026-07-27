@@ -7,7 +7,11 @@ const ROOT = path.resolve(__dirname, '..');
 
 // ── Stub helper ───────────────────────────────────────
 function stub() {
-  const s = function (...args) { s.calls.push(args); return s._ret !== undefined ? s._ret : s; };
+  const s = function (...args) {
+    s.calls.push(args);
+    if (s._impl) return s._impl(...args);
+    return s._ret !== undefined ? s._ret : s;
+  };
   s.calls = [];
   s._ret = s;
   s.mockReturnValue = (v) => { s._ret = v; return s; };
