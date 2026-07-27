@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>StudyVault Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey:            "AIzaSyDummy_REPLACE_WITH_YOUR_KEY",
+    authDomain:        "studyvault-2a4c2.firebaseapp.com",
+    projectId:         "studyvault-2a4c2",
+    storageBucket:     "studyvault-2a4c2.appspot.com",
+    messagingSenderId: "000000000000",
+    appId:             "1:000000000000:web:xxxxxxxxxxxx"
+  });
+</script>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div id="authGate" class="auth-gate">
+  <div class="auth-card">
+    <div class="logo">Study<span>Vault</span></div>
+    <h2>Admin Dashboard</h2>
+    <p>Sign in with your admin Google account to continue.</p>
+    <button class="btn-primary" onclick="adminSignIn()">Sign In with Google</button>
+    <div id="authError" class="auth-error"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="dashboard hidden">
+  <nav class="admin-nav">
+    <div class="logo">Study<span>Vault</span> <span class="admin-badge">Admin</span></div>
+    <div class="admin-nav-right">
+      <span id="adminName" class="admin-user"></span>
+      <button class="btn-ghost" onclick="firebase.auth().signOut()">Sign Out</button>
+    </div>
+  </nav>
+
+  <!-- STATS -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card">
+      <div class="stat-icon si-blue">&#128196;</div>
+      <div class="stat-info"><div class="stat-num" id="sTotalPapers">-</div><div class="stat-lbl">Total Papers</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon si-yellow">&#9203;</div>
+      <div class="stat-info"><div class="stat-num" id="sPending">-</div><div class="stat-lbl">Pending Review</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon si-green">&#11015;&#65039;</div>
+      <div class="stat-info"><div class="stat-num" id="sDownloads">-</div><div class="stat-lbl">Total Downloads</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon si-purple">&#128100;</div>
+      <div class="stat-info"><div class="stat-num" id="sUsers">-</div><div class="stat-lbl">Users</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon si-red">&#128221;</div>
+      <div class="stat-info"><div class="stat-num" id="sReviews">-</div><div class="stat-lbl">Reviews</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon si-pink">&#128172;</div>
+      <div class="stat-info"><div class="stat-num" id="sFeedback">-</div><div class="stat-lbl">Feedback</div></div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab active" data-tab="papers" onclick="switchTab('papers')">Papers</button>
+    <button class="tab" data-tab="users" onclick="switchTab('users')">Users</button>
+    <button class="tab" data-tab="reviews" onclick="switchTab('reviews')">Reviews</button>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-bar" id="paperFilters">
+    <select id="statusFilter" class="filter-select" onchange="loadAdminPapers()">
+      <option value="all">All Status</option>
+      <option value="pending">Pending</option>
+      <option value="approved">Approved</option>
+      <option value="rejected">Rejected</option>
+    </select>
+    <input type="text" class="filter-search" id="paperSearch" placeholder="Search papers..." oninput="filterAdminPapers()">
+  </div>
+
+  <!-- PAPERS TABLE -->
+  <div class="table-wrap" id="papersTab">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Course</th>
+          <th>Type</th>
+          <th>Year</th>
+          <th>Status</th>
+          <th>Downloads</th>
+          <th>Uploaded By</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="papersTableBody">
+        <tr><td colspan="8" class="table-loading">Loading papers...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- USERS TABLE -->
+  <div class="table-wrap hidden" id="usersTab">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Joined</th>
+        </tr>
+      </thead>
+      <tbody id="usersTableBody">
+        <tr><td colspan="3" class="table-loading">Loading users...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- REVIEWS TABLE -->
+  <div class="table-wrap hidden" id="reviewsTab">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Stars</th>
+          <th>Message</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="reviewsTableBody">
+        <tr><td colspan="4" class="table-loading">Loading reviews...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="admin.js"></script>
+</body>
+</html>

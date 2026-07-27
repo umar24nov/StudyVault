@@ -1,0 +1,227 @@
+const API_BASE = window.location.hostname === 'localhost'
+  ? `http://localhost:${window.location.port || 3000}`
+  : 'https://studyvault-api.onrender.com';
+
+let adminUser = null;
+let adminToken = null;
+let allAdminPapers = [];
+
+// ── AUTH ──────────────────────────────────────────────
+firebase.auth().onAuthStateChanged(async (user) => {
+  if (user) {
+    adminUser = user;
+    adminToken = await user.getIdToken();
+    // Verify admin access
+    try {
+      const res = await apiFetch('/api/admin/stats');
+      if (!res.ok) {
+        document.getElementById('authError').textContent = 'You do not have admin access.';
+        firebase.auth().signOut();
+        return;
+      }
+      document.getElementById('authGate').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      document.getElementById('adminName').textContent = user.displayName || user.email;
+      loadDashboard();
+    } catch (e) {
+      document.getElementById('authError').textContent = 'Failed to verify admin access.';
+      firebase.auth().signOut();
+    }
+  } else {
+    adminUser = null;
+    adminToken = null;
+    document.getElementById('authGate').classList.remove('hidden');
+    document.getElementById('dashboard').classList.add('hidden');
+  }
+});
+
+function adminSignIn() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider).catch(err => {
+    if (err.code !== 'auth/popup-closed-by-user') {
+      document.getElementById('authError').textContent = 'Sign in failed. Try again.';
+    }
+  });
+}
+
+async function apiFetch(path, options = {}) {
+  const headers = { ...(options.headers || {}) };
+  if (adminToken) headers['Authorization'] = `Bearer ${adminToken}`;
+  if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+    options.body = JSON.stringify(options.body);
+  }
+  return fetch(`${API_BASE}${path}`, { ...options, headers });
+}
+
+// ── DASHBOARD ─────────────────────────────────────────
+async function loadDashboard() {
+  await Promise.all([loadStats(), loadAdminPapers()]);
+}
+
+async function loadStats() {
+  try {
+    const res = await apiFetch('/api/admin/stats');
+    const data = await res.json();
+    document.getElementById('sTotalPapers').textContent = data.totalPapers || 0;
+    document.getElementById('sPending').textContent = data.pendingCount || 0;
+    document.getElementById('sDownloads').textContent = (data.totalDownloads || 0).toLocaleString();
+    document.getElementById('sUsers').textContent = data.totalUsers || 0;
+    document.getElementById('sReviews').textContent = data.totalReviews || 0;
+    document.getElementById('sFeedback').textContent = (data.totalFeedback || 0) + (data.totalContacts || 0);
+  } catch (e) {
+    showToast('Failed to load stats.');
+  }
+}
+
+// ── PAPERS ────────────────────────────────────────────
+async function loadAdminPapers() {
+  const status = document.getElementById('statusFilter').value;
+  try {
+    const res = await apiFetch(`/api/admin/papers?status=${status}`);
+    allAdminPapers = await res.json();
+    renderAdminPapers(allAdminPapers);
+  } catch (e) {
+    document.getElementById('papersTableBody').innerHTML =
+      '<tr><td colspan="8" class="table-loading">Failed to load papers.</td></tr>';
+  }
+}
+
+function filterAdminPapers() {
+  const q = document.getElementById('paperSearch').value.toLowerCase().trim();
+  const filtered = allAdminPapers.filter(p =>
+    (p.title || '').toLowerCase().includes(q) ||
+    (p.course || '').toLowerCase().includes(q) ||
+    (p.university || '').toLowerCase().includes(q)
+  );
+  renderAdminPapers(filtered);
+}
+
+function renderAdminPapers(papers) {
+  const tbody = document.getElementById('papersTableBody');
+  if (!papers.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="table-loading">No papers found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = papers.map(p => `
+    <tr>
+      <td class="table-title" title="${p.title || ''}">${p.title || 'Untitled'}</td>
+      <td>${p.course || '-'}</td>
+      <td>${p.type || '-'}</td>
+      <td>${p.year || '-'}</td>
+      <td><span class="status-badge status-${p.status || 'pending'}">${p.status || 'pending'}</span></td>
+      <td>${p.downloads || 0}</td>
+      <td>${p.uploaderName || '-'}</td>
+      <td>
+        <div class="table-actions">
+          ${p.status !== 'approved' ? `<button class="btn-sm btn-approve" onclick="approvePaper('${p.id}')">Approve</button>` : ''}
+          ${p.status !== 'rejected' ? `<button class="btn-sm btn-reject" onclick="rejectPaper('${p.id}')">Reject</button>` : ''}
+          <button class="btn-sm btn-delete" onclick="deletePaper('${p.id}')">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function approvePaper(id) {
+  try {
+    await apiFetch(`/api/admin/papers/${id}/approve`, { method: 'PATCH' });
+    showToast('Paper approved.');
+    loadDashboard();
+  } catch (e) { showToast('Failed.'); }
+}
+
+async function rejectPaper(id) {
+  try {
+    await apiFetch(`/api/admin/papers/${id}/reject`, { method: 'PATCH' });
+    showToast('Paper rejected.');
+    loadDashboard();
+  } catch (e) { showToast('Failed.'); }
+}
+
+async function deletePaper(id) {
+  if (!confirm('Are you sure you want to delete this paper?')) return;
+  try {
+    await apiFetch(`/api/admin/papers/${id}`, { method: 'DELETE' });
+    showToast('Paper deleted.');
+    loadDashboard();
+  } catch (e) { showToast('Failed.'); }
+}
+
+// ── TABS ──────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+
+  document.getElementById('papersTab').classList.toggle('hidden', tab !== 'papers');
+  document.getElementById('usersTab').classList.toggle('hidden', tab !== 'users');
+  document.getElementById('reviewsTab').classList.toggle('hidden', tab !== 'reviews');
+  document.getElementById('paperFilters').classList.toggle('hidden', tab !== 'papers');
+
+  if (tab === 'users') loadAdminUsers();
+  if (tab === 'reviews') loadAdminReviews();
+}
+
+async function loadAdminUsers() {
+  try {
+    const res = await apiFetch('/api/admin/users');
+    const users = await res.json();
+    const tbody = document.getElementById('usersTableBody');
+    if (!users.length) {
+      tbody.innerHTML = '<tr><td colspan="3" class="table-loading">No users yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = users.map(u => `
+      <tr>
+        <td>${u.name || '-'}</td>
+        <td>${u.email || '-'}</td>
+        <td>${u.joinedAt ? new Date(u.joinedAt.seconds * 1000).toLocaleDateString() : '-'}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    document.getElementById('usersTableBody').innerHTML =
+      '<tr><td colspan="3" class="table-loading">Failed to load users.</td></tr>';
+  }
+}
+
+async function loadAdminReviews() {
+  try {
+    const res = await fetch(`${API_BASE}/api/reviews`);
+    const reviews = await res.json();
+    const tbody = document.getElementById('reviewsTableBody');
+    if (!reviews.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="table-loading">No reviews yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = reviews.map(r => `
+      <tr>
+        <td>${r.name || '-'}</td>
+        <td>${'&#9733;'.repeat(r.stars)}${'&#9734;'.repeat(5 - r.stars)}</td>
+        <td class="table-title">${r.message || ''}</td>
+        <td><button class="btn-sm btn-delete" onclick="deleteReview('${r.id}')">Delete</button></td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    document.getElementById('reviewsTableBody').innerHTML =
+      '<tr><td colspan="4" class="table-loading">Failed to load reviews.</td></tr>';
+  }
+}
+
+async function deleteReview(id) {
+  if (!confirm('Delete this review?')) return;
+  try {
+    await apiFetch(`/api/admin/reviews/${id}`, { method: 'DELETE' });
+    showToast('Review deleted.');
+    loadAdminReviews();
+  } catch (e) { showToast('Failed.'); }
+}
+
+// ── TOAST ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}

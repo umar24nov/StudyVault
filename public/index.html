@@ -33,6 +33,7 @@
   <ul id="navMenu">
     <li><a href="#search">Search</a></li>
     <li><a href="#courses">Courses</a></li>
+    <li><a href="#universities">Universities</a></li>
     <li><a href="#upload">Upload</a></li>
     <li><a href="#" id="navBookmarks" style="display:none" onclick="showBookmarks()">Bookmarks</a></li>
     <li><a href="#" onclick="document.getElementById('developerModal').classList.add('open')">Developer</a></li>
@@ -126,6 +127,16 @@
     <div class="course-card" onclick="filterByCourse('pharmacy')"><span class="course-icon">&#128138;</span><div class="course-name">Pharmacy</div><div class="course-count">B.Pharm</div></div>
     <div class="course-card" onclick="filterByCourse('agriculture')"><span class="course-icon">&#127806;</span><div class="course-name">Agriculture</div><div class="course-count">B.Sc Agri</div></div>
     <div class="course-card" onclick="filterByCourse('education')"><span class="course-icon">&#128218;</span><div class="course-name">Education</div><div class="course-count">B.Ed / M.Ed</div></div>
+  </div>
+</section>
+
+<!-- UNIVERSITIES -->
+<section class="courses-section" id="universities">
+  <div class="section-label">Browse by University</div>
+  <div class="section-title">Find Papers by University</div>
+  <div class="section-sub">Select your university to see all available papers.</div>
+  <div class="courses-grid" id="universitiesGrid">
+    <div class="testimonial-loading">Loading universities...</div>
   </div>
 </section>
 
@@ -521,6 +532,21 @@
     </div>
     <div class="modal-actions">
       <button class="btn-primary" onclick="document.getElementById('bookmarksModal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF PREVIEW MODAL -->
+<div class="modal-overlay" id="previewModal">
+  <div class="modal modal-preview">
+    <button class="modal-close" onclick="closePreview()">&#10005;</button>
+    <h3 id="previewTitle">Preview</h3>
+    <div class="preview-container">
+      <iframe id="previewFrame" src="" title="PDF Preview"></iframe>
+    </div>
+    <div class="modal-actions">
+      <a id="previewDownload" class="btn-secondary" href="" target="_blank" rel="noopener" download>Download</a>
+      <button class="btn-primary" onclick="closePreview()">Close</button>
     </div>
   </div>
 </div>

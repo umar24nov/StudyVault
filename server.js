@@ -34,12 +34,14 @@ const reviewRoutes   = require('./routes/reviews');
 const feedbackRoutes = require('./routes/feedback');
 const bookmarkRoutes = require('./routes/bookmarks');
 const userRoutes     = require('./routes/users');
+const adminRoutes    = require('./routes/admin');
 
 app.use('/api/papers',    paperRoutes(db, cloudinary));
 app.use('/api/reviews',   reviewRoutes(db));
 app.use('/api/feedback',  feedbackRoutes(db));
 app.use('/api/bookmarks', bookmarkRoutes(db));
 app.use('/api/users',     userRoutes(db));
+app.use('/api/admin',     adminRoutes(db));
 
 // Backward-compatible endpoints (old URL structure)
 app.get('/api/papers-list', (req, res) => res.redirect(301, '/api/papers'));

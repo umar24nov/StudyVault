@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "test": "jest --forceExit --detectOpenHandles --testTimeout=10000"
   },
   "keywords": [
     "study",
@@ -25,5 +26,9 @@
     "firebase-admin": "^13.7.0",
     "multer": "^2.1.0",
     "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2"
   }
 }

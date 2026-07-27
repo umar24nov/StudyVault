@@ -165,6 +165,9 @@ function renderCards(data) {
         </div>
         <div class="card-actions">
           <span class="dl-count" title="Downloads">${p.downloads || 0} &#11015;&#65039;</span>
+          ${safeURL && (p.type === 'pyq' || p.type === 'notes' || p.type === 'paper')
+            ? `<button class="preview-btn" onclick="openPreview('${safeURL.replace(/\\/g, '\\\\')}', '${(p.title || 'Preview').replace(/'/g, "\\'")}')" title="Preview">&#128065;</button>`
+            : ''}
           ${safeURL
             ? `<a class="dl-btn" href="${safeURL}" target="_blank" rel="noopener" download onclick="trackDownload('${p.id}')">Download</a>`
             : `<button class="dl-btn" onclick="showToast('No file attached yet.')">Download</button>`
@@ -495,6 +498,23 @@ async function loadTestimonials() {
   }
 }
 
+// ── PDF PREVIEW ───────────────────────────────────────
+function openPreview(url, title) {
+  // Convert download URL to inline preview URL (remove fl_attachment)
+  const previewUrl = url.replace('/fl_attachment/', '/');
+  document.getElementById('previewFrame').src = previewUrl;
+  document.getElementById('previewTitle').textContent = title || 'Preview';
+  document.getElementById('previewDownload').href = url;
+  document.getElementById('previewModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePreview() {
+  document.getElementById('previewFrame').src = '';
+  document.getElementById('previewModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 // ── DOWNLOAD TRACKING ─────────────────────────────────
 function trackDownload(paperId) {
   fetch(`${API_BASE}/api/papers/${paperId}/download`, { method: 'POST' }).catch(() => {});
@@ -551,6 +571,40 @@ async function submitContact() {
   } catch(e) { showToast('Could not reach server.'); }
 }
 
+// ── UNIVERSITIES ──────────────────────────────────────
+async function loadUniversities() {
+  try {
+    const res = await fetch(`${API_BASE}/api/papers/universities`);
+    const unis = await res.json();
+    const grid = document.getElementById('universitiesGrid');
+    if (!unis.length) {
+      grid.innerHTML = '<div class="testimonial-loading">No universities yet. Be the first to upload!</div>';
+      return;
+    }
+    grid.innerHTML = unis.map(u => `
+      <div class="course-card" onclick="filterByUniversity('${u.name.replace(/'/g, "\\'")}')">
+        <span class="course-icon">&#127891;</span>
+        <div class="course-name">${u.name}</div>
+        <div class="course-count">${u.count} paper${u.count !== 1 ? 's' : ''}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    document.getElementById('universitiesGrid').innerHTML =
+      '<div class="testimonial-loading">Could not load universities.</div>';
+  }
+}
+
+function filterByUniversity(uniName) {
+  document.getElementById('searchInput').value = uniName;
+  currentChipCourse = '';
+  document.getElementById('courseFilter').value = '';
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.chip').classList.add('active');
+  document.getElementById('search').scrollIntoView({ behavior: 'smooth' });
+  performSearch();
+}
+
 // ── INIT ──────────────────────────────────────────────
 loadPapers();
 loadTestimonials();
+loadUniversities();

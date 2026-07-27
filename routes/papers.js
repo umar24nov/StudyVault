@@ -64,9 +64,6 @@ function paperRoutes(db, cloudinary) {
   // GET /api/papers/trending — top papers by downloads (last 30 days)
   router.get('/trending', async (req, res, next) => {
     try {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
       const snapshot = await db.collection('papers')
         .where('status', '==', 'approved')
         .orderBy('downloads', 'desc')
@@ -75,6 +72,54 @@ function paperRoutes(db, cloudinary) {
 
       const papers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       res.json(papers);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /api/papers/universities — list all unique universities with paper counts
+  router.get('/universities', async (req, res, next) => {
+    try {
+      const snapshot = await db.collection('papers')
+        .where('status', '==', 'approved')
+        .get();
+
+      const uniMap = {};
+      snapshot.docs.forEach(doc => {
+        const uni = (doc.data().university || '').trim();
+        if (uni) {
+          uniMap[uni] = (uniMap[uni] || 0) + 1;
+        }
+      });
+
+      const universities = Object.entries(uniMap)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
+
+      res.json(universities);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /api/papers/university/:name — papers for a specific university
+  router.get('/university/:name', async (req, res, next) => {
+    try {
+      const uniName = decodeURIComponent(req.params.name);
+      const snapshot = await db.collection('papers')
+        .where('status', '==', 'approved')
+        .orderBy('createdAt', 'desc')
+        .get();
+
+      const papers = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(p => (p.university || '').toLowerCase() === uniName.toLowerCase());
+
+      res.json({
+        university: uniName,
+        totalPapers: papers.length,
+        data: papers
+      });
     } catch (err) {
       next(err);
     }
