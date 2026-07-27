@@ -1,3 +1,71 @@
+// ── API BASE URL ─────────────────────────────────────
+const API_BASE = window.location.hostname === 'localhost'
+  ? `http://localhost:${window.location.port || 3000}`
+  : 'https://studyvault-api.onrender.com';
+
+// ── FIREBASE AUTH ────────────────────────────────────
+let currentUser = null;
+let authToken = null;
+
+firebase.auth().onAuthStateChanged(async (user) => {
+  currentUser = user;
+  if (user) {
+    authToken = await user.getIdToken();
+    updateNavAuth(true, user);
+    // Register user in Firestore on first login
+    await fetch(`${API_BASE}/api/users/me/register`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    }).catch(() => {});
+    loadBookmarks();
+  } else {
+    authToken = null;
+    updateNavAuth(false);
+  }
+});
+
+function updateNavAuth(signedIn, user) {
+  const authEl = document.getElementById('navAuth');
+  const bookmarksLink = document.getElementById('navBookmarks');
+  if (signedIn && user) {
+    const name = user.displayName || user.email || 'User';
+    const initial = name.charAt(0).toUpperCase();
+    authEl.innerHTML = `
+      <button class="nav-avatar-btn" onclick="openProfileModal()">
+        ${user.photoURL
+          ? `<img src="${user.photoURL}" alt="" class="nav-avatar-img">`
+          : `<div class="nav-avatar-circle">${initial}</div>`
+        }
+      </button>`;
+    if (bookmarksLink) bookmarksLink.style.display = '';
+  } else {
+    authEl.innerHTML = `<button class="nav-btn" id="signInBtn" onclick="signInWithGoogle()">Sign In</button>`;
+    if (bookmarksLink) bookmarksLink.style.display = 'none';
+  }
+}
+
+function signInWithGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider).catch(err => {
+    if (err.code !== 'auth/popup-closed-by-user') {
+      showToast('Sign in failed. Try again.');
+    }
+  });
+}
+
+function signOut() {
+  firebase.auth().signOut();
+  document.getElementById('profileModal').classList.remove('open');
+  showToast('Signed out successfully.');
+}
+
+async function getAuthToken() {
+  if (currentUser) {
+    return await currentUser.getIdToken();
+  }
+  return null;
+}
+
 // ── HAMBURGER MENU ────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const hamburger = document.getElementById('hamburger');
@@ -14,15 +82,22 @@ document.addEventListener('DOMContentLoaded', () => {
       hamburger.classList.remove('active');
     });
   });
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+  });
 });
 
 // ── STATE ─────────────────────────────────────────────
 let allPapers = [];
 let currentChipCourse = '';
+let bookmarkedIds = new Set();
 
 // ── LOAD PAPERS FROM SERVER ───────────────────────────
 async function loadPapers() {
-  // Show waking up message after 4 seconds if still loading
   const wakeTimer = setTimeout(() => {
     const area = document.getElementById('resultsArea');
     if (area && area.querySelector('.loading')) {
@@ -33,11 +108,12 @@ async function loadPapers() {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 90000);
-    const res = await fetch('https://studyvault-api.onrender.com/api/papers', { signal: controller.signal });
+    const res = await fetch(`${API_BASE}/api/papers`, { signal: controller.signal });
     clearTimeout(timeout);
     clearTimeout(wakeTimer);
     if (!res.ok) throw new Error('Server error');
-    allPapers = await res.json();
+    const data = await res.json();
+    allPapers = data.data || data;
     const statEl = document.getElementById('statPapers');
     if (statEl) statEl.textContent = allPapers.length + '+';
     performSearch();
@@ -69,21 +145,33 @@ function renderCards(data) {
     const univ    = p.university || 'Unknown University';
     const year    = p.year || '';
     const type    = p.type || 'pyq';
+    const isBookmarked = bookmarkedIds.has(p.id);
+    const tags    = p.tags || [];
 
     return `
     <div class="result-card">
-      <div class="card-type ${typeBadge[type] || 'type-pyq'}">${typeLabel[type] || type}</div>
+      <div class="card-top">
+        <div class="card-type ${typeBadge[type] || 'type-pyq'}">${typeLabel[type] || type}</div>
+        ${currentUser ? `<button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${p.id}', event)" title="${isBookmarked ? 'Remove bookmark' : 'Bookmark this'}">
+          ${isBookmarked ? '&#9733;' : '&#9734;'}
+        </button>` : ''}
+      </div>
       <div class="card-title">${p.title || 'Untitled'}</div>
       <div class="card-meta">${univ}${year ? ' · ' + year : ''}</div>
       <div class="card-footer">
         <div class="card-tags">
           ${course ? `<span class="tag">${course}</span>` : ''}
+          ${tags.slice(0, 2).map(t => `<span class="tag tag-alt">${t}</span>`).join('')}
         </div>
-        ${safeURL
-          ? `<a class="dl-btn" href="${safeURL}" target="_blank" rel="noopener" download>Download</a>`
-          : `<button class="dl-btn" onclick="showToast('No file attached yet.')">Download</button>`
-        }
+        <div class="card-actions">
+          <span class="dl-count" title="Downloads">${p.downloads || 0} &#11015;&#65039;</span>
+          ${safeURL
+            ? `<a class="dl-btn" href="${safeURL}" target="_blank" rel="noopener" download onclick="trackDownload('${p.id}')">Download</a>`
+            : `<button class="dl-btn" onclick="showToast('No file attached yet.')">Download</button>`
+          }
+        </div>
       </div>
+      ${p.uploaderName ? `<div class="card-uploader">Uploaded by ${p.uploaderName}</div>` : ''}
     </div>`;
   }).join('')}</div>`;
 }
@@ -99,7 +187,8 @@ function performSearch() {
       || (p.title      || '').toLowerCase().includes(q)
       || (p.course     || '').toLowerCase().includes(q)
       || (p.university || '').toLowerCase().includes(q)
-      || (p.year       || '').includes(q);
+      || (p.year       || '').includes(q)
+      || (p.tags       || []).some(t => t.toLowerCase().includes(q));
     const matchC = !course || (p.course || '').toLowerCase() === course.toLowerCase();
     const matchT = !type   || p.type === type;
     return matchQ && matchC && matchT;
@@ -125,6 +214,115 @@ function filterByCourse(course) {
   });
   document.getElementById('search').scrollIntoView({ behavior: 'smooth' });
   performSearch();
+}
+
+// ── BOOKMARKS ────────────────────────────────────────
+async function loadBookmarks() {
+  if (!currentUser) return;
+  const token = await getAuthToken();
+  if (!token) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/bookmarks`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    bookmarkedIds = new Set(data.map(b => b.paperId));
+    // Re-render cards if they're visible
+    if (allPapers.length) performSearch();
+  } catch(e) { /* ignore */ }
+}
+
+async function toggleBookmark(paperId, event) {
+  event.stopPropagation();
+  if (!currentUser) {
+    showToast('Please sign in to bookmark papers.');
+    return;
+  }
+  const token = await getAuthToken();
+  if (!token) return;
+
+  const isBookmarked = bookmarkedIds.has(paperId);
+  try {
+    if (isBookmarked) {
+      await fetch(`${API_BASE}/api/bookmarks/${paperId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      bookmarkedIds.delete(paperId);
+      showToast('Bookmark removed.');
+    } else {
+      await fetch(`${API_BASE}/api/bookmarks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ paperId })
+      });
+      bookmarkedIds.add(paperId);
+      showToast('Paper bookmarked!');
+    }
+    performSearch();
+  } catch(e) {
+    showToast('Could not update bookmark.');
+  }
+}
+
+async function showBookmarks() {
+  if (!currentUser) { showToast('Please sign in first.'); return; }
+  const token = await getAuthToken();
+  if (!token) return;
+
+  document.getElementById('bookmarksModal').classList.add('open');
+  const list = document.getElementById('bookmarksList');
+
+  try {
+    const res = await fetch(`${API_BASE}/api/bookmarks`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!data.length) {
+      list.innerHTML = '<div class="testimonial-loading">No bookmarks yet. Click the star on any paper to save it!</div>';
+      return;
+    }
+    list.innerHTML = data.map(b => `
+      <div class="modal-info-block" style="margin-bottom:0.5rem">
+        <strong>${b.title || 'Untitled'}</strong><br>
+        <span style="color:var(--muted);font-size:0.82rem">${b.course || ''} ${b.university ? '· ' + b.university : ''}</span>
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div class="testimonial-loading">Could not load bookmarks.</div>';
+  }
+}
+
+// ── USER PROFILE ─────────────────────────────────────
+async function openProfileModal() {
+  if (!currentUser) return;
+  document.getElementById('profileModal').classList.add('open');
+
+  const token = await getAuthToken();
+  if (!token) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/users/me`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    document.getElementById('profileName').textContent = data.name || 'User';
+    document.getElementById('profileEmail').textContent = data.email || '';
+    document.getElementById('statUploads').textContent = data.stats?.uploads || 0;
+    document.getElementById('statBookmarks').textContent = data.stats?.bookmarks || 0;
+    document.getElementById('statDownloads').textContent = data.stats?.totalDownloads || 0;
+
+    const avatar = document.getElementById('profileAvatar');
+    if (data.picture) {
+      avatar.innerHTML = `<img src="${data.picture}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    } else {
+      avatar.textContent = (data.name || 'U').charAt(0);
+    }
+  } catch(e) {
+    document.getElementById('profileName').textContent = currentUser.displayName || 'User';
+    document.getElementById('profileEmail').textContent = currentUser.email || '';
+  }
 }
 
 // ── UPLOAD ────────────────────────────────────────────
@@ -159,11 +357,18 @@ function showFileChosen(name, size) {
 }
 
 async function handleUpload() {
+  if (!currentUser) {
+    showToast('Please sign in to upload papers.');
+    signInWithGoogle();
+    return;
+  }
+
   const title  = document.getElementById('uploadTitle').value.trim();
   const course = document.getElementById('uploadCourse').value;
   const type   = document.getElementById('uploadType').value;
   const year   = document.getElementById('uploadYear').value.trim();
   const univ   = document.getElementById('uploadUniv').value.trim();
+  const tags   = document.getElementById('uploadTags')?.value.trim() || '';
   const file   = document.getElementById('fileInput').files[0];
 
   if (!title)  { showToast('Please enter a title.'); return; }
@@ -177,6 +382,9 @@ async function handleUpload() {
     return;
   }
 
+  const token = await getAuthToken();
+  if (!token) { showToast('Authentication error. Please sign in again.'); return; }
+
   const formData = new FormData();
   formData.append('file',       file);
   formData.append('title',      title);
@@ -184,23 +392,28 @@ async function handleUpload() {
   formData.append('type',       type);
   formData.append('year',       year);
   formData.append('university', univ);
+  formData.append('tags',       tags);
 
   showToast('Uploading, please wait...');
 
   try {
-    const res  = await fetch('https://studyvault-api.onrender.com/api/upload', { method: 'POST', body: formData });
+    const res  = await fetch(`${API_BASE}/api/papers`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
+    });
     const data = await res.json();
     if (data.success) {
-      showToast('Uploaded successfully! Now visible to everyone.');
+      showToast('Uploaded successfully!');
       document.getElementById('uploadTitle').value      = '';
       document.getElementById('uploadYear').value       = '';
       document.getElementById('uploadUniv').value       = '';
       document.getElementById('uploadCourse').value     = '';
       document.getElementById('uploadType').value       = 'pyq';
+      if (document.getElementById('uploadTags')) document.getElementById('uploadTags').value = '';
       document.getElementById('fileInput').value        = '';
       document.getElementById('fileChosen').textContent = '';
       loadPapers();
-      loadTestimonials();
     } else {
       showToast('Upload failed: ' + (data.error || 'Unknown error'));
     }
@@ -221,15 +434,6 @@ function closeReviewModal() {
   document.getElementById('starLabel').textContent = '';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('reviewModal').addEventListener('click', function(e) {
-    if (e.target === this) closeReviewModal();
-  });
-  document.getElementById('reviewMsg').addEventListener('input', function() {
-    document.getElementById('reviewCharCount').textContent = this.value.length + ' / 150';
-  });
-});
-
 function selectStar(val) {
   selectedStar = val;
   renderStars(val);
@@ -249,7 +453,7 @@ async function submitReview() {
   if (!name)         { showToast('Please enter your name.'); return; }
   if (!msg)          { showToast('Please write a short review.'); return; }
   try {
-    const res  = await fetch('https://studyvault-api.onrender.com/api/reviews', {
+    const res  = await fetch(`${API_BASE}/api/reviews`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, message: msg, stars: selectedStar })
@@ -271,7 +475,7 @@ async function submitReview() {
 // ── TESTIMONIALS ──────────────────────────────────────
 async function loadTestimonials() {
   try {
-    const res  = await fetch('https://studyvault-api.onrender.com/api/reviews');
+    const res  = await fetch(`${API_BASE}/api/reviews`);
     const data = await res.json();
     const grid = document.getElementById('testimonialsGrid');
     if (!data.length) {
@@ -280,7 +484,7 @@ async function loadTestimonials() {
     }
     grid.innerHTML = data.map(r => `
       <div class="testimonial-card">
-        <div class="testimonial-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</div>
+        <div class="testimonial-stars">${'&#9733;'.repeat(r.stars)}${'&#9734;'.repeat(5 - r.stars)}</div>
         <div class="testimonial-msg">"${r.message}"</div>
         <div class="testimonial-name">— ${r.name}</div>
       </div>
@@ -289,6 +493,11 @@ async function loadTestimonials() {
     document.getElementById('testimonialsGrid').innerHTML =
       '<div class="testimonial-loading">Could not load reviews.</div>';
   }
+}
+
+// ── DOWNLOAD TRACKING ─────────────────────────────────
+function trackDownload(paperId) {
+  fetch(`${API_BASE}/api/papers/${paperId}/download`, { method: 'POST' }).catch(() => {});
 }
 
 // ── TOAST ─────────────────────────────────────────────
@@ -307,7 +516,7 @@ async function submitFooterFeedback() {
   const msg  = document.getElementById('feedbackMsg').value.trim();
   if (!msg) { showToast('Please write your feedback first.'); return; }
   try {
-    const res  = await fetch('https://studyvault-api.onrender.com/api/feedback', {
+    const res  = await fetch(`${API_BASE}/api/feedback`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type, message: msg })
     });
@@ -327,7 +536,7 @@ async function submitContact() {
   const msg   = document.getElementById('contactMsg').value.trim();
   if (!name || !email || !msg) { showToast('Please fill in all fields.'); return; }
   try {
-    const res  = await fetch('https://studyvault-api.onrender.com/api/contact', {
+    const res  = await fetch(`${API_BASE}/api/contact`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, message: msg })
     });

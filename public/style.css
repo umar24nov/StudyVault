@@ -207,6 +207,17 @@ nav ul li a:hover { color: var(--text); }
 .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
 .card-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .tag { font-size: 0.7rem; background: var(--surface2); color: var(--muted); padding: 0.2rem 0.6rem; border-radius: 6px; }
+.tag-alt { background: rgba(108,99,255,0.1); color: var(--accent); }
+.card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
+.card-top .card-type { margin-bottom: 0; }
+.bookmark-btn { background: none; border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer; padding: 0; transition: color 0.2s, transform 0.2s; line-height: 1; }
+.bookmark-btn:hover, .bookmark-btn.bookmarked { color: #f5c518; transform: scale(1.2); }
+.card-actions { display: flex; align-items: center; gap: 0.5rem; }
+.dl-count { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+.card-uploader { font-size: 0.7rem; color: var(--muted); margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.nav-avatar-btn { background: none; border: none; cursor: pointer; padding: 0; }
+.nav-avatar-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
+.nav-avatar-circle { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent3)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.85rem; font-weight: 700; }
 .dl-btn { display: flex; align-items: center; gap: 0.3rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap; text-decoration: none; }
 .dl-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 

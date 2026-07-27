@@ -7,6 +7,18 @@
 <title>StudyVault &#8212; Previous Year Papers, Notes &amp; Study Resources</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey:            "AIzaSyDummy_REPLACE_WITH_YOUR_KEY",
+    authDomain:        "studyvault-2a4c2.firebaseapp.com",
+    projectId:         "studyvault-2a4c2",
+    storageBucket:     "studyvault-2a4c2.appspot.com",
+    messagingSenderId: "000000000000",
+    appId:             "1:000000000000:web:xxxxxxxxxxxx"
+  });
+</script>
 </head>
 <body>
 
@@ -22,9 +34,13 @@
     <li><a href="#search">Search</a></li>
     <li><a href="#courses">Courses</a></li>
     <li><a href="#upload">Upload</a></li>
+    <li><a href="#" id="navBookmarks" style="display:none" onclick="showBookmarks()">Bookmarks</a></li>
     <li><a href="#" onclick="document.getElementById('developerModal').classList.add('open')">Developer</a></li>
     <li><a href="#" onclick="document.getElementById('manualModal').classList.add('open')">Manual</a></li>
     <li><a href="#" class="nav-btn" onclick="openReviewModal()">&#11088; Rate Us</a></li>
+    <li id="navAuth">
+      <button class="nav-btn" id="signInBtn" onclick="signInWithGoogle()">Sign In</button>
+    </li>
   </ul>
 </nav>
 
@@ -186,6 +202,7 @@
           </select>
           <input type="text" class="upload-input" placeholder="Year (e.g. 2023)" id="uploadYear">
           <input type="text" class="upload-input" placeholder="University name (optional)" id="uploadUniv">
+          <input type="text" class="upload-input" placeholder="Tags (comma-separated, e.g. algorithms, mid-sem)" id="uploadTags">
         </div>
         <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onchange="handleFile(this)">
         <button class="btn-primary btn-full" onclick="event.stopPropagation(); handleUpload()">Upload Now &#8593;</button>
@@ -453,6 +470,57 @@
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeReviewModal()">Cancel</button>
       <button class="btn-primary" onclick="submitReview()">Submit Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER PROFILE MODAL -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal modal-dev">
+    <button class="modal-close" onclick="document.getElementById('profileModal').classList.remove('open')">&#10005;</button>
+    <h3>&#128100; My Profile</h3>
+    <div class="dev-profile-card" id="profileCard">
+      <div class="dev-avatar-lg" id="profileAvatar">&#128100;</div>
+      <div>
+        <div class="dev-name-lg" id="profileName">Loading...</div>
+        <div class="dev-role" id="profileEmail"></div>
+      </div>
+    </div>
+    <div class="dev-stack-grid" id="profileStats">
+      <div class="dev-stack-item">
+        <div class="dev-stack-icon">&#128196;</div>
+        <div class="dev-stack-label">Uploads</div>
+        <div class="dev-stack-value" id="statUploads">0</div>
+      </div>
+      <div class="dev-stack-item">
+        <div class="dev-stack-icon">&#11088;</div>
+        <div class="dev-stack-label">Bookmarks</div>
+        <div class="dev-stack-value" id="statBookmarks">0</div>
+      </div>
+      <div class="dev-stack-item">
+        <div class="dev-stack-icon">&#11015;&#65039;</div>
+        <div class="dev-stack-label">Downloads</div>
+        <div class="dev-stack-value" id="statDownloads">0</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="document.getElementById('profileModal').classList.remove('open')">Close</button>
+      <button class="btn-primary" onclick="signOut()" style="background:linear-gradient(135deg,#ff6584,#ff4757)">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKMARKS MODAL -->
+<div class="modal-overlay" id="bookmarksModal">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="document.getElementById('bookmarksModal').classList.remove('open')">&#10005;</button>
+    <h3>&#11088; My Bookmarks</h3>
+    <p>Your saved papers for quick access.</p>
+    <div id="bookmarksList" class="modal-scroll-content">
+      <div class="testimonial-loading">Loading bookmarks...</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="document.getElementById('bookmarksModal').classList.remove('open')">Close</button>
     </div>
   </div>
 </div>
