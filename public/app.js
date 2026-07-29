@@ -18,14 +18,9 @@ firebase.auth().onAuthStateChanged(async (user) => {
       headers: { 'Authorization': `Bearer ${authToken}` }
     }).catch(() => {});
     loadBookmarks();
+    document.getElementById('navAdminLi').style.display = '';
     // Re-render cards to show bookmark stars (currentUser was null when cards first rendered)
     if (allPapers.length) performSearch();
-    // Check admin status
-    fetch(`${API_BASE}/api/admin/stats`, {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    }).then(r => {
-      if (r.ok) document.getElementById('navAdmin').style.display = '';
-    }).catch(() => {});
   } else {
     authToken = null;
     updateNavAuth(false);
@@ -52,6 +47,8 @@ function updateNavAuth(signedIn, user) {
   } else {
     authEl.innerHTML = `<button class="nav-btn" id="signInBtn" onclick="signInWithGoogle()">Sign In</button>`;
     if (bookmarksLink) bookmarksLink.style.display = 'none';
+    const adminLi = document.getElementById('navAdminLi');
+    if (adminLi) adminLi.style.display = 'none';
   }
 }
 
