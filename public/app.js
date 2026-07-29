@@ -18,9 +18,17 @@ firebase.auth().onAuthStateChanged(async (user) => {
       headers: { 'Authorization': `Bearer ${authToken}` }
     }).catch(() => {});
     loadBookmarks();
+    // Check admin status
+    fetch(`${API_BASE}/api/admin/stats`, {
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    }).then(r => {
+      if (r.ok) document.getElementById('navAdmin').style.display = '';
+    }).catch(() => {});
   } else {
     authToken = null;
     updateNavAuth(false);
+    const adminLink = document.getElementById('navAdmin');
+    if (adminLink) adminLink.style.display = 'none';
   }
 });
 
