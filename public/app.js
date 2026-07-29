@@ -18,6 +18,8 @@ firebase.auth().onAuthStateChanged(async (user) => {
       headers: { 'Authorization': `Bearer ${authToken}` }
     }).catch(() => {});
     loadBookmarks();
+    // Re-render cards to show bookmark stars (currentUser was null when cards first rendered)
+    if (allPapers.length) performSearch();
     // Check admin status
     fetch(`${API_BASE}/api/admin/stats`, {
       headers: { 'Authorization': `Bearer ${authToken}` }
@@ -27,6 +29,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
   } else {
     authToken = null;
     updateNavAuth(false);
+    if (allPapers.length) performSearch();
     const adminLink = document.getElementById('navAdmin');
     if (adminLink) adminLink.style.display = 'none';
   }
