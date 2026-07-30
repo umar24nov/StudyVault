@@ -57,6 +57,11 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+app.get('/favicon.ico', (req, res) => {
+  res.type('image/svg+xml');
+  res.send('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📚</text></svg>');
+});
+
 app.get('/', (req, res) => res.json({ status: 'StudyVault API is running!' }));
 
 // ── Global error handler (must be last) ────────────────
