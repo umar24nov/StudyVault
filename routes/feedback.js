@@ -9,6 +9,7 @@ function feedbackRoutes(db) {
     try {
       const { type, message } = req.body;
       if (!message) return res.status(400).json({ error: 'Message is required' });
+      if (message.length > 1000) return res.status(400).json({ error: 'Message must be under 1000 characters' });
       await db.collection('feedback').add({
         type: type || 'other', message,
         createdAt: require('firebase-admin').firestore.FieldValue.serverTimestamp()
@@ -24,6 +25,8 @@ function feedbackRoutes(db) {
       const { name, email, message } = req.body;
       if (!name || !email || !message)
         return res.status(400).json({ error: 'All fields required' });
+      if (name.length > 100) return res.status(400).json({ error: 'Name must be under 100 characters' });
+      if (message.length > 2000) return res.status(400).json({ error: 'Message must be under 2000 characters' });
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email))

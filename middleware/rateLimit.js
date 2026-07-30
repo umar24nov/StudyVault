@@ -27,4 +27,13 @@ const writeLimiter = rateLimit({
   message: { error: 'Rate limit reached. Please wait before posting again.' }
 });
 
-module.exports = { apiLimiter, uploadLimiter, writeLimiter };
+// General download tracking limit: 60 per 15 min per IP
+const downloadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests.' }
+});
+
+module.exports = { apiLimiter, uploadLimiter, writeLimiter, downloadLimiter };

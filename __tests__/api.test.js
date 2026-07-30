@@ -68,7 +68,7 @@ function setupMocks() {
     } }
   };
 
-  const rateMock = { apiLimiter: pass, uploadLimiter: pass, writeLimiter: pass };
+  const rateMock = { apiLimiter: pass, uploadLimiter: pass, writeLimiter: pass, downloadLimiter: pass };
 
   const authMiddleware = (req, res, next) => { req.user = { uid: 'u1', email: 't@t.com', name: 'T' }; next(); };
   const authMock = { verifyToken: authMiddleware, optionalAuth: authMiddleware, requireAdminAuth: pass, requireAdmin: pass };

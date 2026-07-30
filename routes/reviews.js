@@ -31,6 +31,8 @@ function reviewRoutes(db) {
       const { name, message, stars } = req.body;
       if (!name || !message || !stars)
         return res.status(400).json({ error: 'All fields required' });
+      if (name.length > 100) return res.status(400).json({ error: 'Name must be under 100 characters' });
+      if (message.length > 500) return res.status(400).json({ error: 'Message must be under 500 characters' });
 
       const starNum = parseInt(stars);
       if (starNum < 1 || starNum > 5)

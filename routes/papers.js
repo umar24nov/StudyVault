@@ -5,7 +5,7 @@ const { sendEmail } = require('../config/email');
 const { stripDangerous } = require('../middleware/sanitize');
 const { upload } = require('../middleware/upload');
 const { verifyToken, optionalAuth, requireAdminAuth } = require('../middleware/auth');
-const { uploadLimiter } = require('../middleware/rateLimit');
+const { uploadLimiter, downloadLimiter } = require('../middleware/rateLimit');
 
 function paperRoutes(db, cloudinary) {
   const router = express.Router();
@@ -141,9 +141,12 @@ function paperRoutes(db, cloudinary) {
   // POST /api/papers — upload a paper (requires auth)
   router.post('/', verifyToken, uploadLimiter, upload.single('file'), async (req, res, next) => {
     try {
-      const { type, year, university, tags } = req.body;
-      const title = stripDangerous(req.body.title || '');
-      const course = stripDangerous(req.body.course || '');
+      const { tags } = req.body;
+      const title = stripDangerous((req.body.title || '').slice(0, 200));
+      const course = stripDangerous((req.body.course || '').slice(0, 100));
+      const type = stripDangerous((req.body.type || '').slice(0, 20));
+      const year = stripDangerous((req.body.year || '').slice(0, 20));
+      const university = stripDangerous((req.body.university || '').slice(0, 200));
       const file = req.file;
 
       if (!file)   return res.status(400).json({ error: 'No file uploaded' });
@@ -170,6 +173,7 @@ function paperRoutes(db, cloudinary) {
         parsedTags = Array.isArray(tags)
           ? tags
           : tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+        parsedTags = parsedTags.map(t => stripDangerous(t.slice(0, 50))).filter(Boolean).slice(0, 10);
       }
 
       const docRef = await db.collection('papers').add({
@@ -226,7 +230,7 @@ function paperRoutes(db, cloudinary) {
   });
 
   // POST /api/papers/:id/download — increment download counter
-  router.post('/:id/download', uploadLimiter, async (req, res, next) => {
+  router.post('/:id/download', downloadLimiter, async (req, res, next) => {
     try {
       const ref = db.collection('papers').doc(req.params.id);
       await ref.update({
