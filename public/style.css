@@ -364,11 +364,8 @@ footer {
 .footer-col-links a { color: var(--muted); text-decoration: none; font-size: 0.95rem; padding: 0.35rem 0; transition: color 0.2s, padding-left 0.2s; display: inline-block; line-height: 1.5; }
 .footer-col-links a:hover { color: var(--accent3); padding-left: 6px; }
 
-.footer-bottom { border-top: 1px solid var(--border); padding: 1.6rem 3rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.footer-bottom { border-top: 1px solid var(--border); padding: 1.6rem 3rem; text-align: center; }
 .footer-bottom-left { font-size: 0.9rem; color: var(--muted); }
-.footer-bottom-right { display: flex; gap: 2rem; }
-.footer-bottom-right a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
-.footer-bottom-right a:hover { color: var(--text); }
 
 /* ── TESTIMONIALS ────────────────────────────────── */
 .testimonials-section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto 6rem; padding: 0 2rem; }
@@ -437,7 +434,6 @@ footer {
 /* ── MODAL UTILITIES ─────────────────────────────── */
 .modal-wide { max-width: 560px; }
 .modal-dev  { max-width: 520px; }
-.modal-manual { max-width: 580px; }
 .modal-p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; margin-bottom: 0.7rem; }
 .modal-p-muted { color: var(--muted); }
 .modal-footer-note { font-size: 0.82rem; color: var(--muted); margin-bottom: 0; }
@@ -461,22 +457,6 @@ footer {
 .dev-stack-icon { font-size: 1.2rem; margin-bottom: 0.3rem; }
 .dev-stack-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.2rem; }
 .dev-stack-value { font-size: 0.78rem; font-weight: 600; }
-
-/* ── MANUAL MODAL ────────────────────────────────── */
-.manual-steps { display: flex; flex-direction: column; gap: 0.9rem; max-height: 400px; overflow-y: auto; padding-right: 0.4rem; margin-bottom: 0.5rem; }
-.manual-step { background: var(--surface2); border-radius: 12px; padding: 1.1rem; border: 1px solid var(--border); }
-.manual-step-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 0.6rem; color: var(--text); }
-.manual-step-body { font-size: 0.84rem; color: var(--muted); line-height: 1.9; }
-.manual-step-body strong { color: var(--text); }
-.manual-code {
-  background: var(--bg); border-radius: 8px; padding: 0.7rem 1rem;
-  font-family: monospace; font-size: 0.78rem; color: var(--accent3);
-  border: 1px solid var(--border); line-height: 1.9; margin: 0.5rem 0;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  word-break: normal;
-  overflow-x: hidden;
-}
 
 /* ── UTILITY ─────────────────────────────────────── */
 .hidden { display: none; }
@@ -606,8 +586,7 @@ footer {
 
   /* FOOTER */
   .footer-inner { grid-template-columns: 1fr; padding: 2.5rem 1.5rem 2rem; gap: 1.8rem; }
-  .footer-bottom { padding: 1.2rem 1.5rem; flex-direction: column; align-items: flex-start; gap: 0.8rem; }
-  .footer-bottom-right { gap: 1.2rem; }
+  .footer-bottom { padding: 1.2rem 1.5rem; }
   .footer-col-toggle { cursor: pointer; }
   .footer-col-arrow { display: inline-block; }
   .footer-col-links { max-height: 0; opacity: 0; margin-top: 0; }
@@ -616,7 +595,6 @@ footer {
   /* MODALS */
   .modal { padding: 1.8rem 1.2rem; width: 95%; }
   .dev-stack-grid { grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
-  .manual-steps { max-height: 320px; }
 }
 
 @media (max-width: 400px) {
