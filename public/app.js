@@ -564,7 +564,7 @@ async function submitContact() {
   const msg   = document.getElementById('contactMsg').value.trim();
   if (!name || !email || !msg) { showToast('Please fill in all fields.'); return; }
   try {
-    const res  = await fetch(`${API_BASE}/api/contact`, {
+    const res  = await fetch(`${API_BASE}/api/feedback/contact`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, message: msg })
     });
