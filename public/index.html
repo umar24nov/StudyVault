@@ -37,7 +37,7 @@
     <li><a href="#universities">Universities</a></li>
     <li><a href="#upload">Upload</a></li>
     <li><a href="#" id="navBookmarks" style="display:none" onclick="showBookmarks()">Bookmarks</a></li>
-    <li id="navAdminLi" style="display:none"><a href="admin.html">&#128736;&#65039; Admin</a></li>
+    <li id="navAdminLi" style="display:none"><a href="admin.html">Admin</a></li>
     <li><a href="#" onclick="document.getElementById('developerModal').classList.add('open')">Developer</a></li>
     <li><a href="#" class="nav-btn" onclick="openReviewModal()">&#11088; Rate Us</a></li>
     <li id="navAuth">
@@ -53,7 +53,7 @@
   <p>Access thousands of previous year question papers, notes &amp; study material. Upload your own and help fellow students ace their exams.</p>
   <div class="hero-actions">
     <button class="btn-primary" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'})">Browse Papers &#8595;</button>
-    <button class="btn-secondary" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'})">Upload Material</button>
+    <button class="btn-secondary" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'})">Contribute Resource</button>
   </div>
 </section>
 
@@ -365,7 +365,7 @@
     <div class="footer-col">
       <div class="footer-col-title">Resources</div>
       <a href="#" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'});return false">Browse Papers</a>
-      <a href="#" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'});return false">Upload Material</a>
+      <a href="#" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'});return false">Contribute Resource</a>
       <a href="#" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'});return false">All Courses</a>
       <a href="#" onclick="document.getElementById('contributeModal').classList.add('open');return false">Contribute</a>
       <a href="https://github.com/umar24nov/StudyVault.git" target="_blank">GitHub &#8599;</a>
@@ -415,8 +415,10 @@
       <span class="star" data-val="5" onclick="selectStar(5)">&#9733;</span>
     </div>
     <div id="starLabel" class="star-label"></div>
-    <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Mohammad Umar, CSE 3rd year)">
-    <textarea class="upload-input modal-textarea" id="reviewMsg" placeholder="Write a short review... (max 150 characters)" maxlength="150" rows="3"></textarea>
+    <div class="modal-form-stack">
+      <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Mohammad Umar, CSE 3rd year)">
+      <textarea class="upload-input modal-textarea" id="reviewMsg" placeholder="Write a short review... (max 150 characters)" maxlength="150" rows="3"></textarea>
+    </div>
     <div id="reviewCharCount" class="review-char-count">0 / 150</div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeReviewModal()">Cancel</button>

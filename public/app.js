@@ -415,7 +415,7 @@ async function handleUpload() {
     });
     const data = await res.json();
     if (data.success) {
-      showToast('Uploaded successfully!');
+      showToast('Thank you! Your contribution has been submitted for review.');
       document.getElementById('uploadTitle').value      = '';
       document.getElementById('uploadYear').value       = '';
       document.getElementById('uploadUniv').value       = '';
