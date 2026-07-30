@@ -4,9 +4,10 @@ A self-hosted study resource vault — upload, browse, bookmark, and review stud
 
 ## Features
 
-- Upload & browse study papers (PDFs, images, docs)
-- Bookmark papers for quick access
-- Star ratings & reviews
+- Upload & browse study papers (PDFs, images, docs) — requires sign-in
+- Bookmark papers for quick access (requires sign-in)
+- Star ratings & reviews — requires sign-in, top 3 highest-rated shown on homepage
+- Email notifications for new uploads, reviews, and contact messages (via Resend)
 - Admin panel for managing papers
 - Responsive design (works on mobile)
 
@@ -70,8 +71,8 @@ CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-api-key
 CLOUDINARY_API_SECRET=your-api-secret
 
-# Resend (optional — for contact form email notifications)
-# Sign up at https://resend.com, verify your domain, and paste your API key
+# Resend (optional — for email notifications)
+# Sign up at https://resend.com. Sends emails for contact form, new uploads, and new reviews.
 RESEND_API_KEY=re_xxxxxxxxxxxx
 ```
 
@@ -135,30 +136,46 @@ The test suite validates all API endpoints (upload, search, bookmarks, reviews, 
 StudyVault/
 ├── server.js              # Express server (entry point)
 ├── config/
-│   └── firebase.js        # Firebase Admin SDK init
+│   ├── env.js             # Environment variable validation (Zod)
+│   ├── firebase.js        # Firebase Admin SDK init
+│   ├── cloudinary.js      # Cloudinary init
+│   └── email.js           # Resend email helper
 ├── middleware/
-│   └── auth.js            # Auth middleware (requireAdminAuth)
+│   ├── auth.js            # Auth middleware (verifyToken, requireAdminAuth)
+│   ├── rateLimit.js       # Rate limiters
+│   ├── upload.js          # Multer file upload config
+│   ├── sanitize.js        # Input sanitization
+│   └── errorHandler.js    # Global error handler
 ├── routes/
 │   ├── papers.js          # Paper CRUD
 │   ├── bookmarks.js       # Bookmark toggle / list
-│   ├── reviews.js         # Ratings & reviews
-│   ├── feedback.js        # Contact form submissions
-│   └── admin.js           # Admin-only endpoints
+│   ├── reviews.js         # Ratings & reviews (requires auth)
+│   ├── feedback.js        # Feedback & contact form submissions
+│   ├── admin.js           # Admin-only endpoints
+│   └── users.js           # User profile data
 ├── __tests__/
-│   └── api.test.js        # API integration tests
+│   └── api.test.js        # API integration tests (12 tests)
 ├── public/
 │   ├── index.html         # Main frontend
 │   ├── admin.html         # Admin panel
-│   ├── style.css          # All styles
-│   └── app.js             # Frontend logic
+│   ├── admin.js           # Admin panel logic
+│   ├── admin.css          # Admin panel styles
+│   ├── style.css          # All frontend styles
+│   ├── app.js             # Frontend logic
+│   └── favicon.ico        # Browser favicon
 ├── .env                   # Local env vars (not committed)
 ├── package.json
 └── .gitignore
 ```
 
-## Contact / Feedback
+## Email Notifications
 
-Contact form submissions are saved to Firestore (`contacts` collection). There is no email notification — check Firestore manually or add an SMTP service (SendGrid, Resend, etc.) to `routes/feedback.js`.
+When `RESEND_API_KEY` is set, email notifications are sent to `studyvaultapp@gmail.com` for:
+- **New uploads** — title, course, type, uploader name
+- **New reviews** — name, star rating, review text
+- **Contact form** — name, email, message
+
+Without the key, notifications are silently skipped (data is still saved to Firestore).
 
 ## Contributing
 
