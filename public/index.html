@@ -355,49 +355,62 @@
 <div class="modal-overlay" id="manualModal">
   <div class="modal modal-manual">
     <button class="modal-close" onclick="document.getElementById('manualModal').classList.remove('open')">&#10005;</button>
-    <h3>&#128218; How to Run StudyVault</h3>
-    <p class="modal-p">Want to run your own instance locally or deploy it yourself? Here is everything you need.</p>
+    <h3>&#128218; How to Run StudyVault Locally</h3>
+    <p class="modal-p">Run your own instance or contribute. <strong>Node.js v18+</strong> required.</p>
     <div class="manual-steps">
       <div class="manual-step">
-        <div class="manual-step-title">&#9881;&#65039; Prerequisites</div>
-        <div class="manual-step-body">
-          &bull; Node.js v18+ installed<br>
-          &bull; A Firebase project (free tier works)<br>
-          &bull; A Cloudinary account (free 25GB)<br>
-          &bull; Git installed on your machine
-        </div>
-      </div>
-      <div class="manual-step">
-        <div class="manual-step-title">&#128229; Step 1 &#8212; Clone &amp; Install</div>
+        <div class="manual-step-title">&#128229; Clone &amp; Install</div>
         <div class="manual-code">git clone https://github.com/umar24nov/StudyVault.git<br>cd StudyVault<br>npm install</div>
       </div>
       <div class="manual-step">
-        <div class="manual-step-title">&#128293; Step 2 &#8212; Firebase Setup</div>
+        <div class="manual-step-title">&#128293; Firebase Setup (Server)</div>
         <div class="manual-step-body">
-          1. Go to <strong>console.firebase.google.com</strong><br>
-          2. Create a project &rarr; Enable Firestore Database<br>
-          3. Project Settings &rarr; Service Accounts &rarr; Generate private key<br>
-          4. Copy the values into your .env file
+          1. Firebase Console &rarr; Service Accounts &rarr; Generate key<br>
+          2. Copy <code>project_id</code>, <code>client_email</code>, <code>private_key</code> to .env
         </div>
       </div>
       <div class="manual-step">
-        <div class="manual-step-title">&#9925; Step 3 &#8212; Cloudinary Setup</div>
+        <div class="manual-step-title">&#127760; Firebase Web Config</div>
         <div class="manual-step-body">
-          1. Sign up at <strong>cloudinary.com</strong> (free)<br>
-          2. Dashboard &rarr; copy Cloud Name, API Key, API Secret<br>
-          3. Paste into your .env file
+          1. Open <code>public/index.html</code> &amp; <code>public/admin.html</code><br>
+          2. Replace <code>apiKey</code>, <code>appId</code>, <code>messagingSenderId</code> with your Firebase Web App values<br>
+          3. Found in: Project Settings &rarr; General &rarr; Your apps
         </div>
       </div>
       <div class="manual-step">
-        <div class="manual-step-title">&#128273; Step 4 &#8212; Create .env File</div>
-        <div class="manual-step-body">Create a <code class="inline-code">.env</code> file in the root folder:</div>
-        <div class="manual-code">FIREBASE_PROJECT_ID=your-project-id<br>FIREBASE_CLIENT_EMAIL=your-client-email<br>FIREBASE_PRIVATE_KEY=your-private-key<br>CLOUDINARY_CLOUD_NAME=your-cloud-name<br>CLOUDINARY_API_KEY=your-api-key<br>CLOUDINARY_API_SECRET=your-api-secret</div>
+        <div class="manual-step-title">&#9925; Cloudinary Setup</div>
+        <div class="manual-step-body">
+          Sign up at cloudinary.com (free) &rarr; Dashboard &rarr; copy Cloud Name, API Key, Secret to .env
+        </div>
       </div>
       <div class="manual-step">
-        <div class="manual-step-title">&#128640; Step 5 &#8212; Run It!</div>
+        <div class="manual-step-title">&#128273; Create .env File</div>
+        <div class="manual-code">FIREBASE_PROJECT_ID=your-project-id<br>FIREBASE_CLIENT_EMAIL=your-client-email<br>FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"<br>CLOUDINARY_CLOUD_NAME=your-cloud-name<br>CLOUDINARY_API_KEY=your-api-key<br>CLOUDINARY_API_SECRET=your-api-secret</div>
+        <div class="manual-step-body">Use the exact format above with <code>\n</code> for newlines.</div>
+      </div>
+      <div class="manual-step">
+        <div class="manual-step-title">&#128640; Run It!</div>
         <div class="manual-code">node server.js</div>
-        <div class="manual-step-body">Open <strong>http://localhost:3000</strong> in your browser. That is it! &#127881;</div>
-        <div class="manual-step-body">&#11088; If this project helps you, consider giving it a star on GitHub. Your support is appreciated!</div>
+        <div class="manual-step-body">Open <strong>http://localhost:3000</strong> &mdash; that is it! &#127881;</div>
+      </div>
+      <div class="manual-step">
+        <div class="manual-step-title">&#128220; Firestore Indexes</div>
+        <div class="manual-step-body">
+          After deploying, create these composite indexes in Firebase Console &rarr; Firestore &rarr; Indexes:<br><br>
+          <strong>papers:</strong> <code>status</code> Asc, <code>createdAt</code> Desc<br>
+          <strong>bookmarks:</strong> <code>userId</code> Asc, <code>createdAt</code> Desc<br>
+          <strong>bookmarks:</strong> <code>userId</code> Asc, <code>paperId</code> Asc
+        </div>
+      </div>
+      <div class="manual-step">
+        <div class="manual-step-title">&#128736;&#65039; Making an Admin</div>
+        <div class="manual-step-body">
+          In Firestore, create doc in <code>admins</code> collection with the user's Firebase UID as the document ID, field <code>role: "admin"</code>.
+        </div>
+      </div>
+      <div class="manual-step">
+        <div class="manual-step-title">&#128202; Tests</div>
+        <div class="manual-code">node --test __tests__/api.test.js</div>
       </div>
     </div>
     <div class="modal-actions">
@@ -452,11 +465,7 @@
   </div>
   <div class="footer-bottom">
     <div class="footer-bottom-left">&copy; 2025 StudyVault &middot; Built by Mohammad Umar, B.Tech CSE Student &middot; Free forever for every student.</div>
-    <div class="footer-bottom-right">
-      <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy</a>
-      <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
-      <a href="#" onclick="document.getElementById('contactModal').classList.add('open');return false">Contact</a>
-    </div>
+    <div class="footer-bottom-right"></div>
   </div>
 </footer>
 
