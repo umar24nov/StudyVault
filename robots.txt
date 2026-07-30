@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://studyvaultapp.vercel.app/sitemap.xml
