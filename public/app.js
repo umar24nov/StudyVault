@@ -43,10 +43,10 @@ function updateNavAuth(signedIn, user) {
           : `<div class="nav-avatar-circle">${initial}</div>`
         }
       </button>`;
-    if (bookmarksLink) bookmarksLink.style.display = '';
+    if (bookmarksLink) bookmarksLink.parentElement.style.display = '';
   } else {
     authEl.innerHTML = `<button class="nav-btn" id="signInBtn" onclick="signInWithGoogle()">Sign In</button>`;
-    if (bookmarksLink) bookmarksLink.style.display = 'none';
+    if (bookmarksLink) bookmarksLink.parentElement.style.display = 'none';
     const adminLi = document.getElementById('navAdminLi');
     if (adminLi) adminLi.style.display = 'none';
   }
