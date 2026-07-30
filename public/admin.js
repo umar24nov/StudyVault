@@ -186,11 +186,11 @@ async function loadAdminUsers() {
 
 async function loadAdminReviews() {
   try {
-    const res = await fetch(`${API_BASE}/api/reviews`);
+    const res = await apiFetch('/api/admin/reviews');
     const reviews = await res.json();
     const tbody = document.getElementById('reviewsTableBody');
     if (!reviews.length) {
-      tbody.innerHTML = '<tr><td colspan="4" class="table-loading">No reviews yet.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="table-loading">No reviews yet.</td></tr>';
       return;
     }
     tbody.innerHTML = reviews.map(r => `
@@ -198,13 +198,36 @@ async function loadAdminReviews() {
         <td>${r.name || '-'}</td>
         <td>${'&#9733;'.repeat(r.stars)}${'&#9734;'.repeat(5 - r.stars)}</td>
         <td class="table-title">${r.message || ''}</td>
-        <td><button class="btn-sm btn-delete" onclick="deleteReview('${r.id}')">Delete</button></td>
+        <td><span class="status-badge status-${r.status || 'pending'}">${r.status || 'pending'}</span></td>
+        <td>
+          <div class="table-actions">
+            ${r.status !== 'approved' ? `<button class="btn-sm btn-approve" onclick="approveReview('${r.id}')">Approve</button>` : ''}
+            ${r.status !== 'rejected' ? `<button class="btn-sm btn-reject" onclick="rejectReview('${r.id}')">Reject</button>` : ''}
+            <button class="btn-sm btn-delete" onclick="deleteReview('${r.id}')">Delete</button>
+          </div>
+        </td>
       </tr>
     `).join('');
   } catch (e) {
     document.getElementById('reviewsTableBody').innerHTML =
-      '<tr><td colspan="4" class="table-loading">Failed to load reviews.</td></tr>';
+      '<tr><td colspan="5" class="table-loading">Failed to load reviews.</td></tr>';
   }
+}
+
+async function approveReview(id) {
+  try {
+    await apiFetch(`/api/admin/reviews/${id}/approve`, { method: 'PATCH' });
+    showToast('Review approved.');
+    loadAdminReviews();
+  } catch (e) { showToast('Failed.'); }
+}
+
+async function rejectReview(id) {
+  try {
+    await apiFetch(`/api/admin/reviews/${id}/reject`, { method: 'PATCH' });
+    showToast('Review rejected.');
+    loadAdminReviews();
+  } catch (e) { showToast('Failed.'); }
 }
 
 async function deleteReview(id) {

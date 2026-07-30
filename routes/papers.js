@@ -181,7 +181,7 @@ function paperRoutes(db, cloudinary) {
         downloadURL,
         fileName:    file.originalname,
         downloads:   0,
-        status:      'approved',  // Auto-approve for now; change to 'pending' for review workflow
+        status:      'pending',
         uploadedBy:  req.user.uid,
         uploaderName: req.user.name || req.user.email || 'Anonymous',
         createdAt:   admin.firestore.FieldValue.serverTimestamp()
@@ -226,7 +226,7 @@ function paperRoutes(db, cloudinary) {
   });
 
   // POST /api/papers/:id/download — increment download counter
-  router.post('/:id/download', async (req, res, next) => {
+  router.post('/:id/download', uploadLimiter, async (req, res, next) => {
     try {
       const ref = db.collection('papers').doc(req.params.id);
       await ref.update({

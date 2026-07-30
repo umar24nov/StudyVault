@@ -139,6 +139,49 @@ function adminRoutes(db) {
     }
   });
 
+  // GET /api/admin/reviews — list all reviews with status
+  router.get('/reviews', async (req, res, next) => {
+    try {
+      const snapshot = await db.collection('reviews').orderBy('createdAt', 'desc').limit(100).get();
+      const reviews = snapshot.docs.map(doc => {
+        const data = doc.data();
+        const { userId, ...rest } = data;
+        return { id: doc.id, ...rest };
+      });
+      res.json(reviews);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // PATCH /api/admin/reviews/:id/approve — approve a review
+  router.patch('/reviews/:id/approve', async (req, res, next) => {
+    try {
+      await db.collection('reviews').doc(req.params.id).update({
+        status: 'approved',
+        reviewedBy: req.user.uid,
+        reviewedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // PATCH /api/admin/reviews/:id/reject — reject a review
+  router.patch('/reviews/:id/reject', async (req, res, next) => {
+    try {
+      await db.collection('reviews').doc(req.params.id).update({
+        status: 'rejected',
+        reviewedBy: req.user.uid,
+        reviewedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // DELETE /api/admin/feedback/:id — delete feedback
   router.delete('/feedback/:id', async (req, res, next) => {
     try {

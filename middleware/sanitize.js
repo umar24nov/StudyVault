@@ -9,7 +9,8 @@ const DANGEROUS_PATTERNS = [
   /<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi,  // <iframe> tags
   /<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi,  // <object> tags
   /<embed\b[^>]*\/?>/gi,                                   // <embed> tags
-  /on\w+\s*=\s*["'][^"']*["']/gi,                         // onclick=, onerror=, etc.
+  /on\w+\s*=\s*["'][^"']*["']/gi,                         // onclick="...", onerror='...'
+  /on\w+\s*=\s*[^\s>]+/gi,                                 // onclick=alert(1) (unquoted)
   /javascript\s*:/gi,                                      // javascript: protocol
   /data\s*:\s*text\/html/gi,                               // data: URI scheme
 ];

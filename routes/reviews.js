@@ -6,20 +6,26 @@ const { writeLimiter } = require('../middleware/rateLimit');
 function reviewRoutes(db) {
   const router = express.Router();
 
-  // GET /api/reviews — top 3 by stars
+  // GET /api/reviews — top 3 approved by stars
   router.get('/', async (req, res, next) => {
     try {
       const snapshot = await db.collection('reviews')
+        .where('status', '==', 'approved')
         .orderBy('stars', 'desc')
         .limit(3)
         .get();
-      res.json(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      const reviews = snapshot.docs.map(doc => {
+        const data = doc.data();
+        const { userId, ...rest } = data;
+        return { id: doc.id, ...rest };
+      });
+      res.json(reviews);
     } catch (err) {
       next(err);
     }
   });
 
-  // POST /api/reviews — requires auth
+  // POST /api/reviews — requires auth (default pending)
   router.post('/', verifyToken, writeLimiter, async (req, res, next) => {
     try {
       const { name, message, stars } = req.body;
@@ -33,6 +39,7 @@ function reviewRoutes(db) {
       await db.collection('reviews').add({
         name, message,
         stars: starNum,
+        status: 'pending',
         userId: req.user.uid,
         createdAt: require('firebase-admin').firestore.FieldValue.serverTimestamp()
       });
