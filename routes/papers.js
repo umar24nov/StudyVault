@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const admin = require('firebase-admin');
 const { sendEmail } = require('../config/email');
+const { stripDangerous } = require('../middleware/sanitize');
 const { upload } = require('../middleware/upload');
 const { verifyToken, optionalAuth, requireAdminAuth } = require('../middleware/auth');
 const { uploadLimiter } = require('../middleware/rateLimit');
@@ -140,7 +141,9 @@ function paperRoutes(db, cloudinary) {
   // POST /api/papers — upload a paper (requires auth)
   router.post('/', verifyToken, uploadLimiter, upload.single('file'), async (req, res, next) => {
     try {
-      const { title, course, type, year, university, tags } = req.body;
+      const { type, year, university, tags } = req.body;
+      const title = stripDangerous(req.body.title || '');
+      const course = stripDangerous(req.body.course || '');
       const file = req.file;
 
       if (!file)   return res.status(400).json({ error: 'No file uploaded' });

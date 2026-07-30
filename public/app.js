@@ -155,6 +155,7 @@ function renderCards(data) {
     const type    = p.type || 'pyq';
     const isBookmarked = bookmarkedIds.has(p.id);
     const tags    = p.tags || [];
+    const esc     = s => (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
     return `
     <div class="result-card">
@@ -164,25 +165,25 @@ function renderCards(data) {
           ${isBookmarked ? '&#9733;' : '&#9734;'}
         </button>` : ''}
       </div>
-      <div class="card-title">${p.title || 'Untitled'}</div>
-      <div class="card-meta">${univ}${year ? ' · ' + year : ''}</div>
+      <div class="card-title">${esc(p.title)}</div>
+      <div class="card-meta">${esc(univ)}${year ? ' · ' + esc(year) : ''}</div>
       <div class="card-footer">
         <div class="card-tags">
-          ${course ? `<span class="tag">${course}</span>` : ''}
-          ${tags.slice(0, 2).map(t => `<span class="tag tag-alt">${t}</span>`).join('')}
+          ${course ? `<span class="tag">${esc(course)}</span>` : ''}
+          ${tags.slice(0, 2).map(t => `<span class="tag tag-alt">${esc(t)}</span>`).join('')}
         </div>
         <div class="card-actions">
           <span class="dl-count" title="Downloads">${p.downloads || 0} &#11015;&#65039;</span>
           ${safeURL && (p.type === 'pyq' || p.type === 'notes' || p.type === 'paper')
-            ? `<button class="preview-btn" onclick="openPreview('${safeURL.replace(/\\/g, '\\\\')}', '${(p.title || 'Preview').replace(/'/g, "\\'")}')" title="Preview">&#128065;</button>`
+            ? `<button class="preview-btn" data-url="${esc(safeURL)}" data-title="${esc(p.title || 'Preview')}" title="Preview">&#128065;</button>`
             : ''}
           ${safeURL
-            ? `<a class="dl-btn" href="${safeURL}" target="_blank" rel="noopener" download onclick="trackDownload('${p.id}')">Download</a>`
+            ? `<a class="dl-btn" href="${esc(safeURL)}" target="_blank" rel="noopener" download onclick="trackDownload('${p.id}')">Download</a>`
             : `<button class="dl-btn" onclick="showToast('No file attached yet.')">Download</button>`
           }
         </div>
       </div>
-      ${p.uploaderName ? `<div class="card-uploader">Uploaded by ${p.uploaderName}</div>` : ''}
+      ${p.uploaderName ? `<div class="card-uploader">Uploaded by ${esc(p.uploaderName)}</div>` : ''}
     </div>`;
   }).join('')}</div>`;
 }
@@ -512,6 +513,11 @@ async function loadTestimonials() {
 }
 
 // ── PDF PREVIEW ───────────────────────────────────────
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.preview-btn');
+  if (btn) openPreview(btn.dataset.url, btn.dataset.title);
+});
+
 function openPreview(url, title) {
   // Convert download URL to inline preview URL (remove fl_attachment)
   const previewUrl = url.replace('/fl_attachment/', '/');

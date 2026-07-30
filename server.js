@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 
 // ── Validate environment variables FIRST ────────────────
 const { validateEnv } = require('./config/env');
@@ -17,8 +18,13 @@ const app = express();
 app.set('trust proxy', 1);  // Trust first proxy (needed for Render)
 
 // ── Security middleware ────────────────────────────────
-app.use(cors());
-app.use(express.json({ limit: '1mb' }));  // Limit JSON body size
+app.use(helmet());
+app.use(cors({
+  origin: ['https://studyvaultapp.vercel.app', 'http://localhost:3000', 'http://localhost:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.use(express.json({ limit: '1mb' }));
 app.use(express.static('public'));
 
 // ── Rate limiting ──────────────────────────────────────
