@@ -54,9 +54,10 @@ nav {
 .logo-link { text-decoration: none; }
 .logo span { color: var(--accent2); -webkit-text-fill-color: var(--accent2); }
 nav ul { list-style: none; display: flex; gap: 1.4rem; align-items: center; }
-nav ul li a { color: var(--muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.2s; line-height: 1; }
-nav ul li a:hover { color: var(--text); }
-.nav-btn { background: var(--accent); color: #fff !important; padding: 0.45rem 1.2rem; border-radius: 8px; font-weight: 600 !important; transition: opacity 0.2s, transform 0.2s !important; }
+nav ul li { display: flex; align-items: center; }
+nav ul li a, nav ul li button { color: var(--muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.2s; line-height: 1; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+nav ul li a:hover, nav ul li button:hover { color: var(--text); }
+.nav-btn { background: var(--accent); color: #fff !important; padding: 0.45rem 1.2rem; border-radius: 8px; font-weight: 600 !important; transition: opacity 0.2s, transform 0.2s !important; border: none; }
 .nav-btn:hover { opacity: 0.85; transform: translateY(-1px); }
 
 /* ── NAV MORE DROPDOWN ───────────────────────────── */
@@ -504,7 +505,7 @@ footer {
   }
   nav ul.open { display: flex; }
   nav ul li { width: 100%; text-align: center; }
-  nav ul li a { display: block; padding: 0.85rem 2rem; font-size: 1rem; border-bottom: 1px solid var(--border); }
+  nav ul li a, nav ul li button { display: block; padding: 0.85rem 2rem; font-size: 1rem; border-bottom: 1px solid var(--border); }
   nav ul li:last-child a { border-bottom: none; }
   .nav-btn { margin: 0.5rem auto 0; display: inline-block !important; width: auto !important; }
 
