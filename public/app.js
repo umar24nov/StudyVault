@@ -437,7 +437,10 @@ async function handleUpload() {
 let selectedStar = 0;
 const starLabels = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent!'];
 
-function openReviewModal()  { document.getElementById('reviewModal').classList.add('open'); }
+function openReviewModal() {
+  if (!currentUser) { showToast('Please sign in to leave a review.'); signInWithGoogle(); return; }
+  document.getElementById('reviewModal').classList.add('open');
+}
 function closeReviewModal() {
   document.getElementById('reviewModal').classList.remove('open');
   selectedStar = 0;
@@ -463,10 +466,12 @@ async function submitReview() {
   if (!selectedStar) { showToast('Please select a star rating.'); return; }
   if (!name)         { showToast('Please enter your name.'); return; }
   if (!msg)          { showToast('Please write a short review.'); return; }
+  const token = await getAuthToken();
+  if (!token) { showToast('Please sign in first.'); return; }
   try {
     const res  = await fetch(`${API_BASE}/api/reviews`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ name, message: msg, stars: selectedStar })
     });
     const data = await res.json();

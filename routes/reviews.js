@@ -1,16 +1,17 @@
 const express = require('express');
 const { sendEmail } = require('../config/email');
+const { verifyToken } = require('../middleware/auth');
 const { writeLimiter } = require('../middleware/rateLimit');
 
 function reviewRoutes(db) {
   const router = express.Router();
 
-  // GET /api/reviews
+  // GET /api/reviews — top 3 by stars
   router.get('/', async (req, res, next) => {
     try {
       const snapshot = await db.collection('reviews')
-        .orderBy('createdAt', 'desc')
-        .limit(12)
+        .orderBy('stars', 'desc')
+        .limit(3)
         .get();
       res.json(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     } catch (err) {
@@ -18,8 +19,8 @@ function reviewRoutes(db) {
     }
   });
 
-  // POST /api/reviews
-  router.post('/', writeLimiter, async (req, res, next) => {
+  // POST /api/reviews — requires auth
+  router.post('/', verifyToken, writeLimiter, async (req, res, next) => {
     try {
       const { name, message, stars } = req.body;
       if (!name || !message || !stars)
@@ -32,6 +33,7 @@ function reviewRoutes(db) {
       await db.collection('reviews').add({
         name, message,
         stars: starNum,
+        userId: req.user.uid,
         createdAt: require('firebase-admin').firestore.FieldValue.serverTimestamp()
       });
       res.status(201).json({ success: true });
