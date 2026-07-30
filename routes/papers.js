@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const admin = require('firebase-admin');
+const { sendEmail } = require('../config/email');
 const { upload } = require('../middleware/upload');
 const { verifyToken, optionalAuth, requireAdminAuth } = require('../middleware/auth');
 const { uploadLimiter } = require('../middleware/rateLimit');
@@ -184,6 +185,8 @@ function paperRoutes(db, cloudinary) {
       });
 
       res.status(201).json({ success: true, id: docRef.id, downloadURL });
+
+      sendEmail(`New paper uploaded: ${title}`, `<p><strong>Title:</strong> ${title}</p><p><strong>Course:</strong> ${course}</p><p><strong>Type:</strong> ${type || 'pyq'}</p><p><strong>Uploaded by:</strong> ${req.user.name || req.user.email || 'Anonymous'}</p>`);
     } catch (err) {
       next(err);
     }

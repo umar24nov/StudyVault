@@ -1,17 +1,10 @@
 const express = require('express');
+const { sendEmail } = require('../config/email');
 const { writeLimiter } = require('../middleware/rateLimit');
-
-function getResend() {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return null;
-  const { Resend } = require('resend');
-  return new Resend(key);
-}
 
 function feedbackRoutes(db) {
   const router = express.Router();
 
-  // POST /api/feedback
   router.post('/', writeLimiter, async (req, res, next) => {
     try {
       const { type, message } = req.body;
@@ -26,7 +19,6 @@ function feedbackRoutes(db) {
     }
   });
 
-  // POST /api/feedback/contact
   router.post('/contact', writeLimiter, async (req, res, next) => {
     try {
       const { name, email, message } = req.body;
@@ -42,23 +34,7 @@ function feedbackRoutes(db) {
         createdAt: require('firebase-admin').firestore.FieldValue.serverTimestamp()
       });
 
-      // Send email notification via Resend (if configured)
-      const resend = getResend();
-      if (resend) {
-        try {
-          await resend.emails.send({
-            from: 'StudyVault <onboarding@resend.dev>',
-            to: ['studyvaultapp@gmail.com'],
-            subject: `New contact from ${name}`,
-            html: `<p><strong>Name:</strong> ${name}</p>
-                   <p><strong>Email:</strong> ${email}</p>
-                   <p><strong>Message:</strong></p>
-                   <p>${message}</p>`
-          });
-        } catch (emailErr) {
-          console.error('Email send failed:', emailErr.message);
-        }
-      }
+      await sendEmail(`New contact from ${name}`, `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Message:</strong></p><p>${message}</p>`);
 
       res.json({ success: true });
     } catch (err) {

@@ -1,4 +1,5 @@
 const express = require('express');
+const { sendEmail } = require('../config/email');
 const { writeLimiter } = require('../middleware/rateLimit');
 
 function reviewRoutes(db) {
@@ -34,6 +35,8 @@ function reviewRoutes(db) {
         createdAt: require('firebase-admin').firestore.FieldValue.serverTimestamp()
       });
       res.status(201).json({ success: true });
+
+      sendEmail(`New review from ${name}`, `<p><strong>Name:</strong> ${name}</p><p><strong>Stars:</strong> ${'★'.repeat(starNum)}${'☆'.repeat(5 - starNum)} (${starNum}/5)</p><p><strong>Review:</strong></p><p>${message}</p>`);
     } catch (err) {
       next(err);
     }
