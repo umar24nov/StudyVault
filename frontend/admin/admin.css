@@ -52,6 +52,8 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .admin-user-btn:hover { background: rgba(255,255,255,0.05); }
 .admin-avatar, .admin-avatar-circle { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .admin-avatar-circle { background: linear-gradient(135deg, var(--accent), var(--accent3)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; }
+.admin-avatar[hidden], .admin-avatar-circle[hidden],
+.admin-profile-avatar[hidden], .admin-profile-avatar-circle[hidden] { display: none !important; }
 
 /* ADMIN PROFILE MODAL */
 .admin-profile-card { display: flex; align-items: center; gap: 1rem; background: var(--surface2); border: 1px solid var(--border); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; }

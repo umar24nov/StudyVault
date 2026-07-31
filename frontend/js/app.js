@@ -44,6 +44,7 @@ function updateNavAuth(signedIn, user) {
     const initial = name.charAt(0).toUpperCase();
     if (authEl) authEl.innerHTML = `
       <button class="nav-avatar-btn" onclick="openProfileModal()">
+        <span class="nav-avatar-label">&#128100; Profile</span>
         ${user.photoURL && /^https:\/\//i.test(user.photoURL)
           ? `<img src="${esc(user.photoURL)}" alt="" class="nav-avatar-img">`
           : `<div class="nav-avatar-circle">${esc(initial)}</div>`
@@ -848,6 +849,11 @@ function toggleNotifPanel(e) {
     loadNotifications();
     renderNotifications();
   }
+}
+
+function closeNotifPanel() {
+  const panel = document.getElementById('notifPanel');
+  if (panel) panel.classList.remove('open');
 }
 
 function fmtNotifTime(t) {

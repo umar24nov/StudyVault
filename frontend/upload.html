@@ -47,7 +47,7 @@
     <li><a href="#" onclick="openReviewModal()">Rate Us</a></li>
     <li><a href="#" onclick="openContactModal()">Contact Us</a></li>
     <li id="notifLi" style="display:none">
-      <button class="notif-bell" id="notifBell" onclick="toggleNotifPanel(event)" aria-label="Notifications">&#128276;<span class="notif-badge" id="notifBadge" style="display:none"></span></button>
+      <button class="notif-bell" id="notifBell" onclick="toggleNotifPanel(event)" aria-label="Notifications">&#128276;<span class="notif-bell-label">Notifications</span><span class="notif-badge" id="notifBadge" style="display:none"></span></button>
     </li>
     <li id="navAuth">
       <button class="nav-btn" id="signInBtn" onclick="signInWithGoogle()">Sign In</button>
@@ -59,7 +59,10 @@
 <div class="notif-panel" id="notifPanel">
   <div class="notif-head">
     <span class="notif-title">Notifications</span>
-    <button class="notif-mark-all" onclick="markAllNotifRead()">Mark all as read</button>
+    <div class="notif-head-actions">
+      <button class="notif-mark-all" onclick="markAllNotifRead()">Mark all as read</button>
+      <button class="notif-close" onclick="closeNotifPanel()" aria-label="Close notifications">&#10005;</button>
+    </div>
   </div>
   <div class="notif-list" id="notifList">
     <div class="notif-empty">No notifications yet.</div>
@@ -145,7 +148,6 @@
     <div class="footer-col">
       <div class="footer-col-title">Company</div>
       <a href="#" onclick="document.getElementById('aboutModal').classList.add('open');return false">About Us</a>
-      <a href="#" onclick="document.getElementById('contactModal').classList.add('open');return false">Contact</a>
       <a href="#" onclick="document.getElementById('developerModal').classList.add('open');return false">Developer</a>
       <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy Policy</a>
       <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
