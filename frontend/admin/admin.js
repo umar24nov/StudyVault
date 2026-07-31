@@ -108,7 +108,9 @@ function renderAdminPapers(papers) {
     tbody.innerHTML = '<tr><td colspan="8" class="table-loading">No papers found.</td></tr>';
     return;
   }
-  tbody.innerHTML = papers.map(p => `
+  tbody.innerHTML = papers.map(p => {
+    const previewUrl = (p.downloadURL || '').replace('/fl_attachment/', '/');
+    return `
     <tr>
       <td class="table-title" title="${escAttr(p.title || '')}">${esc(p.title) || 'Untitled'}</td>
       <td>${esc(p.course) || '-'}</td>
@@ -119,6 +121,7 @@ function renderAdminPapers(papers) {
       <td>${esc(p.uploaderName) || '-'}</td>
       <td>
         <div class="table-actions">
+          ${p.downloadURL ? `<button class="btn-sm btn-preview" data-url="${escAttr(previewUrl)}" data-title="${escAttr(p.title || '')}" onclick="openPreview(this)" title="Preview">&#128065; Preview</button>` : ''}
           <button class="btn-sm btn-edit" data-edit-id="${p.id}" data-title="${escAttr(p.title || '')}" data-type="${escAttr(p.type || '')}" data-course="${escAttr(p.course || '')}" data-univ="${escAttr(p.university || p.univ || '')}" data-year="${escAttr(p.year || '')}" onclick="openEditPaper(this)">Edit</button>
           ${p.status !== 'approved' ? `<button class="btn-sm btn-approve" onclick="approvePaper('${p.id}')">Approve</button>` : ''}
           ${p.status !== 'rejected' ? `<button class="btn-sm btn-reject" onclick="rejectPaper('${p.id}')">Reject</button>` : ''}
@@ -126,11 +129,22 @@ function renderAdminPapers(papers) {
         </div>
       </td>
     </tr>
-  `).join('');
+  `;}).join('');
 }
 
 function escAttr(str) {
   return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function fmtDate(t) {
+  if (!t) return '-';
+  let d = null;
+  if (typeof t === 'object' && t.seconds != null)        d = new Date(t.seconds * 1000);
+  else if (typeof t === 'object' && t._seconds != null)  d = new Date(t._seconds * 1000);
+  else if (typeof t === 'string')                        d = new Date(t);
+  else                                                   d = new Date(t);
+  if (isNaN(d.getTime())) return '-';
+  return d.toLocaleDateString();
 }
 
 // ── EDIT PAPER ────────────────────────────────────────
@@ -164,25 +178,28 @@ async function saveEditPaper() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, type, course, university, year })
     });
+    const p = allAdminPapers.find(x => x.id === editingPaperId);
+    if (p) { Object.assign(p, { title, type, course, university, year }); renderAdminPapers(allAdminPapers); }
     closeEditPaper();
     showToast('Paper updated.');
-    loadDashboard();
   } catch (e) { showToast('Failed to update.'); }
 }
 
 async function approvePaper(id) {
   try {
     await apiFetch(`/api/admin/papers/${id}/approve`, { method: 'PATCH' });
+    const p = allAdminPapers.find(x => x.id === id);
+    if (p) { p.status = 'approved'; renderAdminPapers(allAdminPapers); }
     showToast('Paper approved.');
-    loadDashboard();
   } catch (e) { showToast('Failed.'); }
 }
 
 async function rejectPaper(id) {
   try {
     await apiFetch(`/api/admin/papers/${id}/reject`, { method: 'PATCH' });
+    const p = allAdminPapers.find(x => x.id === id);
+    if (p) { p.status = 'rejected'; renderAdminPapers(allAdminPapers); }
     showToast('Paper rejected.');
-    loadDashboard();
   } catch (e) { showToast('Failed.'); }
 }
 
@@ -190,9 +207,23 @@ async function deletePaper(id) {
   if (!confirm('Are you sure you want to delete this paper?')) return;
   try {
     await apiFetch(`/api/admin/papers/${id}`, { method: 'DELETE' });
+    allAdminPapers = allAdminPapers.filter(x => x.id !== id);
+    renderAdminPapers(allAdminPapers);
     showToast('Paper deleted.');
-    loadDashboard();
   } catch (e) { showToast('Failed.'); }
+}
+
+// ── PREVIEW ─────────────────────────────────────────
+function openPreview(btn) {
+  document.getElementById('previewTitle').textContent = btn.dataset.title || 'Preview';
+  document.getElementById('previewFrame').src = btn.dataset.url || '';
+  document.getElementById('previewDownload').href = btn.dataset.url || '';
+  document.getElementById('previewModal').classList.add('open');
+}
+
+function closePreview() {
+  document.getElementById('previewFrame').src = '';
+  document.getElementById('previewModal').classList.remove('open');
 }
 
 // ── TABS ──────────────────────────────────────────────
@@ -222,7 +253,7 @@ async function loadAdminUsers() {
       <tr>
         <td>${esc(u.name) || '-'}</td>
         <td>${esc(u.email) || '-'}</td>
-        <td>${u.joinedAt ? new Date(u.joinedAt.seconds * 1000).toLocaleDateString() : '-'}</td>
+        <td>${fmtDate(u.joinedAt)}</td>
       </tr>
     `).join('');
   } catch (e) {
