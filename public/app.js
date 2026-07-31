@@ -103,9 +103,15 @@ document.addEventListener('DOMContentLoaded', () => {
 let allPapers = [];
 let currentChipCourse = '';
 let bookmarkedIds = new Set();
+let currentPage = 1;
+let hasMore = false;
+let isLoadingMore = false;
+const PAPERS_PER_PAGE = 12;
 
 // ── LOAD PAPERS FROM SERVER ───────────────────────────
 async function loadPapers() {
+  currentPage = 1;
+  hasMore = false;
   const wakeTimer = setTimeout(() => {
     const area = document.getElementById('resultsArea');
     if (area && area.querySelector('.loading')) {
@@ -116,15 +122,17 @@ async function loadPapers() {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 90000);
-    const res = await fetch(`${API_BASE}/api/papers`, { signal: controller.signal });
+    const res = await fetch(`${API_BASE}/api/papers?page=1&limit=${PAPERS_PER_PAGE}`, { signal: controller.signal });
     clearTimeout(timeout);
     clearTimeout(wakeTimer);
     if (!res.ok) throw new Error('Server error');
     const data = await res.json();
     allPapers = data.data || data;
+    hasMore = !!(data.pagination && data.pagination.hasMore);
     const statEl = document.getElementById('statPapers');
-    if (statEl) statEl.textContent = allPapers.length + '+';
+    if (statEl) statEl.textContent = (data.pagination ? data.pagination.total : allPapers.length) + '+';
     performSearch();
+    updateLoadMore();
   } catch(e) {
     clearTimeout(wakeTimer);
     const area = document.getElementById('resultsArea');
@@ -133,6 +141,53 @@ async function loadPapers() {
     } else {
       area.innerHTML = '<div class="no-results">Could not connect to server. <a href="#" onclick="loadPapers();return false;" style="color:var(--accent)">Try again</a></div>';
     }
+  }
+}
+
+async function loadMorePapers() {
+  if (isLoadingMore || !hasMore) return;
+  isLoadingMore = true;
+  const btn = document.getElementById('loadMoreBtn');
+  const wrap = document.getElementById('loadMoreWrap');
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading...'; }
+
+  try {
+    const nextPage = currentPage + 1;
+    const res = await fetch(`${API_BASE}/api/papers?page=${nextPage}&limit=${PAPERS_PER_PAGE}`);
+    if (!res.ok) throw new Error('Server error');
+    const data = await res.json();
+    const more = data.data || [];
+    allPapers = allPapers.concat(more);
+    currentPage = nextPage;
+    hasMore = !!(data.pagination && data.pagination.hasMore);
+    const statEl = document.getElementById('statPapers');
+    if (statEl && data.pagination) statEl.textContent = data.pagination.total + '+';
+    performSearch();
+    updateLoadMore();
+  } catch(e) {
+    if (btn) btn.textContent = 'Load More';
+  } finally {
+    isLoadingMore = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Load More'; }
+  }
+}
+
+function updateLoadMore() {
+  const wrap = document.getElementById('loadMoreWrap');
+  const btn = document.getElementById('loadMoreBtn');
+  if (!wrap || !btn) return;
+  const area = document.getElementById('resultsArea');
+  const hasVisibleCards = area && area.querySelector('.results-grid');
+  if (hasMore && hasVisibleCards) {
+    wrap.style.display = 'block';
+    btn.style.display = 'block';
+  } else if (hasVisibleCards) {
+    wrap.style.display = 'block';
+    btn.style.display = 'none';
+    const end = document.getElementById('loadMoreWrap').querySelector('.load-more-end');
+    if (end) end.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
   }
 }
 
@@ -627,3 +682,16 @@ function filterByUniversity(uniName) {
 loadPapers();
 loadTestimonials();
 loadUniversities();
+
+// Infinite scroll — auto-load next page when sentinel is visible
+if ('IntersectionObserver' in window) {
+  const sentinel = document.getElementById('scrollSentinel');
+  if (sentinel) {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+        loadMorePapers();
+      }
+    }, { rootMargin: '300px' });
+    observer.observe(sentinel);
+  }
+}

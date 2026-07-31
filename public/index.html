@@ -133,6 +133,11 @@
   <div class="results-area" id="resultsArea">
     <div class="loading">Loading papers</div>
   </div>
+  <div id="loadMoreWrap" class="load-more-wrap" style="display:none">
+    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMorePapers()">Load More</button>
+    <div class="load-more-end">You&#8217;ve reached the end of the list &#8212; try searching for more!</div>
+  </div>
+  <div id="scrollSentinel" style="height:1px"></div>
 </section>
 
 <!-- COURSES -->
@@ -253,16 +258,18 @@
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open')">&#10005;</button>
     <h3>About StudyVault</h3>
-    <p class="modal-p">StudyVault is a free platform built by students, for students across India. The goal is simple &#8212; make quality study material like previous year papers, notes, and guides accessible to every student regardless of their college or background.</p>
-    <p class="modal-p">Whether you are preparing for exams, trying to understand patterns, or just want a head start &#8212; StudyVault can help you study smarter, boost your performance, and save hours of searching.</p>
-    <div class="dev-card">
-      <div class="dev-avatar">&#128104;&#8205;&#128187;</div>
-      <div>
-        <div class="dev-name">Mohammad Umar</div>
-        <div class="dev-role">B.Tech CSE Student &middot; Founder &amp; Developer</div>
+    <div class="modal-scroll-content">
+      <p class="modal-p">StudyVault is a free platform built by students, for students across India. The goal is simple &#8212; make quality study material like previous year papers, notes, and guides accessible to every student regardless of their college or background.</p>
+      <p class="modal-p">Whether you are preparing for exams, trying to understand patterns, or just want a head start &#8212; StudyVault can help you study smarter, boost your performance, and save hours of searching.</p>
+      <div class="dev-card">
+        <div class="dev-avatar">&#128104;&#8205;&#128187;</div>
+        <div>
+          <div class="dev-name">Mohammad Umar</div>
+          <div class="dev-role">B.Tech CSE Student &middot; Founder &amp; Developer</div>
+        </div>
       </div>
+      <p class="modal-footer-note">Founded in 2025 &middot; Based in India &middot; Built with &#10084;&#65039; for every student</p>
     </div>
-    <p class="modal-footer-note">Founded in 2025 &middot; Based in India &middot; Built with &#10084;&#65039; for every student</p>
     <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button></div>
   </div>
 </div>
@@ -322,12 +329,14 @@
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('contributeModal').classList.remove('open')">&#10005;</button>
     <h3>Contribute to StudyVault &#128640;</h3>
-    <p class="modal-p">StudyVault is open source and community driven. Here is how you can help:</p>
-    <div class="modal-form-stack">
-      <div class="modal-info-block">&#128196; <strong>Upload Papers</strong> &#8212; Share your old question papers and notes using the Upload section above.</div>
-      <div class="modal-info-block">&#128187; <strong>Code</strong> &#8212; Help us build new features. Star and fork us on GitHub.</div>
-      <div class="modal-info-block">&#128226; <strong>Spread the word</strong> &#8212; Share StudyVault with your classmates and college groups.</div>
-      <div class="modal-info-block">&#128027; <strong>Report bugs</strong> &#8212; Found something broken? Email us at studyvaultapp@gmail.com</div>
+    <div class="modal-scroll-content">
+      <p class="modal-p">StudyVault is open source and community driven. Here is how you can help:</p>
+      <div class="modal-form-stack">
+        <div class="modal-info-block">&#128196; <strong>Upload Papers</strong> &#8212; Share your old question papers and notes using the Upload section above.</div>
+        <div class="modal-info-block">&#128187; <strong>Code</strong> &#8212; Help us build new features. Star and fork us on GitHub.</div>
+        <div class="modal-info-block">&#128226; <strong>Spread the word</strong> &#8212; Share StudyVault with your classmates and college groups.</div>
+        <div class="modal-info-block">&#128027; <strong>Report bugs</strong> &#8212; Found something broken? Email us at studyvaultapp@gmail.com</div>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="document.getElementById('contributeModal').classList.remove('open')">Close</button>
@@ -341,31 +350,33 @@
   <div class="modal modal-dev">
     <button class="modal-close" onclick="document.getElementById('developerModal').classList.remove('open')">&#10005;</button>
     <h3>&#128104;&#8205;&#128187; The Developer</h3>
-    <div class="dev-profile-card">
-      <div class="dev-avatar-lg">&#128104;&#8205;&#128187;</div>
-      <div>
-        <div class="dev-name-lg">Mohammad Umar</div>
-        <div class="dev-role">B.Tech CSE Student &middot; Founder &amp; Developer</div>
-        <div class="dev-location">&#128205; India &middot; Building cool things &#128640;</div>
+    <div class="modal-scroll-content">
+      <div class="dev-profile-card">
+        <div class="dev-avatar-lg">&#128104;&#8205;&#128187;</div>
+        <div>
+          <div class="dev-name-lg">Mohammad Umar</div>
+          <div class="dev-role">B.Tech CSE Student &middot; Founder &amp; Developer</div>
+          <div class="dev-location">&#128205; India &middot; Building cool things &#128640;</div>
+        </div>
       </div>
-    </div>
-    <p class="modal-p">Hey! I am Umar, a Computer Science student who built StudyVault from scratch. I was frustrated with how scattered study resources were &#8212; no single place had PYQs, notes, and guides for Indian university students. So I built one.</p>
-    <p class="modal-p modal-p-muted">This is my first full-stack project &#8212; built with Node.js, Firebase, and Cloudinary. It is completely free and always will be. If it helps even one student, it was worth it.</p>
-    <div class="dev-stack-grid">
-      <div class="dev-stack-item">
-        <div class="dev-stack-icon">&#128736;&#65039;</div>
-        <div class="dev-stack-label">Stack</div>
-        <div class="dev-stack-value">Node.js &middot; Firebase</div>
-      </div>
-      <div class="dev-stack-item">
-        <div class="dev-stack-icon">&#9925;</div>
-        <div class="dev-stack-label">Storage</div>
-        <div class="dev-stack-value">Cloudinary</div>
-      </div>
-      <div class="dev-stack-item">
-        <div class="dev-stack-icon">&#128197;</div>
-        <div class="dev-stack-label">Since</div>
-        <div class="dev-stack-value">2025 &middot; Growing</div>
+      <p class="modal-p">Hey! I am Umar, a Computer Science student who built StudyVault from scratch. I was frustrated with how scattered study resources were &#8212; no single place had PYQs, notes, and guides for Indian university students. So I built one.</p>
+      <p class="modal-p modal-p-muted">This is my first full-stack project &#8212; built with Node.js, Firebase, and Cloudinary. It is completely free and always will be. If it helps even one student, it was worth it.</p>
+      <div class="dev-stack-grid">
+        <div class="dev-stack-item">
+          <div class="dev-stack-icon">&#128736;&#65039;</div>
+          <div class="dev-stack-label">Stack</div>
+          <div class="dev-stack-value">Node.js &middot; Firebase</div>
+        </div>
+        <div class="dev-stack-item">
+          <div class="dev-stack-icon">&#9925;</div>
+          <div class="dev-stack-label">Storage</div>
+          <div class="dev-stack-value">Cloudinary</div>
+        </div>
+        <div class="dev-stack-item">
+          <div class="dev-stack-icon">&#128197;</div>
+          <div class="dev-stack-label">Since</div>
+          <div class="dev-stack-value">2025 &middot; Growing</div>
+        </div>
       </div>
     </div>
     <div class="modal-actions">

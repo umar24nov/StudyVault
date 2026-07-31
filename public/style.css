@@ -423,6 +423,13 @@ footer {
 .loading::after { content: ''; display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-left: 0.6rem; vertical-align: middle; }
 .no-results { text-align: center; padding: 3rem; color: var(--muted); font-size: 0.95rem; }
 
+/* ── LOAD MORE ──────────────────────────────────────── */
+.load-more-wrap { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 2rem; }
+.load-more-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; padding: 0.7rem 2.4rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+.load-more-btn:hover { border-color: var(--accent); color: var(--accent); }
+.load-more-btn:disabled { opacity: 0.6; cursor: default; }
+.load-more-end { display: none; color: var(--muted); font-size: 0.82rem; text-align: center; }
+
 /* ── ANIMATIONS ──────────────────────────────────── */
 @keyframes fadeInDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
 @keyframes fadeInUp   { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
