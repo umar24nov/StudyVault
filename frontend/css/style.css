@@ -586,6 +586,7 @@ footer {
 
   /* Bell + avatar become full-width text rows in the menu */
   .notif-bell { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+  .notif-bell-icon { display: none; }
   .notif-bell-label { display: inline; font-size: 1rem; font-weight: 500; }
   .nav-avatar-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
   .nav-avatar-btn .nav-avatar-img,
