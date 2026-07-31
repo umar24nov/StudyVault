@@ -51,7 +51,12 @@ nav {
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
 }
-.logo-link { text-decoration: none; }
+.logo-link { text-decoration: none; display: flex; align-items: center; gap: 0.6rem; }
+.logo-img { width: 40px; height: 40px; flex-shrink: 0; }
+.logo-img-sm { width: 34px; height: 34px; }
+.logo-line { display: flex; align-items: center; gap: 0.6rem; justify-content: center; }
+.footer-logo-line { display: flex; align-items: center; gap: 0.75rem; }
+.footer-logo-img { width: 48px; height: 48px; flex-shrink: 0; }
 .logo span { color: var(--accent2); -webkit-text-fill-color: var(--accent2); }
 nav ul { list-style: none; display: flex; gap: 1.4rem; align-items: center; }
 nav ul li { display: flex; align-items: center; }
@@ -289,14 +294,14 @@ footer {
   gap: 4rem;
   align-items: start;
 }
+.footer-logo-line { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.2rem; }
+.footer-logo-img { width: 48px; height: 48px; flex-shrink: 0; }
 .footer-logo-wrap {
   font-family: 'Syne', sans-serif;
   font-size: 2rem; font-weight: 800;
   background: linear-gradient(135deg, var(--accent), var(--accent3));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  display: inline-block;
-  margin-bottom: 1.2rem;
   letter-spacing: -0.5px;
 }
 .footer-logo-wrap span { -webkit-text-fill-color: var(--accent2); }

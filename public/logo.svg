@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <style>
+    :root {
+      --accent: #6c63ff;
+      --accent2: #ff6584;
+      --accent3: #43e8b0;
+    }
+  </style>
+
+  <defs>
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="var(--accent)" />
+      <stop offset="35%" stop-color="#6F7DFF" />
+      <stop offset="70%" stop-color="var(--accent3)" />
+      <stop offset="100%" stop-color="var(--accent2)" />
+    </linearGradient>
+
+    <linearGradient id="sGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="var(--accent)" />
+      <stop offset="100%" stop-color="var(--accent3)" />
+    </linearGradient>
+
+    <filter id="innerShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <rect width="500" height="500" fill="#0A0A0F" />
+
+  <!-- Outer Hexagon Border -->
+  <path 
+    d="M 224 76 
+       Q 250 60 276 76
+       L 395 144 
+       Q 412 154 412 174 
+       L 412 326 
+       Q 412 346 395 356 
+       L 276 424
+       Q 250 440 224 424
+       L 105 356 
+       Q 88 346 88 326 
+       L 88 174 
+       Q 88 154 105 144 
+       Z" 
+    fill="none" 
+    stroke="url(#borderGrad)" 
+    stroke-width="20" 
+    stroke-linecap="round" 
+    stroke-linejoin="round"
+  />
+
+  <!-- Inner Surface Fill -->
+  <path 
+    d="M 228 88 
+       Q 250 75 272 88
+       L 383 152 
+       Q 397 160 397 176 
+       L 397 324 
+       Q 397 340 383 348 
+       L 272 412
+       Q 250 425 228 412
+       L 117 348 
+       Q 103 340 103 324 
+       L 103 176 
+       Q 103 160 117 152 
+       Z" 
+    fill="#12121A" 
+  />
+
+  <!-- S -->
+  <text x="195" y="270" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" 
+    font-size="140" font-weight="900" text-anchor="middle" fill="url(#sGrad)" filter="url(#innerShadow)">S</text>
+
+  <!-- V -->
+  <text x="305" y="270" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" 
+    font-size="140" font-weight="900" text-anchor="middle" fill="var(--accent2)" filter="url(#innerShadow)">V</text>
+
+  <!-- Open Book -->
+  <g filter="url(#innerShadow)">
+    <path d="M 250 382 C 285 355, 345 315, 380 320 L 380 310 C 345 305, 285 345, 250 370 C 215 345, 155 305, 120 310 L 120 320 C 155 315, 215 355, 250 382 Z" fill="#F5F5FA" />
+    <path d="M 250 370 C 285 342, 342 305, 375 308 L 370 293 C 338 290, 282 328, 250 354 C 218 328, 162 290, 130 293 L 125 308 C 158 305, 215 342, 250 370 Z" fill="#F5F5FA" />
+    <path d="M 250 354 C 280 330, 335 292, 366 294 L 362 282 C 332 280, 278 318, 250 342 C 222 318, 168 280, 138 282 L 134 294 C 165 292, 220 330, 250 354 Z" fill="#E8E8F2" />
+    <path d="M 250 342 C 276 320, 328 282, 357 284 L 354 274 C 326 272, 274 310, 250 332 C 226 310, 174 272, 146 274 L 143 284 C 172 282, 224 320, 250 342 Z" fill="#F5F5FA" />
+  </g>
+</svg>
