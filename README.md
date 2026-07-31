@@ -113,6 +113,8 @@ After your app is running, create these composite indexes in **Firebase Console 
 | Collection  | Fields                         |
 | ----------- | ------------------------------ |
 | `papers`    | `status` Asc, `createdAt` Desc |
+| `papers`    | `status` Asc, `downloads` Desc |
+| `reviews`   | `status` Asc, `stars` Desc     |
 | `bookmarks` | `userId` Asc, `createdAt` Desc |
 | `bookmarks` | `userId` Asc, `paperId` Asc    |
 
