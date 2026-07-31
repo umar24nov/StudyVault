@@ -58,7 +58,7 @@ npm install
 
 1. **Project Settings → General → Your apps** → Add web app
 2. Copy the `firebaseConfig` object — you'll need `apiKey`, `authDomain`, `projectId`, `appId`, `messagingSenderId`
-3. Open `public/index.html` and `public/admin.html`, find the `firebaseConfig` object, and replace the placeholder values with your real ones
+3. Open `frontend/index.html` and `frontend/admin/index.html`, find the `firebaseConfig` object, and replace the placeholder values with your real ones
 
 ### 4. Cloudinary Setup
 
@@ -90,7 +90,8 @@ RESEND_API_KEY=re_xxxxxxxxxxxx
 ### 6. Run
 
 ```bash
-node server.js
+node backend/server.js
+# or: npm start / npm run dev
 ```
 
 Open **http://localhost:3000** in your browser.
@@ -122,7 +123,7 @@ Without these indexes, queries will fail with a 500 error.
 1. In Firebase Console → Firestore, create a collection called `admins`
 2. Create a document with the user's Firebase **UID** as the document ID
 3. Add a field `role: "admin"`
-4. That user will now see the **Admin** link in the navbar and can access `/admin.html`
+4. That user will now see the **Admin** link in the navbar and can access `/admin/`
 
 ## 🧪 Tests
 
@@ -137,14 +138,14 @@ The test suite validates all API endpoints (papers, search, downloads, bookmarks
 ### Frontend (Vercel)
 
 1. Connect your GitHub repo to Vercel
-2. Set **Root Directory** to `public`
+2. Set **Root Directory** to `frontend`
 3. Deploy — no build step needed for static files
 
 ### API Server (Render)
 
 1. Create a **Web Service** on Render, connected to your GitHub repo
 2. **Build Command:** (leave empty)
-3. **Start Command:** `node server.js`
+3. **Start Command:** `node backend/server.js`
 4. **Add environment variables** from your `.env` file
 5. **Required:** Add `NODE_OPTIONS=--openssl-legacy-provider` (needed for OpenSSL 3.x / Node 22 compatibility with `firebase-admin`)
 6. Set `app.set('trust proxy', 1)` — already in `server.js` (needed behind Render's reverse proxy)
@@ -153,44 +154,53 @@ The test suite validates all API endpoints (papers, search, downloads, bookmarks
 
 ```
 StudyVault/
-├── server.js              # Express server (entry point)
-├── firestore.rules        # Firestore security rules
-├── config/
-│   ├── env.js             # Environment variable validation (Zod)
-│   ├── firebase.js        # Firebase Admin SDK init
-│   ├── cloudinary.js      # Cloudinary init
-│   └── email.js           # Resend email helper
-├── middleware/
-│   ├── auth.js            # Auth middleware (verifyToken, requireAdminAuth)
-│   ├── rateLimit.js       # Rate limiters
-│   ├── upload.js          # Multer file upload config
-│   ├── sanitize.js        # Input sanitization (stripDangerous, validation)
-│   └── errorHandler.js    # Global error handler
-├── routes/
-│   ├── papers.js          # Paper browse/search/download
-│   ├── bookmarks.js       # Bookmark toggle / list
-│   ├── reviews.js         # Ratings & reviews (requires auth)
-│   ├── feedback.js        # Feedback & contact form submissions
-│   ├── admin.js           # Admin-only endpoints (incl. paper editing)
-│   └── users.js           # User profile data
-├── scripts/
-│   └── migrate-status.js  # Legacy record migration
-├── utils/
-├── __tests__/
-│   └── api.test.js        # API integration tests (14 tests)
+├── backend/                # All server-side code
+│   ├── server.js           # Express server (entry point)
+│   ├── firestore.rules     # Firestore security rules
+│   ├── config/
+│   │   ├── env.js          # Environment variable validation (Zod)
+│   │   ├── firebase.js     # Firebase Admin SDK init
+│   │   ├── cloudinary.js   # Cloudinary init
+│   │   └── email.js        # Resend email helper
+│   ├── middleware/
+│   │   ├── auth.js         # Auth middleware (verifyToken, requireAdminAuth)
+│   │   ├── rateLimit.js    # Rate limiters
+│   │   ├── upload.js       # Multer file upload config
+│   │   ├── sanitize.js     # Input sanitization (stripDangerous, validation)
+│   │   └── errorHandler.js # Global error handler
+│   ├── routes/
+│   │   ├── papers.js       # Paper browse/search/download
+│   │   ├── bookmarks.js    # Bookmark toggle / list
+│   │   ├── reviews.js      # Ratings & reviews (requires auth)
+│   │   ├── feedback.js     # Feedback & contact form submissions
+│   │   ├── admin.js        # Admin-only endpoints (incl. paper editing)
+│   │   └── users.js        # User profile data
+│   ├── scripts/
+│   │   └── migrate-status.js # Legacy record migration
+│   ├── utils/
+│   └── __tests__/
+│       └── api.test.js     # API integration tests (14 tests)
+├── frontend/               # All client-side code (Vercel root = frontend)
+│   ├── index.html          # Main frontend
+│   ├── admin/              # Admin panel (served at /admin/)
+│   │   ├── index.html
+│   │   ├── admin.js
+│   │   └── admin.css
+│   ├── css/
+│   │   └── style.css       # All frontend styles
+│   ├── js/
+│   │   └── app.js          # Frontend logic
+│   ├── assets/
+│   │   ├── logo.svg        # Brand logo
+│   │   └── favicon.ico     # Browser favicon
+│   ├── robots.txt
+│   └── sitemap.xml
 ├── .github/workflows/
-│   └── ci.yml             # CI — syntax checks + tests on Node 18/20/22
-├── public/
-│   ├── index.html         # Main frontend
-│   ├── admin.html         # Admin panel
-│   ├── admin.js           # Admin panel logic
-│   ├── admin.css          # Admin panel styles
-│   ├── style.css          # All frontend styles
-│   ├── app.js             # Frontend logic
-│   ├── logo.svg           # Brand logo
-│   └── favicon.ico        # Browser favicon
-├── .env                   # Local env vars (not committed)
+│   └── ci.yml              # CI — syntax checks + tests on Node 18/20/22
+├── firebase.json           # Points firestore rules → backend/firestore.rules
+├── .env                    # Local env vars (not committed)
 ├── package.json
+├── LICENSE
 └── .gitignore
 ```
 

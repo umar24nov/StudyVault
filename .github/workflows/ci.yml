@@ -29,10 +29,10 @@ jobs:
 
       - name: Run syntax checks
         run: |
-          node --check server.js
-          node --check config/*.js
-          node --check middleware/*.js
-          node --check routes/*.js
+          node --check backend/server.js
+          node --check backend/config/*.js
+          node --check backend/middleware/*.js
+          node --check backend/routes/*.js
 
       - name: Run tests
         run: npm test
@@ -55,6 +55,6 @@ jobs:
       - run: npm ci
       - name: Check for syntax errors
         run: |
-          for f in server.js config/*.js middleware/*.js routes/*.js; do
+          for f in backend/server.js backend/config/*.js backend/middleware/*.js backend/routes/*.js; do
             node --check "$f" || exit 1
           done

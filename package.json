@@ -2,12 +2,12 @@
   "name": "studyvault",
   "version": "1.0.0",
   "description": "A self-hosted study resource vault powered by Node.js, Firebase, and Cloudinary.",
-  "main": "server.js",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "test": "node --test __tests__/api.test.js",
-    "migrate": "node scripts/migrate-status.js"
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "test": "node --test backend/__tests__/api.test.js",
+    "migrate": "node backend/scripts/migrate-status.js"
   },
   "keywords": [
     "study",
