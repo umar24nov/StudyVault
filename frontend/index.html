@@ -57,10 +57,10 @@
     <span></span><span></span><span></span>
   </button>
   <ul id="navMenu">
-    <li><a href="/browse.html">Search</a></li>
+    <li><a href="/search.html">Search</a></li>
     <li><a href="/upload.html">Upload</a></li>
     <li class="nav-bookmark-li" style="display:none"><a href="#" id="navBookmarks" onclick="showBookmarks()">Bookmarks</a></li>
-    <li><a href="#" onclick="return goToReviews()">Reviews</a></li>
+    <li><a href="/reviews.html">Reviews</a></li>
     <li><a href="#" class="nav-btn nav-rate" onclick="openReviewModal()">&#11088; Rate Us</a></li>
     <li><a href="#" class="nav-btn nav-contact" onclick="openContactModal()">Contact Us</a></li>
     <li id="notifLi" style="display:none">
@@ -89,7 +89,7 @@
   <h1>Your Academic<br><em>Arsenal</em> is <span class="hl2">Here</span></h1>
   <p>Access thousands of previous year question papers, notes &amp; study material. Upload your own and help fellow students ace their exams.</p>
   <div class="hero-actions">
-    <button class="btn-primary" onclick="location.href='/browse.html'">Browse Papers &#8595;</button>
+    <button class="btn-primary" onclick="location.href='/search.html'">Search Papers &#8595;</button>
     <button class="btn-secondary" onclick="location.href='/upload.html'">Contribute Resource</button>
   </div>
 </section>
@@ -145,20 +145,6 @@
     <div class="feature-card"><div class="feature-icon fi-yellow">&#11015;&#65039;</div><div class="feature-title">Easy Downloads</div><div class="feature-desc">Download any paper or notes as PDF instantly. No sign-up required.</div></div>
     <div class="feature-card"><div class="feature-icon fi-blue">&#128269;</div><div class="feature-title">Smart Search</div><div class="feature-desc">Search by subject name, university, year, or topic. Find exactly what you are looking for in seconds.</div></div>
     <div class="feature-card"><div class="feature-icon fi-pink">&#127942;</div><div class="feature-title">Verified Content</div><div class="feature-desc">All uploads go through community verification. Ratings and reports ensure only quality material stays up.</div></div>
-  </div>
-</section>
-
-<!-- REVIEWS -->
-<section class="testimonials-section" id="reviews">
-  <div class="section-label">Student Reviews</div>
-  <div class="section-title">What Students Say</div>
-  <div class="section-sub">Real feedback from students across India who use StudyVault every day.</div>
-  <div class="review-sort">
-    <button class="review-sort-btn active" data-sort="recent" onclick="changeReviewSort('recent')">&#128337;&#65039; Newest</button>
-    <button class="review-sort-btn" data-sort="top" onclick="changeReviewSort('top')">&#11088; Top Rated</button>
-  </div>
-  <div class="testimonials-grid" id="testimonialsGrid">
-    <div class="testimonial-loading">Loading reviews...</div>
   </div>
 </section>
 
@@ -312,9 +298,8 @@
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Resources</div>
-      <a href="/browse.html">Browse Papers</a>
+      <a href="/search.html">Search Papers</a>
       <a href="/upload.html">Contribute Resource</a>
-      <a href="/upload.html#myUploads">My Uploads</a>
       <a href="#" onclick="document.getElementById('contributeModal').classList.add('open');return false">Contribute</a>
       <a href="https://github.com/umar24nov/StudyVault.git" target="_blank">GitHub &#8599;</a>
     </div>
@@ -325,6 +310,7 @@
       <a href="#" onclick="document.getElementById('developerModal').classList.add('open');return false">Developer</a>
       <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy Policy</a>
       <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
+      <a href="/admin/" style="color:var(--muted);font-size:0.85rem">Admin &#128274;</a>
     </div>
     <div class="footer-col footer-feedback">
       <div class="footer-col-title">Feedback</div>
@@ -378,7 +364,7 @@
 
 <!-- USER PROFILE MODAL -->
 <div class="modal-overlay" id="profileModal">
-  <div class="modal modal-dev">
+  <div class="modal modal-profile">
     <button class="modal-close" onclick="document.getElementById('profileModal').classList.remove('open')">&#10005;</button>
     <h3>&#128100; My Profile</h3>
     <div class="dev-profile-card" id="profileCard">
@@ -405,9 +391,13 @@
         <div class="dev-stack-value" id="statDownloads">0</div>
       </div>
     </div>
+    <div class="profile-uploads">
+      <div class="profile-uploads-title">&#128196; My Uploads <span class="profile-uploads-hint">Track your approval status</span></div>
+      <div class="profile-uploads-list" id="profileUploadsList">
+        <div class="no-results">Sign in to see your uploads.</div>
+      </div>
+    </div>
     <div class="modal-actions" style="flex-wrap:wrap;gap:0.6rem">
-      <button class="btn-secondary" id="profileAdminBtn" style="display:none" onclick="location.href='/admin/'">Admin Dashboard</button>
-      <button class="btn-secondary" onclick="document.getElementById('profileModal').classList.remove('open');location.href='/upload.html#myUploads'">My Uploads</button>
       <button class="btn-primary" onclick="signOut()" style="background:linear-gradient(135deg,#ff6584,#ff4757)">Sign Out</button>
     </div>
   </div>

@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="index, follow">
 <meta name="description" content="Search and download previous year question papers, notes & study resources for Indian students by course, type, university and year.">
-<title>Browse Papers — StudyVault</title>
-<meta property="og:title" content="Browse Papers — StudyVault">
+<title>Search Papers — StudyVault</title>
+<meta property="og:title" content="Search Papers — StudyVault">
 <meta property="og:description" content="Search previous year question papers, notes & study resources by course, university and year.">
-<meta property="og:url" content="https://studyvaultapp.vercel.app/browse.html">
+<meta property="og:url" content="https://studyvaultapp.vercel.app/search.html">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_IN">
-<link rel="canonical" href="https://studyvaultapp.vercel.app/browse.html">
+<link rel="canonical" href="https://studyvaultapp.vercel.app/search.html">
 <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -40,10 +40,10 @@
     <span></span><span></span><span></span>
   </button>
   <ul id="navMenu">
-    <li><a href="/browse.html">Search</a></li>
+    <li><a href="/search.html">Search</a></li>
     <li><a href="/upload.html">Upload</a></li>
     <li class="nav-bookmark-li" style="display:none"><a href="#" id="navBookmarks" onclick="showBookmarks()">Bookmarks</a></li>
-    <li><a href="#" onclick="return goToReviews()">Reviews</a></li>
+    <li><a href="/reviews.html">Reviews</a></li>
     <li><a href="#" class="nav-btn nav-rate" onclick="openReviewModal()">&#11088; Rate Us</a></li>
     <li><a href="#" class="nav-btn nav-contact" onclick="openContactModal()">Contact Us</a></li>
     <li id="notifLi" style="display:none">
@@ -139,9 +139,8 @@
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Resources</div>
-      <a href="/browse.html">Browse Papers</a>
+      <a href="/search.html">Search Papers</a>
       <a href="/upload.html">Contribute Resource</a>
-      <a href="/upload.html#myUploads">My Uploads</a>
       <a href="#" onclick="document.getElementById('contributeModal').classList.add('open');return false">Contribute</a>
       <a href="https://github.com/umar24nov/StudyVault.git" target="_blank">GitHub &#8599;</a>
     </div>
@@ -152,6 +151,7 @@
       <a href="#" onclick="document.getElementById('developerModal').classList.add('open');return false">Developer</a>
       <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy Policy</a>
       <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
+      <a href="/admin/" style="color:var(--muted);font-size:0.85rem">Admin &#128274;</a>
     </div>
     <div class="footer-col footer-feedback">
       <div class="footer-col-title">Feedback</div>
@@ -205,7 +205,7 @@
 
 <!-- USER PROFILE MODAL -->
 <div class="modal-overlay" id="profileModal">
-  <div class="modal modal-dev">
+  <div class="modal modal-profile">
     <button class="modal-close" onclick="document.getElementById('profileModal').classList.remove('open')">&#10005;</button>
     <h3>&#128100; My Profile</h3>
     <div class="dev-profile-card" id="profileCard">
@@ -232,9 +232,13 @@
         <div class="dev-stack-value" id="statDownloads">0</div>
       </div>
     </div>
+    <div class="profile-uploads">
+      <div class="profile-uploads-title">&#128196; My Uploads <span class="profile-uploads-hint">Track your approval status</span></div>
+      <div class="profile-uploads-list" id="profileUploadsList">
+        <div class="no-results">Sign in to see your uploads.</div>
+      </div>
+    </div>
     <div class="modal-actions" style="flex-wrap:wrap;gap:0.6rem">
-      <button class="btn-secondary" id="profileAdminBtn" style="display:none" onclick="location.href='/admin/'">Admin Dashboard</button>
-      <button class="btn-secondary" onclick="document.getElementById('profileModal').classList.remove('open');location.href='/upload.html#myUploads'">My Uploads</button>
       <button class="btn-primary" onclick="signOut()" style="background:linear-gradient(135deg,#ff6584,#ff4757)">Sign Out</button>
     </div>
   </div>

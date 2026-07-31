@@ -24,7 +24,6 @@ firebase.auth().onAuthStateChanged(async (user) => {
     }).catch(() => {});
     loadBookmarks();
     loadNotifications();
-    checkAdmin();
     // Re-render cards to show bookmark stars (currentUser was null when cards first rendered)
     if (allPapers.length) renderCards(allPapers);
   } else {
@@ -33,8 +32,6 @@ firebase.auth().onAuthStateChanged(async (user) => {
     if (allPapers.length) renderCards(allPapers);
     const badge = document.getElementById('notifBadge');
     if (badge) badge.style.display = 'none';
-    const adminBtn = document.getElementById('profileAdminBtn');
-    if (adminBtn) adminBtn.style.display = 'none';
   }
 });
 
@@ -84,21 +81,6 @@ async function getAuthToken() {
   return null;
 }
 
-// Check whether the signed-in user is an admin (for the discreet dashboard link).
-async function checkAdmin() {
-  if (!currentUser) return;
-  const token = await getAuthToken();
-  if (!token) return;
-  const adminBtn = document.getElementById('profileAdminBtn');
-  if (!adminBtn) return;
-  try {
-    const res = await fetch(`${API_BASE}/api/admin/check`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    adminBtn.style.display = res.ok ? 'inline-block' : 'none';
-  } catch (e) { /* ignore */ }
-}
-
 // ── HAMBURGER MENU ────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const hamburger = document.getElementById('hamburger');
@@ -140,16 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function openContactModal() {
   const m = document.getElementById('contactModal');
   if (m) m.classList.add('open');
-}
-
-function goToReviews() {
-  const el = document.getElementById('reviews');
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth' });
-  } else {
-    window.location.href = '/index.html#reviews';
-  }
-  return false;
 }
 
 // ── STATE ─────────────────────────────────────────────
@@ -333,7 +305,7 @@ function renderCards(data) {
         </div>
         <div class="card-actions">
           <span class="dl-count" title="Downloads">${p.downloads || 0} &#11015;&#65039;</span>
-          ${safeURL && (p.type === 'pyq' || p.type === 'notes' || p.type === 'paper')
+          ${safeURL && ['pyq', 'notes', 'paper', 'booklet'].includes(p.type)
             ? `<button class="preview-btn" data-url="${esc(safeURL)}" data-title="${esc(p.title || 'Preview')}" title="Preview">&#128065;</button>`
             : ''}
           ${safeURL
@@ -364,9 +336,9 @@ function setChipActive(course) {
   });
 }
 
-// From the landing page, course cards navigate to the browse page.
+// From the landing page, course cards navigate to the search page.
 function filterByCourse(course) {
-  window.location.href = '/browse.html?course=' + encodeURIComponent(course);
+  window.location.href = '/search.html?course=' + encodeURIComponent(course);
 }
 
 // ── BOOKMARKS ────────────────────────────────────────
@@ -454,6 +426,7 @@ async function openProfileModal() {
   const modal = document.getElementById('profileModal');
   if (!modal) return;
   modal.classList.add('open');
+  loadMyUploads();
 
   const token = await getAuthToken();
   if (!token) return;
@@ -583,9 +556,9 @@ async function handleUpload() {
   }
 }
 
-// ── MY UPLOADS (status page) ──────────────────────────
+// ── MY UPLOADS (status, shown in the profile modal) ────
 async function loadMyUploads() {
-  const list = document.getElementById('myUploadsList');
+  const list = document.getElementById('profileUploadsList');
   if (!list) return;
   if (!currentUser) {
     list.innerHTML = '<div class="no-results">Sign in to see the status of your uploads.</div>';
@@ -831,9 +804,9 @@ async function loadUniversities() {
   }
 }
 
-// University cards navigate to the browse page with the filter applied.
+// University cards navigate to the search page with the filter applied.
 function filterByUniversity(uniName) {
-  window.location.href = '/browse.html?university=' + encodeURIComponent(uniName);
+  window.location.href = '/search.html?university=' + encodeURIComponent(uniName);
 }
 
 // ── NOTIFICATIONS ─────────────────────────────────────
@@ -961,8 +934,8 @@ async function loadStatsCount() {
   } catch(e) { /* keep placeholder */ }
 }
 
-// ── BROWSE PAGE URL PARAMS ────────────────────────────
-function initBrowseFromURL() {
+// ── SEARCH PAGE URL PARAMS ────────────────────────────
+function initSearchFromURL() {
   const params = new URLSearchParams(window.location.search);
   const q     = params.get('q');
   const course = params.get('course');
@@ -980,12 +953,11 @@ function initBrowseFromURL() {
 
 // ── INIT ──────────────────────────────────────────────
 if (document.getElementById('searchInput')) {
-  initBrowseFromURL();
+  initSearchFromURL();
   loadPapers();
 }
 if (document.getElementById('testimonialsGrid')) loadTestimonials('recent');
 if (document.getElementById('universitiesGrid')) loadUniversities();
-if (document.getElementById('myUploadsList')) loadMyUploads();
 loadStatsCount();
 
 // Poll unread notification count every 60 seconds while signed in.

@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="index, follow">
-<meta name="description" content="Upload previous year question papers, notes & study resources to StudyVault and track their review status. Help students across India study smarter.">
-<title>Upload a Paper — StudyVault</title>
-<meta property="og:title" content="Upload a Paper — StudyVault">
-<meta property="og:description" content="Contribute PYQs, notes & study resources and track their review status.">
-<meta property="og:url" content="https://studyvaultapp.vercel.app/upload.html">
+<meta name="description" content="Read reviews from students who use StudyVault for previous year question papers, notes & study resources across India. Share your own experience.">
+<title>Reviews — StudyVault</title>
+<meta property="og:title" content="Reviews — StudyVault">
+<meta property="og:description" content="What students across India say about StudyVault. Read reviews and share your experience.">
+<meta property="og:url" content="https://studyvaultapp.vercel.app/reviews.html">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_IN">
-<link rel="canonical" href="https://studyvaultapp.vercel.app/upload.html">
+<link rel="canonical" href="https://studyvaultapp.vercel.app/reviews.html">
 <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -66,57 +66,19 @@
   </div>
 </div>
 
-<!-- UPLOAD -->
-<section class="upload-section" id="upload" style="margin-top:4rem">
-  <div class="upload-card">
-    <div class="upload-left">
-      <h2>Share Your Papers. Help Everyone.</h2>
-      <p>Have a question paper, notes, or study guide? Upload it to StudyVault and thousands of students across India will benefit.</p>
-      <ul class="upload-perks">
-        <li><span class="perk-dot"></span> Earn contribution badges</li>
-        <li><span class="perk-dot"></span> Get credited for every download</li>
-        <li><span class="perk-dot"></span> PDF, DOC, image formats accepted</li>
-        <li><span class="perk-dot"></span> Reviewed within 24 hours</li>
-      </ul>
-    </div>
-    <div>
-      <div class="upload-dropzone" id="dropzone"
-        ondragover="dragOver(event)"
-        ondragleave="dragLeave()"
-        ondrop="dropFile(event)"
-        onclick="document.getElementById('fileInput').click()">
-        <div class="upload-icon">&#128228;</div>
-        <h3>Drop your file here</h3>
-        <p>or click to browse &middot; PDF, DOC, JPG, PNG</p>
-        <div class="upload-size-hint">&#128204; Max file size: <strong>15 MB</strong></div>
-        <div class="file-chosen" id="fileChosen"></div>
-        <div class="upload-fields" onclick="event.stopPropagation()">
-          <input type="text" class="upload-input" placeholder="Subject / Paper Title" id="uploadTitle">
-          <select class="upload-input" id="uploadCourse">
-            <option value="">Select Course</option>
-            <option value="engineering">Engineering</option>
-            <option value="management">Management</option>
-            <option value="law">Law</option>
-            <option value="medical">Medical</option>
-            <option value="humanities">Humanities</option>
-            <option value="commerce">Commerce</option>
-            <option value="cs">CS / IT</option>
-            <option value="science">Pure Science</option>
-          </select>
-          <select class="upload-input" id="uploadType">
-            <option value="pyq">Previous Year Question (PYQ)</option>
-            <option value="notes">Notes</option>
-            <option value="paper">Model Paper</option>
-            <option value="booklet">&#128218; Booklet / Book</option>
-          </select>
-          <input type="text" class="upload-input" placeholder="Year (e.g. 2023)" id="uploadYear">
-          <input type="text" class="upload-input" placeholder="University name (optional)" id="uploadUniv">
-          <input type="text" class="upload-input" placeholder="Tags (comma-separated, e.g. algorithms, mid-sem)" id="uploadTags">
-        </div>
-        <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onchange="handleFile(this)">
-        <button class="btn-primary btn-full" onclick="event.stopPropagation(); handleUpload()">Upload Now &#8593;</button>
-      </div>
-    </div>
+<!-- REVIEWS -->
+<section class="reviews-hero">
+  <h2>What Students Say</h2>
+  <p>Real feedback from students across India who use StudyVault every day.</p>
+  <div class="reviews-cta">
+    <button class="btn-primary" onclick="openReviewModal()">&#11088; Write a Review</button>
+  </div>
+  <div class="review-sort">
+    <button class="review-sort-btn active" data-sort="recent" onclick="changeReviewSort('recent')">&#128337;&#65039; Newest</button>
+    <button class="review-sort-btn" data-sort="top" onclick="changeReviewSort('top')">&#11088; Top Rated</button>
+  </div>
+  <div class="testimonials-grid" id="testimonialsGrid">
+    <div class="testimonial-loading">Loading reviews...</div>
   </div>
 </section>
 

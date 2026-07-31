@@ -33,6 +33,9 @@
     </a>
     <h2>Admin Dashboard</h2>
     <p>Sign in with your admin Google account to continue.</p>
+    <div class="auth-restricted">
+      &#128274; <strong>Restricted area.</strong> Only authorized StudyVault admins can access this dashboard.
+    </div>
     <button class="btn-primary" onclick="adminSignIn()">Sign In with Google</button>
     <div id="authError" class="auth-error"></div>
   </div>
@@ -50,6 +53,15 @@
       <button class="btn-ghost" onclick="firebase.auth().signOut()">Sign Out</button>
     </div>
   </nav>
+
+  <!-- ADMIN WELCOME -->
+  <div class="admin-welcome" id="adminWelcome">
+    <div class="admin-welcome-icon">&#128274;</div>
+    <div>
+      <div class="admin-welcome-text">You are signed in as admin &mdash; <strong id="adminWelcomeName">...</strong></div>
+      <div class="admin-welcome-sub" id="adminWelcomeEmail"></div>
+    </div>
+  </div>
 
   <!-- STATS -->
   <div class="stats-grid" id="statsGrid">

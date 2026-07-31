@@ -25,16 +25,18 @@ firebase.auth().onAuthStateChanged(async (user) => {
     try {
       const res = await apiFetch('/api/admin/stats');
       if (!res.ok) {
-        document.getElementById('authError').textContent = 'You do not have admin access.';
+        document.getElementById('authError').textContent = 'Access denied. This dashboard is only for StudyVault admins. You have been signed out.';
         firebase.auth().signOut();
         return;
       }
       document.getElementById('authGate').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
       document.getElementById('adminName').textContent = user.displayName || user.email;
+      document.getElementById('adminWelcomeName').textContent = user.displayName || 'Admin';
+      document.getElementById('adminWelcomeEmail').textContent = user.email || '';
       loadDashboard();
     } catch (e) {
-      document.getElementById('authError').textContent = 'Failed to verify admin access.';
+      document.getElementById('authError').textContent = 'Failed to verify admin access. Only authorized admins can sign in here.';
       firebase.auth().signOut();
     }
   } else {
