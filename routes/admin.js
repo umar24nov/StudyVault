@@ -104,9 +104,10 @@ function adminRoutes(db) {
   // PATCH /api/admin/papers/:id — update title, course, university, year
   router.patch('/papers/:id', async (req, res, next) => {
     try {
-      const { title, course, university, year } = req.body;
+      const { title, type, course, university, year } = req.body;
       const update = {};
       if (typeof title === 'string' && title.trim()) update.title = title.trim().slice(0, 200);
+      if (typeof type === 'string' && type.trim()) update.type = type.trim().slice(0, 20);
       if (typeof course === 'string' && course.trim()) update.course = course.trim().slice(0, 100);
       if (typeof university === 'string') update.university = university.trim().slice(0, 200);
       if (typeof year === 'string') update.year = year.trim().slice(0, 20);

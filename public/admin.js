@@ -114,7 +114,7 @@ function renderAdminPapers(papers) {
       <td>${p.uploaderName || '-'}</td>
       <td>
         <div class="table-actions">
-          <button class="btn-sm btn-edit" data-edit-id="${p.id}" data-title="${escAttr(p.title || '')}" data-course="${escAttr(p.course || '')}" data-univ="${escAttr(p.university || p.univ || '')}" data-year="${escAttr(p.year || '')}" onclick="openEditPaper(this)">Edit</button>
+          <button class="btn-sm btn-edit" data-edit-id="${p.id}" data-title="${escAttr(p.title || '')}" data-type="${escAttr(p.type || '')}" data-course="${escAttr(p.course || '')}" data-univ="${escAttr(p.university || p.univ || '')}" data-year="${escAttr(p.year || '')}" onclick="openEditPaper(this)">Edit</button>
           ${p.status !== 'approved' ? `<button class="btn-sm btn-approve" onclick="approvePaper('${p.id}')">Approve</button>` : ''}
           ${p.status !== 'rejected' ? `<button class="btn-sm btn-reject" onclick="rejectPaper('${p.id}')">Reject</button>` : ''}
           <button class="btn-sm btn-delete" onclick="deletePaper('${p.id}')">Delete</button>
@@ -134,6 +134,7 @@ let editingPaperId = null;
 function openEditPaper(btn) {
   editingPaperId = btn.dataset.editId;
   document.getElementById('editTitle').value = btn.dataset.title;
+  document.getElementById('editType').value  = btn.dataset.type;
   document.getElementById('editCourse').value = btn.dataset.course;
   document.getElementById('editUniv').value  = btn.dataset.univ;
   document.getElementById('editYear').value  = btn.dataset.year;
@@ -147,6 +148,7 @@ function closeEditPaper() {
 
 async function saveEditPaper() {
   const title = document.getElementById('editTitle').value.trim();
+  const type = document.getElementById('editType').value;
   const course = document.getElementById('editCourse').value;
   const university = document.getElementById('editUniv').value.trim();
   const year = document.getElementById('editYear').value.trim();
@@ -155,7 +157,7 @@ async function saveEditPaper() {
     await apiFetch(`/api/admin/papers/${editingPaperId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, course, university, year })
+      body: JSON.stringify({ title, type, course, university, year })
     });
     closeEditPaper();
     showToast('Paper updated.');
