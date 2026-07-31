@@ -20,11 +20,11 @@ firebase.auth().onAuthStateChanged(async (user) => {
     loadBookmarks();
     document.getElementById('navAdminLi').style.display = '';
     // Re-render cards to show bookmark stars (currentUser was null when cards first rendered)
-    if (allPapers.length) performSearch();
+    if (allPapers.length) renderCards(allPapers);
   } else {
     authToken = null;
     updateNavAuth(false);
-    if (allPapers.length) performSearch();
+    if (allPapers.length) renderCards(allPapers);
     const adminLink = document.getElementById('navAdmin');
     if (adminLink) adminLink.style.display = 'none';
   }
@@ -106,12 +106,32 @@ let bookmarkedIds = new Set();
 let currentPage = 1;
 let hasMore = false;
 let isLoadingMore = false;
+let currentQuery = '';
+let searchTimer = null;
 const PAPERS_PER_PAGE = 12;
 
 // ── LOAD PAPERS FROM SERVER ───────────────────────────
+function buildSearchParams(page = 1) {
+  const q = document.getElementById('searchInput').value.trim();
+  const course = document.getElementById('courseFilter').value || currentChipCourse;
+  const type = document.getElementById('typeFilter').value;
+  const params = new URLSearchParams();
+  if (q) params.set('search', q);
+  if (course) params.set('course', course);
+  if (type) params.set('type', type);
+  params.set('page', page);
+  params.set('limit', PAPERS_PER_PAGE);
+  return params;
+}
+
+async function fetchPage(query) {
+  const res = await fetch(`${API_BASE}/api/papers?${query}`);
+  if (!res.ok) throw new Error('Server error');
+  return res.json();
+}
+
 async function loadPapers() {
-  currentPage = 1;
-  hasMore = false;
+  currentQuery = buildSearchParams(1).toString();
   const wakeTimer = setTimeout(() => {
     const area = document.getElementById('resultsArea');
     if (area && area.querySelector('.loading')) {
@@ -122,16 +142,17 @@ async function loadPapers() {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 90000);
-    const res = await fetch(`${API_BASE}/api/papers?page=1&limit=${PAPERS_PER_PAGE}`, { signal: controller.signal });
+    const res = await fetch(`${API_BASE}/api/papers?${currentQuery}`, { signal: controller.signal });
     clearTimeout(timeout);
     clearTimeout(wakeTimer);
     if (!res.ok) throw new Error('Server error');
     const data = await res.json();
     allPapers = data.data || data;
+    currentPage = 1;
     hasMore = !!(data.pagination && data.pagination.hasMore);
     const statEl = document.getElementById('statPapers');
     if (statEl) statEl.textContent = (data.pagination ? data.pagination.total : allPapers.length) + '+';
-    performSearch();
+    renderCards(allPapers);
     updateLoadMore();
   } catch(e) {
     clearTimeout(wakeTimer);
@@ -144,25 +165,46 @@ async function loadPapers() {
   }
 }
 
+function debouncedSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => performSearch(), 400);
+}
+
+async function performSearch() {
+  currentQuery = buildSearchParams(1).toString();
+  const area = document.getElementById('resultsArea');
+  area.innerHTML = '<div class="loading">Searching...</div>';
+  try {
+    const data = await fetchPage(currentQuery);
+    allPapers = data.data || data;
+    currentPage = 1;
+    hasMore = !!(data.pagination && data.pagination.hasMore);
+    const statEl = document.getElementById('statPapers');
+    if (statEl) statEl.textContent = (data.pagination ? data.pagination.total : allPapers.length) + '+';
+    renderCards(allPapers);
+    updateLoadMore();
+  } catch(e) {
+    area.innerHTML = '<div class="no-results">Could not connect to server. <a href="#" onclick="performSearch();return false;" style="color:var(--accent)">Try again</a></div>';
+  }
+}
+
 async function loadMorePapers() {
   if (isLoadingMore || !hasMore) return;
   isLoadingMore = true;
   const btn = document.getElementById('loadMoreBtn');
-  const wrap = document.getElementById('loadMoreWrap');
   if (btn) { btn.disabled = true; btn.textContent = 'Loading...'; }
 
   try {
-    const nextPage = currentPage + 1;
-    const res = await fetch(`${API_BASE}/api/papers?page=${nextPage}&limit=${PAPERS_PER_PAGE}`);
-    if (!res.ok) throw new Error('Server error');
-    const data = await res.json();
+    const params = new URLSearchParams(currentQuery || buildSearchParams(1).toString());
+    params.set('page', currentPage + 1);
+    const data = await fetchPage(params.toString());
     const more = data.data || [];
     allPapers = allPapers.concat(more);
-    currentPage = nextPage;
+    currentPage += 1;
     hasMore = !!(data.pagination && data.pagination.hasMore);
     const statEl = document.getElementById('statPapers');
     if (statEl && data.pagination) statEl.textContent = data.pagination.total + '+';
-    performSearch();
+    renderCards(allPapers);
     updateLoadMore();
   } catch(e) {
     if (btn) btn.textContent = 'Load More';
@@ -244,26 +286,6 @@ function renderCards(data) {
 }
 
 // ── SEARCH & FILTER ───────────────────────────────────
-function performSearch() {
-  const q      = document.getElementById('searchInput').value.toLowerCase().trim();
-  const course = document.getElementById('courseFilter').value || currentChipCourse;
-  const type   = document.getElementById('typeFilter').value;
-
-  const filtered = allPapers.filter(p => {
-    const matchQ = !q
-      || (p.title      || '').toLowerCase().includes(q)
-      || (p.course     || '').toLowerCase().includes(q)
-      || (p.university || '').toLowerCase().includes(q)
-      || (p.year       || '').includes(q)
-      || (p.tags       || []).some(t => t.toLowerCase().includes(q));
-    const matchC = !course || (p.course || '').toLowerCase() === course.toLowerCase();
-    const matchT = !type   || p.type === type;
-    return matchQ && matchC && matchT;
-  });
-
-  renderCards(filtered);
-}
-
 function setChip(el, course) {
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
@@ -295,7 +317,7 @@ async function loadBookmarks() {
     const data = await res.json();
     bookmarkedIds = new Set(data.map(b => b.paperId));
     // Re-render cards if they're visible
-    if (allPapers.length) performSearch();
+    if (allPapers.length) renderCards(allPapers);
   } catch(e) { /* ignore */ }
 }
 
@@ -326,7 +348,7 @@ async function toggleBookmark(paperId, event) {
       bookmarkedIds.add(paperId);
       showToast('Paper bookmarked!');
     }
-    performSearch();
+    if (allPapers.length) renderCards(allPapers);
   } catch(e) {
     showToast('Could not update bookmark.');
   }

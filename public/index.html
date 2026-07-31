@@ -97,10 +97,9 @@
   <div class="search-box">
     <div class="search-input-wrap">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" class="search-input" id="searchInput" placeholder="Search subject, exam, university..." oninput="performSearch()">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search subject, exam, university..." oninput="debouncedSearch()">
     </div>
-    <select class="filter-select" id="courseFilter" onchange="performSearch()">
-      <option value="">All Courses</option>
+    <select class="filter-select" id="courseFilter" onchange="performSearch()">      <option value="">All Courses</option>
       <option value="engineering">Engineering</option>
       <option value="management">Management (MBA/BBA)</option>
       <option value="law">Law</option>
