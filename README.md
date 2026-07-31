@@ -1,34 +1,43 @@
-# StudyVault
+# 📚 StudyVault
 
-A self-hosted study resource vault — upload, browse, bookmark, and review study materials. Built with Node.js, Firebase Firestore, and Cloudinary.
+**Built by students, for students across India.**
 
-## Features
+A study resource vault — upload, browse, bookmark, and review previous year papers, notes, and guides. Built with Node.js, Express, Firebase Firestore, and Cloudinary.
 
-- Upload & browse study papers (PDFs, images, docs) — requires sign-in
-- Bookmark papers for quick access (requires sign-in)
-- Star ratings & reviews — requires sign-in, top 3 highest-rated shown on homepage
-- Email notifications for new uploads, reviews, and contact messages (via Resend)
-- Admin panel for managing papers
-- Responsive design (works on mobile)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
+![Status](https://img.shields.io/badge/status-live-brightgreen)
 
-## Tech Stack
+## ✨ Features
 
-| Layer    | Technology                        |
-| -------- | --------------------------------- |
-| Frontend | Vanilla HTML/CSS/JS (no framework) |
-| Backend  | Node.js + Express                 |
-| Database | Firebase Firestore                |
-| Auth     | Firebase Auth (Google sign-in)    |
-| Storage  | Cloudinary (files & images)       |
-| Hosting  | Vercel (frontend) + Render (API)  |
+- **Browse & search** — server-side search with debounce, filters by course/type, 12 papers per page with Load More + infinite scroll
+- **Upload resources** — papers, notes, PYQs, booklets (PDFs, images, docs) — new uploads are moderated before going live
+- **Bookmarks** — save papers for quick access (requires sign-in)
+- **Reviews & ratings** — star ratings and reviews, top 3 highest-rated shown on the homepage (requires sign-in)
+- **Admin panel** — manage papers (edit title, type, course, university, year), moderate uploads, view reviews
+- **Email notifications** — for new uploads, reviews, and contact messages (via Resend)
+- **Security** — Firestore rules lock down client writes, rate limiting, input sanitization, XSS-safe rendering, approved-only serving
+- **Responsive design** — works on mobile
 
-## Prerequisites
+## 🛠 Tech Stack
+
+| Layer     | Technology                         |
+| --------- | ---------------------------------- |
+| Frontend  | Vanilla HTML/CSS/JS (no framework) |
+| Backend   | Node.js + Express                  |
+| Database  | Firebase Firestore                 |
+| Auth      | Firebase Auth (Google sign-in)     |
+| Storage   | Cloudinary (files & images)        |
+| Email     | Resend                             |
+| Hosting   | Vercel (frontend) + Render (API)   |
+
+## ✅ Prerequisites
 
 - Node.js v18+
-- [Firebase account](https://console.firebase.google.com/) (free tier)
-- [Cloudinary account](https://cloudinary.com/) (free — 25 GB storage)
+- [Firebase account](https://console.firebase.google.com/)
+- [Cloudinary account](https://cloudinary.com/)
 
-## Local Setup
+## 🚀 Local Setup
 
 ### 1. Clone & Install
 
@@ -86,34 +95,44 @@ node server.js
 
 Open **http://localhost:3000** in your browser.
 
-## Firestore Indexes
+## 🗄 Firestore Rules
+
+Deploy the locked-down rules before going to production:
+
+```bash
+firebase deploy --only firestore:rules
+```
+
+All writes go through the API (Firebase Admin SDK), so clients can only read approved data and manage their own bookmarks/profile.
+
+## 🔍 Firestore Indexes
 
 After your app is running, create these composite indexes in **Firebase Console → Firestore → Indexes**:
 
-| Collection   | Fields                                         |
-| ------------ | ---------------------------------------------- |
-| `papers`     | `status` Asc, `createdAt` Desc                 |
-| `bookmarks`  | `userId` Asc, `createdAt` Desc                 |
-| `bookmarks`  | `userId` Asc, `paperId` Asc                    |
+| Collection  | Fields                         |
+| ----------- | ------------------------------ |
+| `papers`    | `status` Asc, `createdAt` Desc |
+| `bookmarks` | `userId` Asc, `createdAt` Desc |
+| `bookmarks` | `userId` Asc, `paperId` Asc    |
 
 Without these indexes, queries will fail with a 500 error.
 
-## Making an Admin
+## 🛡 Making an Admin
 
 1. In Firebase Console → Firestore, create a collection called `admins`
 2. Create a document with the user's Firebase **UID** as the document ID
 3. Add a field `role: "admin"`
 4. That user will now see the **Admin** link in the navbar and can access `/admin.html`
 
-## Tests
+## 🧪 Tests
 
 ```bash
-node --test __tests__/api.test.js
+npm test
 ```
 
-The test suite validates all API endpoints (upload, search, bookmarks, reviews, admin auth).
+The test suite validates all API endpoints (papers, search, downloads, bookmarks, reviews, feedback, contact, admin auth) — 14 tests passing. A GitHub Actions CI workflow runs tests and syntax checks on Node 18/20/22.
 
-## Deployment
+## 🌍 Deployment
 
 ### Frontend (Vercel)
 
@@ -130,11 +149,12 @@ The test suite validates all API endpoints (upload, search, bookmarks, reviews, 
 5. **Required:** Add `NODE_OPTIONS=--openssl-legacy-provider` (needed for OpenSSL 3.x / Node 22 compatibility with `firebase-admin`)
 6. Set `app.set('trust proxy', 1)` — already in `server.js` (needed behind Render's reverse proxy)
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 StudyVault/
 ├── server.js              # Express server (entry point)
+├── firestore.rules        # Firestore security rules
 ├── config/
 │   ├── env.js             # Environment variable validation (Zod)
 │   ├── firebase.js        # Firebase Admin SDK init
@@ -144,17 +164,22 @@ StudyVault/
 │   ├── auth.js            # Auth middleware (verifyToken, requireAdminAuth)
 │   ├── rateLimit.js       # Rate limiters
 │   ├── upload.js          # Multer file upload config
-│   ├── sanitize.js        # Input sanitization
+│   ├── sanitize.js        # Input sanitization (stripDangerous, validation)
 │   └── errorHandler.js    # Global error handler
 ├── routes/
-│   ├── papers.js          # Paper CRUD
+│   ├── papers.js          # Paper browse/search/download
 │   ├── bookmarks.js       # Bookmark toggle / list
 │   ├── reviews.js         # Ratings & reviews (requires auth)
 │   ├── feedback.js        # Feedback & contact form submissions
-│   ├── admin.js           # Admin-only endpoints
+│   ├── admin.js           # Admin-only endpoints (incl. paper editing)
 │   └── users.js           # User profile data
+├── scripts/
+│   └── migrate-status.js  # Legacy record migration
+├── utils/
 ├── __tests__/
-│   └── api.test.js        # API integration tests (12 tests)
+│   └── api.test.js        # API integration tests (14 tests)
+├── .github/workflows/
+│   └── ci.yml             # CI — syntax checks + tests on Node 18/20/22
 ├── public/
 │   ├── index.html         # Main frontend
 │   ├── admin.html         # Admin panel
@@ -162,13 +187,14 @@ StudyVault/
 │   ├── admin.css          # Admin panel styles
 │   ├── style.css          # All frontend styles
 │   ├── app.js             # Frontend logic
+│   ├── logo.svg           # Brand logo
 │   └── favicon.ico        # Browser favicon
 ├── .env                   # Local env vars (not committed)
 ├── package.json
 └── .gitignore
 ```
 
-## Email Notifications
+## 📧 Email Notifications
 
 When `RESEND_API_KEY` is set, email notifications are sent to `studyvaultapp@gmail.com` for:
 - **New uploads** — title, course, type, uploader name
@@ -177,7 +203,7 @@ When `RESEND_API_KEY` is set, email notifications are sent to `studyvaultapp@gma
 
 Without the key, notifications are silently skipped (data is still saved to Firestore).
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repo
 2. Create a branch: `git checkout -b feature/your-feature`
@@ -185,6 +211,6 @@ Without the key, notifications are silently skipped (data is still saved to Fire
 4. Push: `git push origin feature/your-feature`
 5. Open a Pull Request
 
-## License
+## 📄 License
 
-This project is open source and free for everyone.
+[MIT](LICENSE) © Mohammad Umar
