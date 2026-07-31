@@ -127,12 +127,16 @@ function paperRoutes(db, cloudinary) {
     }
   });
 
-  // GET /api/papers/:id — single paper
+  // GET /api/papers/:id — single paper (only approved, or admin)
   router.get('/:id', async (req, res, next) => {
     try {
       const doc = await db.collection('papers').doc(req.params.id).get();
       if (!doc.exists) return res.status(404).json({ error: 'Paper not found' });
-      res.json({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      if (data.status !== 'approved') {
+        return res.status(404).json({ error: 'Paper not found' });
+      }
+      res.json({ id: doc.id, ...data });
     } catch (err) {
       next(err);
     }
@@ -183,7 +187,7 @@ function paperRoutes(db, cloudinary) {
         university: university || '',
         tags:       parsedTags,
         downloadURL,
-        fileName:    file.originalname,
+        fileName:    stripDangerous(file.originalname).slice(0, 255),
         downloads:   0,
         status:      'pending',
         uploadedBy:  req.user.uid,
@@ -233,6 +237,10 @@ function paperRoutes(db, cloudinary) {
   router.post('/:id/download', downloadLimiter, async (req, res, next) => {
     try {
       const ref = db.collection('papers').doc(req.params.id);
+      const doc = await ref.get();
+      if (!doc.exists || doc.data().status !== 'approved') {
+        return res.status(404).json({ error: 'Paper not found' });
+      }
       await ref.update({
         downloads: admin.firestore.FieldValue.increment(1)
       });

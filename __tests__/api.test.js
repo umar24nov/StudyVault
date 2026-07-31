@@ -22,15 +22,25 @@ function stub() {
 }
 
 // ── Chainable Firestore collection mock ───────────────
+let docOverride = null; // optional { exists, data } override for doc()
+
 function makeMockCollection() {
   const col = {
-    doc: stub().mockImplementation((id) => ({
-      exists: true, id: id || 'mock-id',
-      data: () => ({ id: id || 'mock-id', title: 'Test', course: 'eng', status: 'approved', downloads: 0, tags: [] }),
-      update: stub().mockResolvedValue(undefined),
-      delete: stub().mockResolvedValue(undefined),
-      set: stub().mockResolvedValue(undefined),
-    })),
+    doc: stub().mockImplementation((id) => {
+      const d = docOverride ? { ...docOverride } : { id: id || 'mock-id', title: 'Test', course: 'eng', status: 'approved', downloads: 0, tags: [] };
+      return {
+        exists: docOverride ? docOverride.exists : true,
+        id: id || 'mock-id',
+        data: () => d,
+        get: stub().mockResolvedValue({
+          exists: docOverride ? docOverride.exists : true,
+          data: () => d
+        }),
+        update: stub().mockResolvedValue(undefined),
+        delete: stub().mockResolvedValue(undefined),
+        set: stub().mockResolvedValue(undefined),
+      };
+    }),
     add: stub().mockResolvedValue({ id: 'new-id' }),
     get: stub().mockResolvedValue({ docs: [], size: 0, empty: true }),
     where: stub().mockImplementation(() => col),
@@ -176,6 +186,24 @@ describe('POST /api/papers/:id/download', () => {
     const res = await request(app, 'POST', '/api/papers/test-id/download');
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
+  });
+});
+
+describe('GET /api/papers/:id', () => {
+  it('returns approved paper', async () => {
+    const res = await request(app, 'GET', '/api/papers/mock-id');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.id, 'mock-id');
+  });
+
+  it('returns 404 for non-approved paper', async () => {
+    docOverride = { exists: true, id: 'pending-id', title: 'Test', course: 'eng', status: 'pending', downloads: 0, tags: [] };
+    try {
+      const res = await request(app, 'GET', '/api/papers/pending-id');
+      assert.equal(res.status, 404);
+    } finally {
+      docOverride = null;
+    }
   });
 });
 

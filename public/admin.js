@@ -2,6 +2,11 @@ const API_BASE = window.location.hostname === 'localhost'
   ? `http://localhost:${window.location.port || 3000}`
   : 'https://studyvault-api.onrender.com';
 
+// ── ESCAPE HELPERS (XSS) ─────────────────────────────
+function esc(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 let adminUser = null;
 let adminToken = null;
 let allAdminPapers = [];
@@ -105,13 +110,13 @@ function renderAdminPapers(papers) {
   }
   tbody.innerHTML = papers.map(p => `
     <tr>
-      <td class="table-title" title="${p.title || ''}">${p.title || 'Untitled'}</td>
-      <td>${p.course || '-'}</td>
-      <td>${p.type || '-'}</td>
-      <td>${p.year || '-'}</td>
-      <td><span class="status-badge status-${p.status || 'pending'}">${p.status || 'pending'}</span></td>
+      <td class="table-title" title="${escAttr(p.title || '')}">${esc(p.title) || 'Untitled'}</td>
+      <td>${esc(p.course) || '-'}</td>
+      <td>${esc(p.type) || '-'}</td>
+      <td>${esc(p.year) || '-'}</td>
+      <td><span class="status-badge status-${esc(p.status) || 'pending'}">${esc(p.status) || 'pending'}</span></td>
       <td>${p.downloads || 0}</td>
-      <td>${p.uploaderName || '-'}</td>
+      <td>${esc(p.uploaderName) || '-'}</td>
       <td>
         <div class="table-actions">
           <button class="btn-sm btn-edit" data-edit-id="${p.id}" data-title="${escAttr(p.title || '')}" data-type="${escAttr(p.type || '')}" data-course="${escAttr(p.course || '')}" data-univ="${escAttr(p.university || p.univ || '')}" data-year="${escAttr(p.year || '')}" onclick="openEditPaper(this)">Edit</button>
@@ -215,8 +220,8 @@ async function loadAdminUsers() {
     }
     tbody.innerHTML = users.map(u => `
       <tr>
-        <td>${u.name || '-'}</td>
-        <td>${u.email || '-'}</td>
+        <td>${esc(u.name) || '-'}</td>
+        <td>${esc(u.email) || '-'}</td>
         <td>${u.joinedAt ? new Date(u.joinedAt.seconds * 1000).toLocaleDateString() : '-'}</td>
       </tr>
     `).join('');
@@ -237,10 +242,10 @@ async function loadAdminReviews() {
     }
     tbody.innerHTML = reviews.map(r => `
       <tr>
-        <td>${r.name || '-'}</td>
+        <td>${esc(r.name) || '-'}</td>
         <td>${'&#9733;'.repeat(r.stars)}${'&#9734;'.repeat(5 - r.stars)}</td>
-        <td class="table-title">${r.message || ''}</td>
-        <td><span class="status-badge status-${r.status || 'pending'}">${r.status || 'pending'}</span></td>
+        <td class="table-title">${esc(r.message) || ''}</td>
+        <td><span class="status-badge status-${esc(r.status) || 'pending'}">${esc(r.status) || 'pending'}</span></td>
         <td>
           <div class="table-actions">
             ${r.status !== 'approved' ? `<button class="btn-sm btn-approve" onclick="approveReview('${r.id}')">Approve</button>` : ''}

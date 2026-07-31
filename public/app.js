@@ -3,6 +3,11 @@ const API_BASE = window.location.hostname === 'localhost'
   ? `http://localhost:${window.location.port || 3000}`
   : 'https://studyvault-api.onrender.com';
 
+// ── ESCAPE HELPER (XSS) ──────────────────────────────
+function esc(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 // ── FIREBASE AUTH ────────────────────────────────────
 let currentUser = null;
 let authToken = null;
@@ -38,9 +43,9 @@ function updateNavAuth(signedIn, user) {
     const initial = name.charAt(0).toUpperCase();
     authEl.innerHTML = `
       <button class="nav-avatar-btn" onclick="openProfileModal()">
-        ${user.photoURL
-          ? `<img src="${user.photoURL}" alt="" class="nav-avatar-img">`
-          : `<div class="nav-avatar-circle">${initial}</div>`
+        ${user.photoURL && /^https:\/\//i.test(user.photoURL)
+          ? `<img src="${esc(user.photoURL)}" alt="" class="nav-avatar-img">`
+          : `<div class="nav-avatar-circle">${esc(initial)}</div>`
         }
       </button>`;
     if (bookmarksLink) bookmarksLink.parentElement.style.display = '';
@@ -373,8 +378,8 @@ async function showBookmarks() {
     }
     list.innerHTML = data.map(b => `
       <div class="modal-info-block" style="margin-bottom:0.5rem">
-        <strong>${b.title || 'Untitled'}</strong><br>
-        <span style="color:var(--muted);font-size:0.82rem">${b.course || ''} ${b.university ? '· ' + b.university : ''}</span>
+        <strong>${esc(b.title) || 'Untitled'}</strong><br>
+        <span style="color:var(--muted);font-size:0.82rem">${esc(b.course || '')} ${b.university ? '· ' + esc(b.university) : ''}</span>
       </div>
     `).join('');
   } catch(e) {
@@ -403,8 +408,9 @@ async function openProfileModal() {
     document.getElementById('statDownloads').textContent = data.stats?.totalDownloads || 0;
 
     const avatar = document.getElementById('profileAvatar');
-    if (data.picture) {
-      avatar.innerHTML = `<img src="${data.picture}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    const pic = data.picture || '';
+    if (pic && /^https:\/\//i.test(pic)) {
+      avatar.innerHTML = `<img src="${esc(pic)}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
     } else {
       avatar.textContent = (data.name || 'U').charAt(0);
     }
@@ -579,8 +585,8 @@ async function loadTestimonials() {
     grid.innerHTML = data.map(r => `
       <div class="testimonial-card">
         <div class="testimonial-stars">${'&#9733;'.repeat(r.stars)}${'&#9734;'.repeat(5 - r.stars)}</div>
-        <div class="testimonial-msg">"${r.message}"</div>
-        <div class="testimonial-name">— ${r.name}</div>
+        <div class="testimonial-msg">"${esc(r.message)}"</div>
+        <div class="testimonial-name">— ${esc(r.name)}</div>
       </div>
     `).join('');
   } catch(e) {
@@ -678,9 +684,9 @@ async function loadUniversities() {
       return;
     }
     grid.innerHTML = unis.map(u => `
-      <div class="course-card" onclick="filterByUniversity('${u.name.replace(/'/g, "\\'")}')">
+      <div class="course-card" onclick="filterByUniversity(decodeURIComponent('${encodeURIComponent(u.name).replace(/'/g, '%27')}'))">
         <span class="course-icon">&#127891;</span>
-        <div class="course-name">${u.name}</div>
+        <div class="course-name">${esc(u.name)}</div>
         <div class="course-count">${u.count} paper${u.count !== 1 ? 's' : ''}</div>
       </div>
     `).join('');

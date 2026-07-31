@@ -59,7 +59,11 @@ app.get('/api/health', async (req, res) => {
     await db.collection('papers').limit(1).get();
     res.json({ status: 'ok', firebase: 'connected', timestamp: new Date().toISOString() });
   } catch (err) {
-    res.status(503).json({ status: 'error', firebase: 'disconnected', error: err.message });
+    res.status(503).json({
+      status: 'error',
+      firebase: 'disconnected',
+      error: process.env.NODE_ENV === 'production' ? 'Service unavailable' : err.message
+    });
   }
 });
 

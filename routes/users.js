@@ -54,9 +54,9 @@ function userRoutes(db) {
       const uid = req.user.uid;
 
       const updates = {};
-      if (name)       updates.name = name;
-      if (university) updates.university = university;
-      if (course)     updates.course = course;
+      if (name)       updates.name = String(name).slice(0, 100);
+      if (university) updates.university = String(university).slice(0, 200);
+      if (course)     updates.course = String(course).slice(0, 100);
       updates.updatedAt = admin.firestore.FieldValue.serverTimestamp();
 
       await db.collection('users').doc(uid).set(updates, { merge: true });

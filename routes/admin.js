@@ -1,6 +1,7 @@
 const express = require('express');
 const admin = require('firebase-admin');
 const { verifyToken, requireAdminAuth } = require('../middleware/auth');
+const { stripDangerous } = require('../middleware/sanitize');
 
 function adminRoutes(db) {
   const router = express.Router();
@@ -106,11 +107,11 @@ function adminRoutes(db) {
     try {
       const { title, type, course, university, year } = req.body;
       const update = {};
-      if (typeof title === 'string' && title.trim()) update.title = title.trim().slice(0, 200);
-      if (typeof type === 'string' && type.trim()) update.type = type.trim().slice(0, 20);
-      if (typeof course === 'string' && course.trim()) update.course = course.trim().slice(0, 100);
-      if (typeof university === 'string') update.university = university.trim().slice(0, 200);
-      if (typeof year === 'string') update.year = year.trim().slice(0, 20);
+      if (typeof title === 'string' && title.trim()) update.title = stripDangerous(title.trim()).slice(0, 200);
+      if (typeof type === 'string' && type.trim()) update.type = stripDangerous(type.trim()).slice(0, 20);
+      if (typeof course === 'string' && course.trim()) update.course = stripDangerous(course.trim()).slice(0, 100);
+      if (typeof university === 'string') update.university = stripDangerous(university.trim()).slice(0, 200);
+      if (typeof year === 'string') update.year = stripDangerous(year.trim()).slice(0, 20);
 
       if (Object.keys(update).length === 0) {
         return res.status(400).json({ error: 'Nothing to update.' });

@@ -13,44 +13,54 @@ service cloud.firestore {
     }
 
     // ── Papers ────────────────────────────────────────
-    // Public reads approved papers. Only server (via Firebase Admin SDK) writes.
+    // Public reads approved papers. All writes happen server-side via the
+    // Firebase Admin SDK (which bypasses rules), so client writes are denied.
     match /papers/{paperId} {
       allow read: if resource.data.status == 'approved' || isAdmin();
-      allow create: if isSignedIn();  // enforced server-side by verifyToken
-      allow update, delete: if isAdmin();
+      allow create, update, delete: if false;
     }
 
     // ── Users ─────────────────────────────────────────
     // Users can read/write their own doc only. Admins can read all.
+    // Profile fields are managed by the server; clients may only touch
+    // their own doc, not arbitrary fields.
     match /users/{userId} {
       allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-      allow create: if request.auth.uid == userId;
-      allow update: if request.auth.uid == userId;
+      allow create: if request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['name', 'email', 'picture']);
+      allow update: if request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['name', 'picture']);
       allow delete: if isAdmin();
     }
 
     // ── Bookmarks ─────────────────────────────────────
+    // Users manage only their own bookmarks.
     match /bookmarks/{bookmarkId} {
-      allow read, write: if isSignedIn();
+      allow read, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if false;
     }
 
     // ── Reviews ───────────────────────────────────────
-    // Public reads approved. Users can create. Admins manage all.
+    // Public reads approved. Creation happens server-side (Admin SDK),
+    // so client creates are denied to enforce moderation + rate limits.
     match /reviews/{reviewId} {
       allow read: if resource.data.status == 'approved' || isAdmin();
-      allow create: if isSignedIn();
-      allow update, delete: if isAdmin();
+      allow create, update, delete: if false;
     }
 
     // ── Feedback ──────────────────────────────────────
+    // Created server-side only (rate-limited).
     match /feedback/{entry} {
-      allow create: if isSignedIn();
-      allow read, update, delete: if isAdmin();
+      allow create, update, delete: if false;
+      allow read: if isAdmin();
     }
 
     // ── Contacts ──────────────────────────────────────
+    // Created server-side only (rate-limited + validated).
     match /contacts/{entry} {
-      allow create: if true;  // anyone can contact
+      allow create: if false;
       allow read, update, delete: if isAdmin();
     }
 
