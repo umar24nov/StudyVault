@@ -64,9 +64,9 @@ nav ul li a, nav ul li button { color: var(--muted); text-decoration: none; font
 nav ul li a:hover, nav ul li button:hover { color: var(--text); }
 .nav-btn { background: var(--accent); color: #fff !important; padding: 0.45rem 1.2rem; border-radius: 8px; font-weight: 600 !important; transition: opacity 0.2s, transform 0.2s !important; border: none; }
 .nav-btn:hover { opacity: 0.85; transform: translateY(-1px); }
-.nav-rate { background: linear-gradient(135deg, var(--accent), #9b88ff); }
-.nav-contact { background: transparent; border: 1px solid rgba(108,99,255,0.45); color: var(--accent) !important; }
-.nav-contact:hover { background: rgba(108,99,255,0.08); opacity: 1; }
+.nav-search { background: linear-gradient(135deg, var(--accent), #9b88ff); }
+.nav-upload { background: transparent; border: 1px solid rgba(108,99,255,0.45); color: var(--accent) !important; }
+.nav-upload:hover { background: rgba(108,99,255,0.08); opacity: 1; }
 
 /* ── NOTIFICATION BELL & PANEL ────────────────────── */
 .notif-bell { position: relative; background: none; border: none; color: var(--muted); font-size: 1.15rem; cursor: pointer; padding: 0.35rem 0.2rem; line-height: 1; transition: color 0.2s; }
@@ -250,9 +250,6 @@ nav ul li a:hover, nav ul li button:hover { color: var(--text); }
 .card-uploader { font-size: 0.7rem; color: var(--muted); margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
 .preview-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; cursor: pointer; padding: 0.3rem 0.5rem; border-radius: 6px; transition: all 0.2s; line-height: 1; }
 .preview-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(108,99,255,0.1); }
-.modal-preview { max-width: 960px; }
-.preview-container { width: 100%; height: 65vh; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 1rem; background: #000; }
-.preview-container iframe { width: 100%; height: 100%; border: none; }
 .nav-avatar-btn { background: none; border: none; cursor: pointer; padding: 0; }
 .nav-avatar-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
 .nav-avatar-circle { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent3)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.85rem; font-weight: 700; }
@@ -481,6 +478,11 @@ footer {
 .modal p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
 .modal-close { position: absolute; top: 1.2rem; right: 1.2rem; background: none; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; }
 .modal-close:hover { color: var(--text); }
+
+/* PREVIEW MODAL — wide, no scroll, fixed close button (matches admin panel) */
+.modal-preview { max-width: 960px; max-height: none; overflow: visible; }
+.preview-container { margin-top: 0.5rem; width: 100%; height: 65vh; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: var(--bg); }
+.preview-container iframe { width: 100%; height: 100%; border: none; background: #fff; }
 .modal-actions { display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.5rem; }
 
 /* ── LOADING ─────────────────────────────────────── */
@@ -556,17 +558,7 @@ footer {
   .footer-tagline { max-width: 100%; }
   .hero h1 { font-size: clamp(2.2rem, 6vw, 4rem); letter-spacing: -1.5px; }
 
-  /* Show arrow and make toggle clickable on tablet */
-  .footer-col-toggle { cursor: pointer; }
-  .footer-col-arrow { display: inline-block; }
-  .footer-col-links { max-height: 0; opacity: 0; margin-top: 0; }
-  .footer-col-links.open { max-height: 500px; opacity: 1; margin-top: 1rem; }
-}
-
-/* ── MOBILE (≤640px) ─────────────────────────────── */
-@media (max-width: 640px) {
-
-  /* NAV hamburger */
+  /* NAV hamburger — collapse to stacked menu on all smaller screens */
   .hamburger { display: flex; }
   nav ul {
     display: none;
@@ -614,6 +606,16 @@ footer {
     padding: 0.75rem 2rem;
     font-size: 0.95rem;
   }
+
+  /* Show arrow and make toggle clickable on tablet */
+  .footer-col-toggle { cursor: pointer; }
+  .footer-col-arrow { display: inline-block; }
+  .footer-col-links { max-height: 0; opacity: 0; margin-top: 0; }
+  .footer-col-links.open { max-height: 500px; opacity: 1; margin-top: 1rem; }
+}
+
+/* ── MOBILE (≤640px) ─────────────────────────────── */
+@media (max-width: 640px) {
 
   /* HERO */
   .hero { padding: 5rem 1.2rem 3.5rem; }

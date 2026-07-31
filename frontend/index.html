@@ -57,12 +57,12 @@
     <span></span><span></span><span></span>
   </button>
   <ul id="navMenu">
-    <li><a href="/search.html">Search</a></li>
-    <li><a href="/upload.html">Upload</a></li>
+    <li><a href="/search.html" class="nav-btn nav-search">Search</a></li>
+    <li><a href="/upload.html" class="nav-btn nav-upload">Upload</a></li>
     <li class="nav-bookmark-li" style="display:none"><a href="#" id="navBookmarks" onclick="showBookmarks()">Bookmarks</a></li>
     <li><a href="/reviews.html">Reviews</a></li>
-    <li><a href="#" class="nav-btn nav-rate" onclick="openReviewModal()">&#11088; Rate Us</a></li>
-    <li><a href="#" class="nav-btn nav-contact" onclick="openContactModal()">Contact Us</a></li>
+    <li><a href="#" onclick="openReviewModal()">&#11088; Rate Us</a></li>
+    <li><a href="#" onclick="openContactModal()">Contact Us</a></li>
     <li id="notifLi" style="display:none">
       <button class="notif-bell" id="notifBell" onclick="toggleNotifPanel(event)" aria-label="Notifications">&#128276;<span class="notif-badge" id="notifBadge" style="display:none"></span></button>
     </li>
@@ -310,7 +310,7 @@
       <a href="#" onclick="document.getElementById('developerModal').classList.add('open');return false">Developer</a>
       <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy Policy</a>
       <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
-      <a href="/admin/" style="color:var(--muted);font-size:0.85rem">Admin &#128274;</a>
+      <a href="/admin/" style="color:var(--muted);font-size:0.85rem">Admin</a>
     </div>
     <div class="footer-col footer-feedback">
       <div class="footer-col-title">Feedback</div>

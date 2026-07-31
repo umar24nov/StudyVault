@@ -23,6 +23,8 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .auth-card h2 { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
 .auth-card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
 .auth-error { color: var(--accent2); font-size: 0.85rem; margin-top: 1rem; min-height: 1.2rem; }
+.auth-admin { background: rgba(67,232,176,0.08); border: 1px solid rgba(67,232,176,0.25); color: var(--text); border-radius: 10px; padding: 0.7rem 1rem; font-size: 0.85rem; margin-bottom: 1.4rem; text-align: center; }
+.auth-admin strong { color: var(--accent3); }
 .auth-restricted { background: rgba(255,200,80,0.08); border: 1px solid rgba(255,200,80,0.25); color: #ffc850; border-radius: 10px; padding: 0.7rem 1rem; font-size: 0.8rem; line-height: 1.5; margin-bottom: 1.4rem; text-align: left; }
 
 /* ADMIN WELCOME */
