@@ -64,6 +64,29 @@ nav ul li a, nav ul li button { color: var(--muted); text-decoration: none; font
 nav ul li a:hover, nav ul li button:hover { color: var(--text); }
 .nav-btn { background: var(--accent); color: #fff !important; padding: 0.45rem 1.2rem; border-radius: 8px; font-weight: 600 !important; transition: opacity 0.2s, transform 0.2s !important; border: none; }
 .nav-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+.nav-rate { background: linear-gradient(135deg, var(--accent), #9b88ff); }
+.nav-contact { background: transparent; border: 1px solid rgba(108,99,255,0.45); color: var(--accent) !important; }
+.nav-contact:hover { background: rgba(108,99,255,0.08); opacity: 1; }
+
+/* ── NOTIFICATION BELL & PANEL ────────────────────── */
+.notif-bell { position: relative; background: none; border: none; color: var(--muted); font-size: 1.15rem; cursor: pointer; padding: 0.35rem 0.2rem; line-height: 1; transition: color 0.2s; }
+.notif-bell:hover { color: var(--text); }
+.notif-badge { position: absolute; top: -3px; right: -6px; min-width: 16px; height: 16px; border-radius: 100px; background: var(--accent2); color: #fff; font-size: 0.6rem; font-weight: 700; align-items: center; justify-content: center; padding: 0 4px; border: 1px solid var(--bg); }
+.notif-panel { display: none; position: fixed; top: 58px; right: 2rem; width: 340px; max-width: 92vw; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 16px 48px rgba(0,0,0,0.55); z-index: 400; overflow: hidden; animation: slideDown 0.2s ease; }
+.notif-panel.open { display: block; }
+.notif-head { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1rem; border-bottom: 1px solid var(--border); background: var(--surface2); }
+.notif-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.92rem; }
+.notif-mark-all { background: none; border: none; color: var(--accent); font-size: 0.72rem; font-weight: 600; cursor: pointer; padding: 0; }
+.notif-mark-all:hover { text-decoration: underline; }
+.notif-list { max-height: 380px; overflow-y: auto; }
+.notif-item { display: block; padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: rgba(108,99,255,0.06); }
+.notif-item.unread { background: rgba(108,99,255,0.08); }
+.notif-item-title { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+.notif-item-msg { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+.notif-item-time { font-size: 0.7rem; color: var(--muted); margin-top: 0.35rem; }
+.notif-empty { padding: 2rem; text-align: center; color: var(--muted); font-size: 0.85rem; }
 
 /* ── NAV MORE DROPDOWN ───────────────────────────── */
 .nav-more {
@@ -268,6 +291,7 @@ nav ul li a:hover, nav ul li button:hover { color: var(--text); }
 .upload-input:focus { border-color: var(--accent); }
 .upload-input::placeholder { color: var(--muted); }
 .file-chosen { font-size: 0.78rem; color: var(--accent3); margin-bottom: 0.5rem; min-height: 1.2rem; }
+.upload-size-hint { font-size: 0.75rem; color: var(--muted); margin-bottom: 1rem; }
 
 /* ── COURSES ─────────────────────────────────────── */
 .courses-section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto 6rem; padding: 0 2rem; }
@@ -384,6 +408,27 @@ footer {
 .testimonial-loading { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 2rem; font-size: 0.95rem; }
 .testimonials-cta { text-align: center; margin-top: 2.5rem; }
 
+/* ── REVIEW SORT ──────────────────────────────────── */
+.review-sort { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.6rem; }
+.review-sort-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 0.45rem 1.2rem; border-radius: 100px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+.review-sort-btn:hover { border-color: var(--accent); color: var(--accent); }
+.review-sort-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(108,99,255,0.12); }
+
+/* ── MY UPLOADS ───────────────────────────────────── */
+.my-uploads { position: relative; z-index: 1; max-width: 900px; margin: 0 auto 6rem; padding: 0 2rem; }
+.upload-item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.3rem; margin-bottom: 0.8rem; flex-wrap: wrap; transition: border-color 0.2s; }
+.upload-item:hover { border-color: rgba(108,99,255,0.3); }
+.upload-item-main { flex: 1; min-width: 220px; }
+.upload-item-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; }
+.upload-item-meta { font-size: 0.78rem; color: var(--muted); }
+.upload-item-side { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+
+/* ── STATUS BADGES ────────────────────────────────── */
+.status-badge { display: inline-flex; padding: 0.2rem 0.6rem; border-radius: 100px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+.status-pending  { background: rgba(255,200,80,0.15); color: #ffc850; }
+.status-approved { background: rgba(67,232,176,0.12); color: var(--accent3); }
+.status-rejected { background: rgba(255,101,132,0.12); color: var(--accent2); }
+
 /* ── STAR PICKER ─────────────────────────────────── */
 .star-picker { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem; }
 .star { font-size: 2.2rem; color: var(--border); cursor: pointer; transition: color 0.15s, transform 0.15s; user-select: none; }
@@ -421,6 +466,7 @@ footer {
 /* ── LOADING ─────────────────────────────────────── */
 .loading { text-align: center; padding: 3rem; color: var(--muted); font-size: 0.95rem; }
 .loading::after { content: ''; display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-left: 0.6rem; vertical-align: middle; }
+.loading-wake { text-align: center; padding: 3rem; color: var(--accent); font-size: 0.95rem; }
 .no-results { text-align: center; padding: 3rem; color: var(--muted); font-size: 0.95rem; }
 
 /* ── LOAD MORE ──────────────────────────────────────── */
@@ -596,6 +642,14 @@ footer {
 
   /* RESULTS */
   .results-grid { grid-template-columns: 1fr; }
+
+  /* NOTIFICATIONS */
+  .notif-panel { right: 1rem; top: 56px; }
+
+  /* MY UPLOADS */
+  .my-uploads { padding: 0 1.2rem; }
+  .upload-item { flex-direction: column; align-items: flex-start; }
+  .upload-item-side { width: 100%; }
 
   /* FOOTER */
   .footer-inner { grid-template-columns: 1fr; padding: 2.5rem 1.5rem 2rem; gap: 1.8rem; }

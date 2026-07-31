@@ -6,6 +6,7 @@ const { stripDangerous } = require('../middleware/sanitize');
 const { upload } = require('../middleware/upload');
 const { verifyToken, optionalAuth, requireAdminAuth } = require('../middleware/auth');
 const { uploadLimiter, downloadLimiter } = require('../middleware/rateLimit');
+const { destroyPaperFile } = require('../utils/cloudinary');
 
 function paperRoutes(db, cloudinary) {
   const router = express.Router();
@@ -13,15 +14,12 @@ function paperRoutes(db, cloudinary) {
   // GET /api/papers — with pagination, sorting, and search
   router.get('/', async (req, res, next) => {
     try {
-      const { course, type, sort = 'newest', search, page = 1, limit = 50 } = req.query;
+      const { course, type, sort = 'newest', search, year, university, page = 1, limit = 50 } = req.query;
       const pageNum = Math.max(1, parseInt(page));
       const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
       const offset = (pageNum - 1) * limitNum;
 
       let query = db.collection('papers').where('status', '==', 'approved');
-
-      if (course) query = query.where('course', '==', course);
-      if (type)   query = query.where('type',   '==', type);
 
       // Sort options
       if (sort === 'popular') {
@@ -33,7 +31,15 @@ function paperRoutes(db, cloudinary) {
       const snapshot = await query.get();
       let papers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      // Client-side search (for text search across fields)
+      // In-memory filters (avoid extra composite indexes)
+      if (course) {
+        const c = String(course).trim().toLowerCase();
+        papers = papers.filter(p => (p.course || '').toLowerCase() === c);
+      }
+      if (type) {
+        const t = String(type).trim().toLowerCase();
+        papers = papers.filter(p => (p.type || '').toLowerCase() === t);
+      }
       if (search) {
         const q = search.toLowerCase();
         papers = papers.filter(p =>
@@ -43,6 +49,14 @@ function paperRoutes(db, cloudinary) {
           (p.year       || '').includes(q) ||
           (p.tags       || []).some(t => t.toLowerCase().includes(q))
         );
+      }
+      if (university) {
+        const u = university.trim().toLowerCase();
+        papers = papers.filter(p => (p.university || '').toLowerCase().includes(u));
+      }
+      if (year) {
+        const y = year.trim().toLowerCase();
+        papers = papers.filter(p => (p.year || '').toLowerCase().includes(y));
       }
 
       const total = papers.length;
@@ -63,16 +77,19 @@ function paperRoutes(db, cloudinary) {
     }
   });
 
-  // GET /api/papers/trending — top papers by downloads (last 30 days)
+  // GET /api/papers/trending — top papers by downloads
   router.get('/trending', async (req, res, next) => {
     try {
       const snapshot = await db.collection('papers')
         .where('status', '==', 'approved')
-        .orderBy('downloads', 'desc')
-        .limit(10)
+        .limit(200)
         .get();
 
-      const papers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const papers = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
+        .slice(0, 10);
+
       res.json(papers);
     } catch (err) {
       next(err);
@@ -188,10 +205,12 @@ function paperRoutes(db, cloudinary) {
         tags:       parsedTags,
         downloadURL,
         fileName:    stripDangerous(file.originalname).slice(0, 255),
+        publicId:    result.public_id,
         downloads:   0,
         status:      'pending',
         uploadedBy:  req.user.uid,
         uploaderName: req.user.name || req.user.email || 'Anonymous',
+        uploaderEmail: req.user.email || '',
         createdAt:   admin.firestore.FieldValue.serverTimestamp()
       });
 
@@ -206,7 +225,16 @@ function paperRoutes(db, cloudinary) {
   // DELETE /api/papers/:id — admin only
   router.delete('/:id', verifyToken, requireAdminAuth, async (req, res, next) => {
     try {
-      await db.collection('papers').doc(req.params.id).delete();
+      const ref = db.collection('papers').doc(req.params.id);
+      const doc = await ref.get();
+      if (doc.exists) {
+        await destroyPaperFile(cloudinary, doc.data());
+        const bookmarks = await db.collection('bookmarks')
+          .where('paperId', '==', req.params.id)
+          .get();
+        await Promise.all(bookmarks.docs.map(b => b.ref.delete()));
+      }
+      await ref.delete();
       res.json({ success: true });
     } catch (err) {
       next(err);

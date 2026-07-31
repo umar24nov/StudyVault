@@ -96,6 +96,15 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .table-title { font-weight: 600; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .table-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 
+/* PAGER */
+.pager-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; padding: 0.2rem 0.2rem 0; }
+.pager-info { font-size: 0.82rem; color: var(--muted); }
+.pager-controls { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+.pager-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; padding: 0.4rem 0.75rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.pager-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pager-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pager-btn.pager-active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+
 /* STATUS BADGES */
 .status-badge { display: inline-flex; padding: 0.2rem 0.6rem; border-radius: 100px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
 .status-pending  { background: rgba(255,200,80,0.15); color: #ffc850; }

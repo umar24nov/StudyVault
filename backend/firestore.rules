@@ -42,6 +42,16 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // ── Notifications ─────────────────────────────────
+    // Created server-side; users read/manage their own only.
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow update: if isSignedIn()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow create, delete: if false;
+    }
+
     // ── Reviews ───────────────────────────────────────
     // Public reads approved. Creation happens server-side (Admin SDK),
     // so client creates are denied to enforce moderation + rate limits.

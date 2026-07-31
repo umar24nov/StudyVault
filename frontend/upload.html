@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index, follow">
+<meta name="description" content="Upload previous year question papers, notes & study resources to StudyVault and track their review status. Help students across India study smarter.">
+<title>Upload a Paper — StudyVault</title>
+<meta property="og:title" content="Upload a Paper — StudyVault">
+<meta property="og:description" content="Contribute PYQs, notes & study resources and track their review status.">
+<meta property="og:url" content="https://studyvaultapp.vercel.app/upload.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_IN">
+<link rel="canonical" href="https://studyvaultapp.vercel.app/upload.html">
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey:            "AIzaSyC5aqnLLFp-49BeOZhr5yPACfwxP0DYvAc",
+    authDomain:        "studyvault-2a4c2.firebaseapp.com",
+    projectId:         "studyvault-2a4c2",
+    storageBucket:     "studyvault-2a4c2.firebasestorage.app",
+    messagingSenderId: "434827310604",
+    appId:             "1:434827310604:web:d4bcf91186b0992558e029"
+  });
+</script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo-link">
+    <img src="assets/logo.svg" alt="StudyVault logo" class="logo-img">
+    <div class="logo">Study<span>Vault</span></div>
+  </a>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul id="navMenu">
+    <li><a href="/browse.html">Search</a></li>
+    <li><a href="/upload.html">Upload</a></li>
+    <li class="nav-bookmark-li" style="display:none"><a href="#" id="navBookmarks" onclick="showBookmarks()">Bookmarks</a></li>
+    <li><a href="#" onclick="return goToReviews()">Reviews</a></li>
+    <li><a href="#" class="nav-btn nav-rate" onclick="openReviewModal()">&#11088; Rate Us</a></li>
+    <li><a href="#" class="nav-btn nav-contact" onclick="openContactModal()">Contact Us</a></li>
+    <li id="notifLi" style="display:none">
+      <button class="notif-bell" id="notifBell" onclick="toggleNotifPanel(event)" aria-label="Notifications">&#128276;<span class="notif-badge" id="notifBadge" style="display:none"></span></button>
+    </li>
+    <li id="navAuth">
+      <button class="nav-btn" id="signInBtn" onclick="signInWithGoogle()">Sign In</button>
+    </li>
+  </ul>
+</nav>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-head">
+    <span class="notif-title">Notifications</span>
+    <button class="notif-mark-all" onclick="markAllNotifRead()">Mark all as read</button>
+  </div>
+  <div class="notif-list" id="notifList">
+    <div class="notif-empty">No notifications yet.</div>
+  </div>
+</div>
+
+<!-- UPLOAD -->
+<section class="upload-section" id="upload" style="margin-top:4rem">
+  <div class="upload-card">
+    <div class="upload-left">
+      <h2>Share Your Papers. Help Everyone.</h2>
+      <p>Have a question paper, notes, or study guide? Upload it to StudyVault and thousands of students across India will benefit.</p>
+      <ul class="upload-perks">
+        <li><span class="perk-dot"></span> Earn contribution badges</li>
+        <li><span class="perk-dot"></span> Get credited for every download</li>
+        <li><span class="perk-dot"></span> PDF, DOC, image formats accepted</li>
+        <li><span class="perk-dot"></span> Reviewed within 24 hours</li>
+      </ul>
+    </div>
+    <div>
+      <div class="upload-dropzone" id="dropzone"
+        ondragover="dragOver(event)"
+        ondragleave="dragLeave()"
+        ondrop="dropFile(event)"
+        onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">&#128228;</div>
+        <h3>Drop your file here</h3>
+        <p>or click to browse &middot; PDF, DOC, JPG, PNG</p>
+        <div class="upload-size-hint">&#128204; Max file size: <strong>15 MB</strong></div>
+        <div class="file-chosen" id="fileChosen"></div>
+        <div class="upload-fields" onclick="event.stopPropagation()">
+          <input type="text" class="upload-input" placeholder="Subject / Paper Title" id="uploadTitle">
+          <select class="upload-input" id="uploadCourse">
+            <option value="">Select Course</option>
+            <option value="engineering">Engineering</option>
+            <option value="management">Management</option>
+            <option value="law">Law</option>
+            <option value="medical">Medical</option>
+            <option value="humanities">Humanities</option>
+            <option value="commerce">Commerce</option>
+            <option value="cs">CS / IT</option>
+            <option value="science">Pure Science</option>
+          </select>
+          <select class="upload-input" id="uploadType">
+            <option value="pyq">Previous Year Question (PYQ)</option>
+            <option value="notes">Notes</option>
+            <option value="paper">Model Paper</option>
+            <option value="booklet">&#128218; Booklet / Book</option>
+          </select>
+          <input type="text" class="upload-input" placeholder="Year (e.g. 2023)" id="uploadYear">
+          <input type="text" class="upload-input" placeholder="University name (optional)" id="uploadUniv">
+          <input type="text" class="upload-input" placeholder="Tags (comma-separated, e.g. algorithms, mid-sem)" id="uploadTags">
+        </div>
+        <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onchange="handleFile(this)">
+        <button class="btn-primary btn-full" onclick="event.stopPropagation(); handleUpload()">Upload Now &#8593;</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MY UPLOADS -->
+<section class="my-uploads" id="myUploads">
+  <div class="section-label">Track your contributions</div>
+  <div class="section-title">My Uploads</div>
+  <div class="section-sub">See the review status of everything you have uploaded.</div>
+  <div id="myUploadsList">
+    <div class="loading">Loading your uploads...</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+      <div class="footer-brand">
+      <a href="/" class="footer-logo-line" style="text-decoration:none">
+        <img src="assets/logo.svg" alt="StudyVault logo" class="footer-logo-img">
+        <div class="footer-logo-wrap">Study<span>Vault</span></div>
+      </a>
+      <p class="footer-tagline">Built by students, for students across India.</p>
+      <div class="footer-badges">
+        <div class="footer-badge-item">&#128231; <span>studyvaultapp@gmail.com</span></div>
+        <div class="footer-badge-item">&#128205; <span>India</span></div>
+        <div class="footer-badge-item">&#128336; <span>Mon&ndash;Sat, 10am&ndash;6pm IST</span></div>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Resources</div>
+      <a href="/browse.html">Browse Papers</a>
+      <a href="/upload.html">Contribute Resource</a>
+      <a href="/upload.html#myUploads">My Uploads</a>
+      <a href="#" onclick="document.getElementById('contributeModal').classList.add('open');return false">Contribute</a>
+      <a href="https://github.com/umar24nov/StudyVault.git" target="_blank">GitHub &#8599;</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Company</div>
+      <a href="#" onclick="document.getElementById('aboutModal').classList.add('open');return false">About Us</a>
+      <a href="#" onclick="document.getElementById('contactModal').classList.add('open');return false">Contact</a>
+      <a href="#" onclick="document.getElementById('developerModal').classList.add('open');return false">Developer</a>
+      <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy Policy</a>
+      <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
+    </div>
+    <div class="footer-col footer-feedback">
+      <div class="footer-col-title">Feedback</div>
+      <p class="footer-feedback-desc">Got a suggestion? We would love to hear it.</p>
+      <div class="footer-feedback-form">
+        <select class="footer-feedback-select" id="feedbackType">
+          <option value="">What is this about?</option>
+          <option value="suggestion">&#128161; Suggestion</option>
+          <option value="bug">&#128027; Bug Report</option>
+          <option value="missing">&#128196; Missing Paper</option>
+          <option value="other">&#128172; Other</option>
+        </select>
+        <textarea class="footer-feedback-input" id="feedbackMsg" placeholder="Tell us what you think..." rows="3"></textarea>
+        <button class="footer-feedback-btn" onclick="submitFooterFeedback()">Send Feedback &rarr;</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2025 StudyVault &middot; Built by Mohammad Umar, B.Tech CSE Student &middot; Made with &#10084;&#65039; for students
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- REVIEW MODAL -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeReviewModal()">&#10005;</button>
+    <h3>Rate StudyVault &#11088;</h3>
+    <p>How has your experience been? Your feedback helps us improve.</p>
+    <div class="star-picker" id="starPicker">
+      <span class="star" data-val="1" onclick="selectStar(1)">&#9733;</span>
+      <span class="star" data-val="2" onclick="selectStar(2)">&#9733;</span>
+      <span class="star" data-val="3" onclick="selectStar(3)">&#9733;</span>
+      <span class="star" data-val="4" onclick="selectStar(4)">&#9733;</span>
+      <span class="star" data-val="5" onclick="selectStar(5)">&#9733;</span>
+    </div>
+    <div id="starLabel" class="star-label"></div>
+    <div class="modal-form-stack">
+      <input class="upload-input" type="text" id="reviewName" placeholder="Your name (e.g. Mohammad Umar, CSE 3rd year)">
+      <textarea class="upload-input modal-textarea" id="reviewMsg" placeholder="Write a short review... (max 150 characters)" maxlength="150" rows="3"></textarea>
+    </div>
+    <div id="reviewCharCount" class="review-char-count">0 / 150</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeReviewModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitReview()">Submit Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER PROFILE MODAL -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal modal-dev">
+    <button class="modal-close" onclick="document.getElementById('profileModal').classList.remove('open')">&#10005;</button>
+    <h3>&#128100; My Profile</h3>
+    <div class="dev-profile-card" id="profileCard">
+      <div class="dev-avatar-lg" id="profileAvatar">&#128100;</div>
+      <div>
+        <div class="dev-name-lg" id="profileName">Loading...</div>
+        <div class="dev-role" id="profileEmail"></div>
+      </div>
+    </div>
+    <div class="dev-stack-grid" id="profileStats">
+      <div class="dev-stack-item">
+        <div class="dev-stack-icon">&#128196;</div>
+        <div class="dev-stack-label">Uploads</div>
+        <div class="dev-stack-value" id="statUploads">0</div>
+      </div>
+      <div class="dev-stack-item">
+        <div class="dev-stack-icon">&#11088;</div>
+        <div class="dev-stack-label">Bookmarks</div>
+        <div class="dev-stack-value" id="statBookmarks">0</div>
+      </div>
+      <div class="dev-stack-item">
+        <div class="dev-stack-icon">&#11015;&#65039;</div>
+        <div class="dev-stack-label">Downloads</div>
+        <div class="dev-stack-value" id="statDownloads">0</div>
+      </div>
+    </div>
+    <div class="modal-actions" style="flex-wrap:wrap;gap:0.6rem">
+      <button class="btn-secondary" id="profileAdminBtn" style="display:none" onclick="location.href='/admin/'">Admin Dashboard</button>
+      <button class="btn-secondary" onclick="document.getElementById('profileModal').classList.remove('open');location.href='/upload.html#myUploads'">My Uploads</button>
+      <button class="btn-primary" onclick="signOut()" style="background:linear-gradient(135deg,#ff6584,#ff4757)">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKMARKS MODAL -->
+<div class="modal-overlay" id="bookmarksModal">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="document.getElementById('bookmarksModal').classList.remove('open')">&#10005;</button>
+    <h3>&#11088; My Bookmarks</h3>
+    <p>Your saved papers for quick access.</p>
+    <div id="bookmarksList" class="modal-scroll-content">
+      <div class="testimonial-loading">Loading bookmarks...</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="document.getElementById('bookmarksModal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF PREVIEW MODAL -->
+<div class="modal-overlay" id="previewModal">
+  <div class="modal modal-preview">
+    <button class="modal-close" onclick="closePreview()">&#10005;</button>
+    <h3 id="previewTitle">Preview</h3>
+    <div class="preview-container">
+      <iframe id="previewFrame" src="" title="PDF Preview"></iframe>
+    </div>
+    <div class="modal-actions">
+      <a id="previewDownload" class="btn-secondary" href="" target="_blank" rel="noopener" download>Download</a>
+      <button class="btn-primary" onclick="closePreview()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('contactModal').classList.remove('open')">&#10005;</button>
+    <h3>Contact Us</h3>
+    <p>Have a question, suggestion, or want to report something? Reach out to us.</p>
+    <div class="modal-form-stack">
+      <input class="upload-input" type="text" placeholder="Your Name" id="contactName">
+      <input class="upload-input" type="email" placeholder="Your Email" id="contactEmail">
+      <textarea class="upload-input modal-textarea" placeholder="Your message..." id="contactMsg" rows="4"></textarea>
+    </div>
+    <div class="modal-hint">
+      &#128231; Or email us directly at <strong>studyvaultapp@gmail.com</strong><br>
+      &#128172; Response time: within 48 hours
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="document.getElementById('contactModal').classList.remove('open')">Cancel</button>
+      <button class="btn-primary" onclick="submitContact()">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT MODAL -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open')">&#10005;</button>
+    <h3>About StudyVault</h3>
+    <div class="modal-scroll-content">
+      <p class="modal-p">StudyVault is a platform built by students, for students across India. The goal is simple &#8212; make quality study material like previous year papers, notes, and guides accessible to every student regardless of their college or background.</p>
+      <p class="modal-p">Whether you are preparing for exams, trying to understand patterns, or just want a head start &#8212; StudyVault can help you study smarter, boost your performance, and save hours of searching.</p>
+      <div class="dev-card">
+        <div class="dev-avatar">&#128104;&#8205;&#128187;</div>
+        <div>
+          <div class="dev-name">Mohammad Umar</div>
+          <div class="dev-role">B.Tech CSE Student &middot; Founder &amp; Developer</div>
+        </div>
+      </div>
+      <p class="modal-footer-note">Founded in 2025 &middot; Based in India &middot; Built with &#10084;&#65039; for every student</p>
+    </div>
+    <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button></div>
+  </div>
+</div>
+
+<!-- DEVELOPER MODAL -->
+<div class="modal-overlay" id="developerModal">
+  <div class="modal modal-dev">
+    <button class="modal-close" onclick="document.getElementById('developerModal').classList.remove('open')">&#10005;</button>
+    <h3>&#128104;&#8205;&#128187; The Developer</h3>
+    <div class="modal-scroll-content">
+      <div class="dev-profile-card">
+        <div class="dev-avatar-lg">&#128104;&#8205;&#128187;</div>
+        <div>
+          <div class="dev-name-lg">Mohammad Umar</div>
+          <div class="dev-role">B.Tech CSE Student &middot; Founder &amp; Developer</div>
+          <div class="dev-location">&#128205; India &middot; Building cool things &#128640;</div>
+        </div>
+      </div>
+      <p class="modal-p">Hey! I am Umar, a Computer Science student who built StudyVault from scratch. I was frustrated with how scattered study resources were &#8212; no single place had PYQs, notes, and guides for Indian university students. So I built one.</p>
+      <p class="modal-p modal-p-muted">This is my first full-stack project &#8212; built with Node.js, Firebase, and Cloudinary. If it helps even one student, it was worth it.</p>
+      <div class="dev-stack-grid">
+        <div class="dev-stack-item">
+          <div class="dev-stack-icon">&#128736;&#65039;</div>
+          <div class="dev-stack-label">Stack</div>
+          <div class="dev-stack-value">Node.js &middot; Firebase</div>
+        </div>
+        <div class="dev-stack-item">
+          <div class="dev-stack-icon">&#9925;</div>
+          <div class="dev-stack-label">Storage</div>
+          <div class="dev-stack-value">Cloudinary</div>
+        </div>
+        <div class="dev-stack-item">
+          <div class="dev-stack-icon">&#128197;</div>
+          <div class="dev-stack-label">Since</div>
+          <div class="dev-stack-value">2025 &middot; Growing</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="window.open('https://github.com/umar24nov/StudyVault.git','_blank')">GitHub &#8599;</button>
+      <button class="btn-primary" onclick="document.getElementById('developerModal').classList.remove('open');document.getElementById('contactModal').classList.add('open')">Get in Touch</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY MODAL -->
+<div class="modal-overlay" id="privacyModal">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="document.getElementById('privacyModal').classList.remove('open')">&#10005;</button>
+    <h3>Privacy Policy</h3>
+    <div class="modal-scroll-content">
+      <p class="modal-p"><strong class="text-bright">Data We Collect</strong><br>We collect only the information necessary to provide our service &#8212; such as uploaded file metadata (title, course, year) and basic usage analytics.</p>
+      <p class="modal-p"><strong class="text-bright">How We Use It</strong><br>Your data is used solely to display and serve study materials. We do not sell or share your personal information with third parties.</p>
+      <p class="modal-p"><strong class="text-bright">Uploaded Content</strong><br>Files you upload are stored securely on Cloudinary. By uploading, you confirm you have the right to share the content.</p>
+      <p class="modal-p"><strong class="text-bright">Cookies</strong><br>We use minimal cookies for basic site functionality only. No tracking or advertising cookies are used.</p>
+      <p class="modal-p"><strong class="text-bright">Contact</strong><br>For privacy concerns, email us at studyvaultapp@gmail.com</p>
+    </div>
+    <div class="modal-actions"><button class="btn-primary" onclick="document.getElementById('privacyModal').classList.remove('open')">Got it</button></div>
+  </div>
+</div>
+
+<!-- DMCA MODAL -->
+<div class="modal-overlay" id="dmcaModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('dmcaModal').classList.remove('open')">&#10005;</button>
+    <h3>DMCA &amp; Content Policy</h3>
+    <p class="modal-p">StudyVault respects intellectual property rights. If you believe any content on our platform infringes your copyright, please contact us at <strong class="text-accent">studyvaultapp@gmail.com</strong>.<br><br>Include: your name, the infringing URL, and proof of ownership.</p>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="document.getElementById('dmcaModal').classList.remove('open')">Understood</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRIBUTE MODAL -->
+<div class="modal-overlay" id="contributeModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('contributeModal').classList.remove('open')">&#10005;</button>
+    <h3>Contribute to StudyVault &#128640;</h3>
+    <div class="modal-scroll-content">
+      <p class="modal-p">StudyVault is open source and community driven. Here is how you can help:</p>
+      <div class="modal-form-stack">
+        <div class="modal-info-block">&#128196; <strong>Upload Papers</strong> &#8212; Share your old question papers and notes using the Upload section.</div>
+        <div class="modal-info-block">&#128187; <strong>Code</strong> &#8212; Help us build new features. Star and fork us on GitHub.</div>
+        <div class="modal-info-block">&#128226; <strong>Spread the word</strong> &#8212; Share StudyVault with your classmates and college groups.</div>
+        <div class="modal-info-block">&#128027; <strong>Report bugs</strong> &#8212; Found something broken? Email us at studyvaultapp@gmail.com</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="document.getElementById('contributeModal').classList.remove('open')">Close</button>
+      <button class="btn-primary" onclick="window.open('https://github.com/umar24nov/StudyVault.git','_blank')">View on GitHub</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

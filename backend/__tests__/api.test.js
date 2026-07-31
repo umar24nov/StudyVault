@@ -23,6 +23,7 @@ function stub() {
 
 // ── Chainable Firestore collection mock ───────────────
 let docOverride = null; // optional { exists, data } override for doc()
+let colDocs = [];       // seed docs returned by collection.get()
 
 function makeMockCollection() {
   const col = {
@@ -42,7 +43,11 @@ function makeMockCollection() {
       };
     }),
     add: stub().mockResolvedValue({ id: 'new-id' }),
-    get: stub().mockResolvedValue({ docs: [], size: 0, empty: true }),
+    get: stub().mockImplementation(async () => ({
+      docs: colDocs.map(d => ({ id: d.id, data: () => d.data })),
+      size: colDocs.length,
+      empty: colDocs.length === 0
+    })),
     where: stub().mockImplementation(() => col),
     orderBy: stub().mockImplementation(() => col),
     limit: stub().mockImplementation(() => col),
@@ -67,7 +72,7 @@ function setupMocks() {
   };
 
   const cloudMock = {
-    v2: { config: stub(), uploader: { upload: stub().mockResolvedValue({ secure_url: 'https://cld.test/f.pdf' }) } }
+    v2: { config: stub(), uploader: { upload: stub().mockResolvedValue({ secure_url: 'https://cld.test/f.pdf', public_id: 'studyvault/f' }), destroy: stub().mockResolvedValue({ result: 'ok' }) } }
   };
 
   const uploadMock = {
@@ -116,6 +121,8 @@ function createApp() {
   app.use('/api/feedback', require(path.join(ROOT, 'routes', 'feedback'))(db));
   app.use('/api/bookmarks', require(path.join(ROOT, 'routes', 'bookmarks'))(db));
   app.use('/api/users', require(path.join(ROOT, 'routes', 'users'))(db));
+  app.use('/api/admin', require(path.join(ROOT, 'routes', 'admin'))(db, cloudinary));
+  app.use('/api/notifications', require(path.join(ROOT, 'routes', 'notifications'))(db));
 
   app.use((err, req, res, _next) => res.status(500).json({ error: err.message }));
   return app;
@@ -162,6 +169,36 @@ describe('GET /api/papers', () => {
     assert.equal(res.status, 200);
     assert.equal(res.body.pagination.page, 1);
     assert.equal(res.body.pagination.limit, 10);
+  });
+
+  it('accepts year and university filters', async () => {
+    const res = await request(app, 'GET', '/api/papers?year=2023&university=Anna');
+    assert.equal(res.status, 200);
+    assert.ok(Array.isArray(res.body.data));
+  });
+
+  it('filters by course and type', async () => {
+    colDocs = [
+      { id: 'p1', data: { id: 'p1', title: 'DBMS PYQ', course: 'engineering', type: 'pyq', status: 'approved', downloads: 2, year: '2023', tags: [] } },
+      { id: 'p2', data: { id: 'p2', title: 'Notes', course: 'management', type: 'notes', status: 'approved', downloads: 1, year: '2022', tags: [] } },
+    ];
+
+    const res = await request(app, 'GET', '/api/papers?course=engineering&type=pyq');
+    assert.equal(res.status, 200);
+    assert.deepEqual(res.body.data.map(p => p.id), ['p1']);
+    assert.equal(res.body.pagination.total, 1);
+  });
+
+  it('filters by search term across title', async () => {
+    colDocs = [
+      { id: 'p1', data: { id: 'p1', title: 'Algorithms Final', course: 'cs', type: 'pyq', status: 'approved', downloads: 0, year: '2023', tags: ['algorithms'] } },
+      { id: 'p2', data: { id: 'p2', title: 'Economics Notes', course: 'commerce', type: 'notes', status: 'approved', downloads: 0, year: '2022', tags: [] } },
+    ];
+
+    const res = await request(app, 'GET', '/api/papers?search=algorithms');
+    assert.equal(res.status, 200);
+    assert.deepEqual(res.body.data.map(p => p.id), ['p1']);
+    assert.equal(res.body.pagination.total, 1);
   });
 });
 
@@ -248,5 +285,43 @@ describe('POST /api/feedback/contact', () => {
     const res = await request(app, 'POST', '/api/feedback/contact', { name: 'T', email: 't@t.com', message: 'Hi' });
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
+  });
+});
+
+describe('GET /api/reviews', () => {
+  it('supports sort=recent and sort=top', async () => {
+    const recent = await request(app, 'GET', '/api/reviews?sort=recent');
+    assert.equal(recent.status, 200);
+    assert.ok(Array.isArray(recent.body));
+
+    const top = await request(app, 'GET', '/api/reviews?sort=top');
+    assert.equal(top.status, 200);
+    assert.ok(Array.isArray(top.body));
+  });
+});
+
+describe('GET /api/notifications', () => {
+  it('returns unread count and data array', async () => {
+    const res = await request(app, 'GET', '/api/notifications');
+    assert.equal(res.status, 200);
+    assert.equal(typeof res.body.unread, 'number');
+    assert.ok(Array.isArray(res.body.data));
+  });
+});
+
+describe('GET /api/admin', () => {
+  it('check returns isAdmin', async () => {
+    const res = await request(app, 'GET', '/api/admin/check');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.isAdmin, true);
+  });
+
+  it('papers returns pagination shape', async () => {
+    const res = await request(app, 'GET', '/api/admin/papers?page=1&limit=25');
+    assert.equal(res.status, 200);
+    assert.ok(Array.isArray(res.body.data));
+    assert.ok(res.body.pagination);
+    assert.equal(res.body.pagination.page, 1);
+    assert.equal(res.body.pagination.limit, 25);
   });
 });

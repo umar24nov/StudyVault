@@ -6,20 +6,30 @@ const { writeLimiter } = require('../middleware/rateLimit');
 function reviewRoutes(db) {
   const router = express.Router();
 
-  // GET /api/reviews — top 3 approved by stars
+  // GET /api/reviews — approved reviews, sorted by recency or stars
   router.get('/', async (req, res, next) => {
     try {
+      const sort = req.query.sort === 'top' ? 'top' : 'recent';
+      const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 6));
+
       const snapshot = await db.collection('reviews')
         .where('status', '==', 'approved')
-        .orderBy('stars', 'desc')
-        .limit(3)
         .get();
-      const reviews = snapshot.docs.map(doc => {
+
+      let reviews = snapshot.docs.map(doc => {
         const data = doc.data();
         const { userId, ...rest } = data;
         return { id: doc.id, ...rest };
       });
-      res.json(reviews);
+
+      if (sort === 'top') {
+        reviews.sort((a, b) => (b.stars || 0) - (a.stars || 0));
+      } else {
+        const time = t => (t && t.seconds) || (t && t._seconds) || 0;
+        reviews.sort((a, b) => time(b.createdAt) - time(a.createdAt));
+      }
+
+      res.json(reviews.slice(0, limit));
     } catch (err) {
       next(err);
     }

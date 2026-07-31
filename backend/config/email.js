@@ -1,4 +1,4 @@
-const to = 'studyvaultapp@gmail.com';
+const DEFAULT_TO = 'studyvaultapp@gmail.com';
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
@@ -7,7 +7,8 @@ function getResend() {
   return new Resend(key);
 }
 
-async function sendEmail(subject, html) {
+async function sendEmail(subject, html, to = DEFAULT_TO) {
+  if (!to) return;
   const resend = getResend();
   if (!resend) return;
   try {

@@ -57,19 +57,31 @@
     <span></span><span></span><span></span>
   </button>
   <ul id="navMenu">
-    <li><a href="#search">Search</a></li>
-    <li><a href="#courses">Courses</a></li>
-    <li><a href="#universities">Universities</a></li>
-    <li><a href="#upload">Upload</a></li>
-    <li style="display:none"><a href="#" id="navBookmarks" onclick="showBookmarks()">Bookmarks</a></li>
-    <li id="navAdminLi" style="display:none"><a href="admin/">Admin</a></li>
-    <li><a href="#" onclick="document.getElementById('developerModal').classList.add('open')">Developer</a></li>
-    <li><a href="#" class="nav-btn" onclick="openReviewModal()">&#11088; Rate Us</a></li>
+    <li><a href="/browse.html">Search</a></li>
+    <li><a href="/upload.html">Upload</a></li>
+    <li class="nav-bookmark-li" style="display:none"><a href="#" id="navBookmarks" onclick="showBookmarks()">Bookmarks</a></li>
+    <li><a href="#" onclick="return goToReviews()">Reviews</a></li>
+    <li><a href="#" class="nav-btn nav-rate" onclick="openReviewModal()">&#11088; Rate Us</a></li>
+    <li><a href="#" class="nav-btn nav-contact" onclick="openContactModal()">Contact Us</a></li>
+    <li id="notifLi" style="display:none">
+      <button class="notif-bell" id="notifBell" onclick="toggleNotifPanel(event)" aria-label="Notifications">&#128276;<span class="notif-badge" id="notifBadge" style="display:none"></span></button>
+    </li>
     <li id="navAuth">
       <button class="nav-btn" id="signInBtn" onclick="signInWithGoogle()">Sign In</button>
     </li>
   </ul>
 </nav>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-head">
+    <span class="notif-title">Notifications</span>
+    <button class="notif-mark-all" onclick="markAllNotifRead()">Mark all as read</button>
+  </div>
+  <div class="notif-list" id="notifList">
+    <div class="notif-empty">No notifications yet.</div>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -77,8 +89,8 @@
   <h1>Your Academic<br><em>Arsenal</em> is <span class="hl2">Here</span></h1>
   <p>Access thousands of previous year question papers, notes &amp; study material. Upload your own and help fellow students ace their exams.</p>
   <div class="hero-actions">
-    <button class="btn-primary" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'})">Browse Papers &#8595;</button>
-    <button class="btn-secondary" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'})">Contribute Resource</button>
+    <button class="btn-primary" onclick="location.href='/browse.html'">Browse Papers &#8595;</button>
+    <button class="btn-secondary" onclick="location.href='/upload.html'">Contribute Resource</button>
   </div>
 </section>
 
@@ -89,55 +101,6 @@
   <div class="stat"><div class="stat-num">&#128200;</div><div class="stat-lbl">Boost Your Performance</div></div>
   <div class="stat"><div class="stat-num">&#127470;&#127475;</div><div class="stat-lbl">Made for India</div></div>
 </div>
-
-<!-- SEARCH -->
-<section class="search-section" id="search">
-  <h2>Find Your Papers</h2>
-  <p>Search across Engineering, Management, Law, Medical, Humanities &amp; more</p>
-  <div class="search-box">
-    <div class="search-input-wrap">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" class="search-input" id="searchInput" placeholder="Search subject, exam, university..." oninput="debouncedSearch()">
-    </div>
-    <select class="filter-select" id="courseFilter" onchange="performSearch()">      <option value="">All Courses</option>
-      <option value="engineering">Engineering</option>
-      <option value="management">Management (MBA/BBA)</option>
-      <option value="law">Law</option>
-      <option value="medical">Medical</option>
-      <option value="humanities">Humanities</option>
-      <option value="commerce">Commerce</option>
-      <option value="science">Pure Science</option>
-      <option value="cs">Computer Science</option>
-    </select>
-    <select class="filter-select" id="typeFilter" onchange="performSearch()">
-      <option value="">All Types</option>
-      <option value="pyq">PYQ</option>
-      <option value="notes">Notes</option>
-      <option value="paper">Model Paper</option>
-      <option value="booklet">Booklet</option>
-    </select>
-    <button class="search-btn" onclick="performSearch()">Search</button>
-  </div>
-  <div class="category-chips" id="chips">
-    <div class="chip active" onclick="setChip(this,'')">&#128293; All</div>
-    <div class="chip" onclick="setChip(this,'engineering')">&#9881;&#65039; Engineering</div>
-    <div class="chip" onclick="setChip(this,'management')">&#128202; Management</div>
-    <div class="chip" onclick="setChip(this,'law')">&#9878;&#65039; Law</div>
-    <div class="chip" onclick="setChip(this,'medical')">&#129514; Medical</div>
-    <div class="chip" onclick="setChip(this,'humanities')">&#127917; Humanities</div>
-    <div class="chip" onclick="setChip(this,'commerce')">&#128176; Commerce</div>
-    <div class="chip" onclick="setChip(this,'cs')">&#128187; CS / IT</div>
-    <div class="chip" onclick="setChip(this,'science')">&#128300; Science</div>
-  </div>
-  <div class="results-area" id="resultsArea">
-    <div class="loading">Loading papers</div>
-  </div>
-  <div id="loadMoreWrap" class="load-more-wrap" style="display:none">
-    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMorePapers()">Load More</button>
-    <div class="load-more-end">You&#8217;ve reached the end of the list &#8212; try searching for more!</div>
-  </div>
-  <div id="scrollSentinel" style="height:1px"></div>
-</section>
 
 <!-- COURSES -->
 <section class="courses-section" id="courses">
@@ -185,70 +148,17 @@
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
-<section class="testimonials-section" id="testimonials">
+<!-- REVIEWS -->
+<section class="testimonials-section" id="reviews">
   <div class="section-label">Student Reviews</div>
   <div class="section-title">What Students Say</div>
   <div class="section-sub">Real feedback from students across India who use StudyVault every day.</div>
+  <div class="review-sort">
+    <button class="review-sort-btn active" data-sort="recent" onclick="changeReviewSort('recent')">&#128337;&#65039; Newest</button>
+    <button class="review-sort-btn" data-sort="top" onclick="changeReviewSort('top')">&#11088; Top Rated</button>
+  </div>
   <div class="testimonials-grid" id="testimonialsGrid">
     <div class="testimonial-loading">Loading reviews...</div>
-  </div>
-  <div class="testimonials-cta">
-    <button class="btn-primary" onclick="openReviewModal()">&#11088; Leave a Review</button>
-  </div>
-</section>
-
-<!-- UPLOAD -->
-<section class="upload-section" id="upload">
-  <div class="upload-card">
-    <div class="upload-left">
-      <h2>Share Your Papers. Help Everyone.</h2>
-      <p>Have a question paper, notes, or study guide? Upload it to StudyVault and thousands of students across India will benefit.</p>
-      <ul class="upload-perks">
-        <li><span class="perk-dot"></span> Earn contribution badges</li>
-        <li><span class="perk-dot"></span> Get credited for every download</li>
-        <li><span class="perk-dot"></span> PDF, DOC, image formats accepted</li>
-        <li><span class="perk-dot"></span> Reviewed within 24 hours</li>
-      </ul>
-    </div>
-    <div>
-      <div class="upload-dropzone" id="dropzone"
-        ondragover="dragOver(event)"
-        ondragleave="dragLeave()"
-        ondrop="dropFile(event)"
-        onclick="document.getElementById('fileInput').click()">
-        <div class="upload-icon">&#128228;</div>
-        <h3>Drop your file here</h3>
-        <p>or click to browse &middot; PDF, DOC, JPG, PNG</p>
-        <div class="upload-size-hint">&#128204; Max file size: <strong>15 MB</strong></div>
-        <div class="file-chosen" id="fileChosen"></div>
-        <div class="upload-fields" onclick="event.stopPropagation()">
-          <input type="text" class="upload-input" placeholder="Subject / Paper Title" id="uploadTitle">
-          <select class="upload-input" id="uploadCourse">
-            <option value="">Select Course</option>
-            <option value="engineering">Engineering</option>
-            <option value="management">Management</option>
-            <option value="law">Law</option>
-            <option value="medical">Medical</option>
-            <option value="humanities">Humanities</option>
-            <option value="commerce">Commerce</option>
-            <option value="cs">CS / IT</option>
-            <option value="science">Pure Science</option>
-          </select>
-          <select class="upload-input" id="uploadType">
-            <option value="pyq">Previous Year Question (PYQ)</option>
-            <option value="notes">Notes</option>
-            <option value="paper">Model Paper</option>
-            <option value="booklet">&#128218; Booklet / Book</option>
-          </select>
-          <input type="text" class="upload-input" placeholder="Year (e.g. 2023)" id="uploadYear">
-          <input type="text" class="upload-input" placeholder="University name (optional)" id="uploadUniv">
-          <input type="text" class="upload-input" placeholder="Tags (comma-separated, e.g. algorithms, mid-sem)" id="uploadTags">
-        </div>
-        <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onchange="handleFile(this)">
-        <button class="btn-primary btn-full" onclick="event.stopPropagation(); handleUpload()">Upload Now &#8593;</button>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -331,7 +241,7 @@
     <div class="modal-scroll-content">
       <p class="modal-p">StudyVault is open source and community driven. Here is how you can help:</p>
       <div class="modal-form-stack">
-        <div class="modal-info-block">&#128196; <strong>Upload Papers</strong> &#8212; Share your old question papers and notes using the Upload section above.</div>
+        <div class="modal-info-block">&#128196; <strong>Upload Papers</strong> &#8212; Share your old question papers and notes using the Upload section.</div>
         <div class="modal-info-block">&#128187; <strong>Code</strong> &#8212; Help us build new features. Star and fork us on GitHub.</div>
         <div class="modal-info-block">&#128226; <strong>Spread the word</strong> &#8212; Share StudyVault with your classmates and college groups.</div>
         <div class="modal-info-block">&#128027; <strong>Report bugs</strong> &#8212; Found something broken? Email us at studyvaultapp@gmail.com</div>
@@ -402,9 +312,9 @@
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Resources</div>
-      <a href="#" onclick="document.getElementById('search').scrollIntoView({behavior:'smooth'});return false">Browse Papers</a>
-      <a href="#" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'});return false">Contribute Resource</a>
-      <a href="#" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'});return false">All Courses</a>
+      <a href="/browse.html">Browse Papers</a>
+      <a href="/upload.html">Contribute Resource</a>
+      <a href="/upload.html#myUploads">My Uploads</a>
       <a href="#" onclick="document.getElementById('contributeModal').classList.add('open');return false">Contribute</a>
       <a href="https://github.com/umar24nov/StudyVault.git" target="_blank">GitHub &#8599;</a>
     </div>
@@ -412,6 +322,7 @@
       <div class="footer-col-title">Company</div>
       <a href="#" onclick="document.getElementById('aboutModal').classList.add('open');return false">About Us</a>
       <a href="#" onclick="document.getElementById('contactModal').classList.add('open');return false">Contact</a>
+      <a href="#" onclick="document.getElementById('developerModal').classList.add('open');return false">Developer</a>
       <a href="#" onclick="document.getElementById('privacyModal').classList.add('open');return false">Privacy Policy</a>
       <a href="#" onclick="document.getElementById('dmcaModal').classList.add('open');return false">DMCA</a>
     </div>
@@ -494,8 +405,9 @@
         <div class="dev-stack-value" id="statDownloads">0</div>
       </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="document.getElementById('profileModal').classList.remove('open')">Close</button>
+    <div class="modal-actions" style="flex-wrap:wrap;gap:0.6rem">
+      <button class="btn-secondary" id="profileAdminBtn" style="display:none" onclick="location.href='/admin/'">Admin Dashboard</button>
+      <button class="btn-secondary" onclick="document.getElementById('profileModal').classList.remove('open');location.href='/upload.html#myUploads'">My Uploads</button>
       <button class="btn-primary" onclick="signOut()" style="background:linear-gradient(135deg,#ff6584,#ff4757)">Sign Out</button>
     </div>
   </div>

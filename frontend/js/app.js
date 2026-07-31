@@ -23,37 +23,41 @@ firebase.auth().onAuthStateChanged(async (user) => {
       headers: { 'Authorization': `Bearer ${authToken}` }
     }).catch(() => {});
     loadBookmarks();
-    document.getElementById('navAdminLi').style.display = '';
+    loadNotifications();
+    checkAdmin();
     // Re-render cards to show bookmark stars (currentUser was null when cards first rendered)
     if (allPapers.length) renderCards(allPapers);
   } else {
     authToken = null;
     updateNavAuth(false);
     if (allPapers.length) renderCards(allPapers);
-    const adminLink = document.getElementById('navAdmin');
-    if (adminLink) adminLink.style.display = 'none';
+    const badge = document.getElementById('notifBadge');
+    if (badge) badge.style.display = 'none';
+    const adminBtn = document.getElementById('profileAdminBtn');
+    if (adminBtn) adminBtn.style.display = 'none';
   }
 });
 
 function updateNavAuth(signedIn, user) {
   const authEl = document.getElementById('navAuth');
-  const bookmarksLink = document.getElementById('navBookmarks');
+  const bookmarksLi = document.querySelector('.nav-bookmark-li');
+  const notifLi = document.getElementById('notifLi');
   if (signedIn && user) {
     const name = user.displayName || user.email || 'User';
     const initial = name.charAt(0).toUpperCase();
-    authEl.innerHTML = `
+    if (authEl) authEl.innerHTML = `
       <button class="nav-avatar-btn" onclick="openProfileModal()">
         ${user.photoURL && /^https:\/\//i.test(user.photoURL)
           ? `<img src="${esc(user.photoURL)}" alt="" class="nav-avatar-img">`
           : `<div class="nav-avatar-circle">${esc(initial)}</div>`
         }
       </button>`;
-    if (bookmarksLink) bookmarksLink.parentElement.style.display = '';
+    if (bookmarksLi) bookmarksLi.style.display = '';
+    if (notifLi) notifLi.style.display = '';
   } else {
-    authEl.innerHTML = `<button class="nav-btn" id="signInBtn" onclick="signInWithGoogle()">Sign In</button>`;
-    if (bookmarksLink) bookmarksLink.parentElement.style.display = 'none';
-    const adminLi = document.getElementById('navAdminLi');
-    if (adminLi) adminLi.style.display = 'none';
+    if (authEl) authEl.innerHTML = `<button class="nav-btn" id="signInBtn" onclick="signInWithGoogle()">Sign In</button>`;
+    if (bookmarksLi) bookmarksLi.style.display = 'none';
+    if (notifLi) notifLi.style.display = 'none';
   }
 }
 
@@ -68,7 +72,8 @@ function signInWithGoogle() {
 
 function signOut() {
   firebase.auth().signOut();
-  document.getElementById('profileModal').classList.remove('open');
+  const pm = document.getElementById('profileModal');
+  if (pm) pm.classList.remove('open');
   showToast('Signed out successfully.');
 }
 
@@ -79,22 +84,39 @@ async function getAuthToken() {
   return null;
 }
 
+// Check whether the signed-in user is an admin (for the discreet dashboard link).
+async function checkAdmin() {
+  if (!currentUser) return;
+  const token = await getAuthToken();
+  if (!token) return;
+  const adminBtn = document.getElementById('profileAdminBtn');
+  if (!adminBtn) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/check`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    adminBtn.style.display = res.ok ? 'inline-block' : 'none';
+  } catch (e) { /* ignore */ }
+}
+
 // ── HAMBURGER MENU ────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const hamburger = document.getElementById('hamburger');
   const navMenu   = document.getElementById('navMenu');
 
-  hamburger.addEventListener('click', () => {
-    navMenu.classList.toggle('open');
-    hamburger.classList.toggle('active');
-  });
-
-  navMenu.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      navMenu.classList.remove('open');
-      hamburger.classList.remove('active');
+  if (hamburger && navMenu) {
+    hamburger.addEventListener('click', () => {
+      navMenu.classList.toggle('open');
+      hamburger.classList.toggle('active');
     });
-  });
+
+    navMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMenu.classList.remove('open');
+        hamburger.classList.remove('active');
+      });
+    });
+  }
 
   // Close modals on overlay click
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
@@ -102,7 +124,33 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target === overlay) overlay.classList.remove('open');
     });
   });
+
+  // Close notification panel on outside click
+  document.addEventListener('click', (e) => {
+    const panel = document.getElementById('notifPanel');
+    const bell  = document.getElementById('notifBell');
+    if (!panel) return;
+    if (panel.classList.contains('open') && !panel.contains(e.target) && bell && !bell.contains(e.target)) {
+      panel.classList.remove('open');
+    }
+  });
 });
+
+// ── NAV HELPERS ───────────────────────────────────────
+function openContactModal() {
+  const m = document.getElementById('contactModal');
+  if (m) m.classList.add('open');
+}
+
+function goToReviews() {
+  const el = document.getElementById('reviews');
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    window.location.href = '/index.html#reviews';
+  }
+  return false;
+}
 
 // ── STATE ─────────────────────────────────────────────
 let allPapers = [];
@@ -117,13 +165,19 @@ const PAPERS_PER_PAGE = 12;
 
 // ── LOAD PAPERS FROM SERVER ───────────────────────────
 function buildSearchParams(page = 1) {
-  const q = document.getElementById('searchInput').value.trim();
-  const course = document.getElementById('courseFilter').value || currentChipCourse;
-  const type = document.getElementById('typeFilter').value;
   const params = new URLSearchParams();
-  if (q) params.set('search', q);
+  const q      = document.getElementById('searchInput')?.value.trim();
+  const course = (document.getElementById('courseFilter')?.value) || currentChipCourse;
+  const type   = document.getElementById('typeFilter')?.value;
+  const year   = document.getElementById('yearFilter')?.value.trim();
+  const univ   = document.getElementById('univFilter')?.value.trim();
+  const sort   = document.getElementById('sortFilter')?.value;
+  if (q)      params.set('search', q);
   if (course) params.set('course', course);
-  if (type) params.set('type', type);
+  if (type)   params.set('type', type);
+  if (year)   params.set('year', year);
+  if (univ)   params.set('university', univ);
+  if (sort)   params.set('sort', sort);
   params.set('page', page);
   params.set('limit', PAPERS_PER_PAGE);
   return params;
@@ -136,6 +190,7 @@ async function fetchPage(query) {
 }
 
 async function loadPapers() {
+  if (!document.getElementById('searchInput')) return;
   currentQuery = buildSearchParams(1).toString();
   const wakeTimer = setTimeout(() => {
     const area = document.getElementById('resultsArea');
@@ -162,6 +217,7 @@ async function loadPapers() {
   } catch(e) {
     clearTimeout(wakeTimer);
     const area = document.getElementById('resultsArea');
+    if (!area) return;
     if (e.name === 'AbortError') {
       area.innerHTML = '<div class="no-results">Server took too long to respond. <a href="#" onclick="loadPapers();return false;" style="color:var(--accent)">Try again</a></div>';
     } else {
@@ -176,6 +232,7 @@ function debouncedSearch() {
 }
 
 async function performSearch() {
+  if (!document.getElementById('resultsArea')) return;
   currentQuery = buildSearchParams(1).toString();
   const area = document.getElementById('resultsArea');
   area.innerHTML = '<div class="loading">Searching...</div>';
@@ -241,6 +298,7 @@ function updateLoadMore() {
 // ── RENDER CARDS ──────────────────────────────────────
 function renderCards(data) {
   const area = document.getElementById('resultsArea');
+  if (!area) return;
   if (!data || !data.length) {
     area.innerHTML = '<div class="no-results">No results found. Try a different search or upload the first one!</div>';
     return;
@@ -257,7 +315,6 @@ function renderCards(data) {
     const type    = p.type || 'pyq';
     const isBookmarked = bookmarkedIds.has(p.id);
     const tags    = p.tags || [];
-    const esc     = s => (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
     return `
     <div class="result-card">
@@ -295,19 +352,21 @@ function setChip(el, course) {
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   currentChipCourse = course;
-  document.getElementById('courseFilter').value = course;
+  const cf = document.getElementById('courseFilter');
+  if (cf) cf.value = course;
   performSearch();
 }
 
-function filterByCourse(course) {
-  currentChipCourse = course;
-  document.getElementById('courseFilter').value = course;
+function setChipActive(course) {
   document.querySelectorAll('.chip').forEach(c => {
     const fn = c.getAttribute('onclick') || '';
     c.classList.toggle('active', fn.includes(`'${course}'`));
   });
-  document.getElementById('search').scrollIntoView({ behavior: 'smooth' });
-  performSearch();
+}
+
+// From the landing page, course cards navigate to the browse page.
+function filterByCourse(course) {
+  window.location.href = '/browse.html?course=' + encodeURIComponent(course);
 }
 
 // ── BOOKMARKS ────────────────────────────────────────
@@ -327,7 +386,7 @@ async function loadBookmarks() {
 }
 
 async function toggleBookmark(paperId, event) {
-  event.stopPropagation();
+  if (event && event.stopPropagation) event.stopPropagation();
   if (!currentUser) {
     showToast('Please sign in to bookmark papers.');
     return;
@@ -364,8 +423,10 @@ async function showBookmarks() {
   const token = await getAuthToken();
   if (!token) return;
 
-  document.getElementById('bookmarksModal').classList.add('open');
+  const modal = document.getElementById('bookmarksModal');
   const list = document.getElementById('bookmarksList');
+  if (!modal || !list) return;
+  modal.classList.add('open');
 
   try {
     const res = await fetch(`${API_BASE}/api/bookmarks`, {
@@ -390,7 +451,9 @@ async function showBookmarks() {
 // ── USER PROFILE ─────────────────────────────────────
 async function openProfileModal() {
   if (!currentUser) return;
-  document.getElementById('profileModal').classList.add('open');
+  const modal = document.getElementById('profileModal');
+  if (!modal) return;
+  modal.classList.add('open');
 
   const token = await getAuthToken();
   if (!token) return;
@@ -439,8 +502,9 @@ function handleFile(input) {
 }
 
 function showFileChosen(name, size) {
-  const sizeTxt = size ? ` (${(size / (1024*1024)).toFixed(1)} MB)` : '';
   const el = document.getElementById('fileChosen');
+  if (!el) return;
+  const sizeTxt = size ? ` (${(size / (1024*1024)).toFixed(1)} MB)` : '';
   el.textContent = name + sizeTxt;
   if (size && size > 15 * 1024 * 1024) {
     el.style.color = '#ff6b6b';
@@ -452,13 +516,15 @@ function showFileChosen(name, size) {
 }
 
 async function handleUpload() {
+  const titleEl = document.getElementById('uploadTitle');
+  if (!titleEl) return;
   if (!currentUser) {
     showToast('Please sign in to upload papers.');
     signInWithGoogle();
     return;
   }
 
-  const title  = document.getElementById('uploadTitle').value.trim();
+  const title  = titleEl.value.trim();
   const course = document.getElementById('uploadCourse').value;
   const type   = document.getElementById('uploadType').value;
   const year   = document.getElementById('uploadYear').value.trim();
@@ -500,20 +566,71 @@ async function handleUpload() {
     const data = await res.json();
     if (data.success) {
       showToast('Thank you! Your upload has been sent for review. It will appear once approved.');
-      document.getElementById('uploadTitle').value      = '';
-      document.getElementById('uploadYear').value       = '';
-      document.getElementById('uploadUniv').value       = '';
-      document.getElementById('uploadCourse').value     = '';
-      document.getElementById('uploadType').value       = 'pyq';
+      titleEl.value                  = '';
+      document.getElementById('uploadYear').value   = '';
+      document.getElementById('uploadUniv').value   = '';
+      document.getElementById('uploadCourse').value = '';
+      document.getElementById('uploadType').value   = 'pyq';
       if (document.getElementById('uploadTags')) document.getElementById('uploadTags').value = '';
-      document.getElementById('fileInput').value        = '';
+      document.getElementById('fileInput').value    = '';
       document.getElementById('fileChosen').textContent = '';
-      loadPapers();
+      loadMyUploads();
     } else {
       showToast('Upload failed: ' + (data.error || 'Unknown error'));
     }
   } catch(e) {
     showToast('Cannot reach server.');
+  }
+}
+
+// ── MY UPLOADS (status page) ──────────────────────────
+async function loadMyUploads() {
+  const list = document.getElementById('myUploadsList');
+  if (!list) return;
+  if (!currentUser) {
+    list.innerHTML = '<div class="no-results">Sign in to see the status of your uploads.</div>';
+    return;
+  }
+  const token = await getAuthToken();
+  if (!token) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/users/me/uploads`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const papers = await res.json();
+    if (!papers.length) {
+      list.innerHTML = '<div class="no-results">You have not uploaded anything yet.</div>';
+      return;
+    }
+
+    const statusLabel = { pending: 'Pending', approved: 'Approved', rejected: 'Rejected' };
+    const typeLabel = { pyq: 'PYQ', notes: 'Notes', paper: 'Model Paper', booklet: 'Booklet' };
+
+    list.innerHTML = papers.map(p => {
+      const safeURL = (p.downloadURL || '').replace(/'/g, "\\'");
+      return `
+      <div class="upload-item">
+        <div class="upload-item-main">
+          <div class="upload-item-title">${esc(p.title) || 'Untitled'}</div>
+          <div class="upload-item-meta">
+            ${esc(typeLabel[p.type] || p.type || '')}
+            ${p.course ? ' · ' + esc(p.course) : ''}
+            ${p.year ? ' · ' + esc(p.year) : ''}
+            ${p.university ? ' · ' + esc(p.university) : ''}
+          </div>
+        </div>
+        <div class="upload-item-side">
+          <span class="status-badge status-${esc(p.status || 'pending')}">${statusLabel[p.status] || esc(p.status || 'pending')}</span>
+          <span class="dl-count">${p.downloads || 0} &#11015;&#65039;</span>
+          ${p.status === 'approved' && safeURL
+            ? `<a class="dl-btn" href="${esc(safeURL)}" target="_blank" rel="noopener" download onclick="trackDownload('${p.id}')">Download</a>`
+            : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<div class="no-results">Could not load your uploads.</div>';
   }
 }
 
@@ -523,10 +640,13 @@ const starLabels = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent!'];
 
 function openReviewModal() {
   if (!currentUser) { showToast('Please sign in to leave a review.'); signInWithGoogle(); return; }
-  document.getElementById('reviewModal').classList.add('open');
+  const modal = document.getElementById('reviewModal');
+  if (modal) modal.classList.add('open');
 }
 function closeReviewModal() {
-  document.getElementById('reviewModal').classList.remove('open');
+  const modal = document.getElementById('reviewModal');
+  if (!modal) return;
+  modal.classList.remove('open');
   selectedStar = 0;
   renderStars(0);
   document.getElementById('starLabel').textContent = '';
@@ -565,7 +685,7 @@ async function submitReview() {
       document.getElementById('reviewMsg').value  = '';
       document.getElementById('reviewCharCount').textContent = '0 / 150';
       showToast('Thank you! Your review has been sent for review. It will appear once approved.');
-      loadTestimonials();
+      loadTestimonials(currentReviewSort);
     } else {
       showToast('Could not submit. Try again.');
     }
@@ -573,11 +693,15 @@ async function submitReview() {
 }
 
 // ── TESTIMONIALS ──────────────────────────────────────
-async function loadTestimonials() {
+let currentReviewSort = 'recent';
+
+async function loadTestimonials(sort = 'recent') {
+  const grid = document.getElementById('testimonialsGrid');
+  if (!grid) return;
+  currentReviewSort = sort;
   try {
-    const res  = await fetch(`${API_BASE}/api/reviews`);
+    const res  = await fetch(`${API_BASE}/api/reviews?sort=${sort}&limit=6`);
     const data = await res.json();
-    const grid = document.getElementById('testimonialsGrid');
     if (!data.length) {
       grid.innerHTML = '<div class="testimonial-loading">No reviews yet — be the first!</div>';
       return;
@@ -590,9 +714,15 @@ async function loadTestimonials() {
       </div>
     `).join('');
   } catch(e) {
-    document.getElementById('testimonialsGrid').innerHTML =
-      '<div class="testimonial-loading">Could not load reviews.</div>';
+    grid.innerHTML = '<div class="testimonial-loading">Could not load reviews.</div>';
   }
+}
+
+function changeReviewSort(sort) {
+  document.querySelectorAll('.review-sort-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.sort === sort);
+  });
+  loadTestimonials(sort);
 }
 
 // ── PDF PREVIEW ───────────────────────────────────────
@@ -602,18 +732,22 @@ document.addEventListener('click', function(e) {
 });
 
 function openPreview(url, title) {
+  const modal = document.getElementById('previewModal');
+  if (!modal) return;
   // Convert download URL to inline preview URL (remove fl_attachment)
   const previewUrl = url.replace('/fl_attachment/', '/');
   document.getElementById('previewFrame').src = previewUrl;
   document.getElementById('previewTitle').textContent = title || 'Preview';
   document.getElementById('previewDownload').href = url;
-  document.getElementById('previewModal').classList.add('open');
+  modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
 function closePreview() {
+  const modal = document.getElementById('previewModal');
+  if (!modal) return;
   document.getElementById('previewFrame').src = '';
-  document.getElementById('previewModal').classList.remove('open');
+  modal.classList.remove('open');
   document.body.style.overflow = '';
 }
 
@@ -626,6 +760,7 @@ function trackDownload(paperId) {
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
+  if (!t) return;
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
@@ -675,10 +810,11 @@ async function submitContact() {
 
 // ── UNIVERSITIES ──────────────────────────────────────
 async function loadUniversities() {
+  const grid = document.getElementById('universitiesGrid');
+  if (!grid) return;
   try {
     const res = await fetch(`${API_BASE}/api/papers/universities`);
     const unis = await res.json();
-    const grid = document.getElementById('universitiesGrid');
     if (!unis.length) {
       grid.innerHTML = '<div class="testimonial-loading">No universities yet. Be the first to upload!</div>';
       return;
@@ -691,25 +827,171 @@ async function loadUniversities() {
       </div>
     `).join('');
   } catch (e) {
-    document.getElementById('universitiesGrid').innerHTML =
-      '<div class="testimonial-loading">Could not load universities.</div>';
+    grid.innerHTML = '<div class="testimonial-loading">Could not load universities.</div>';
   }
 }
 
+// University cards navigate to the browse page with the filter applied.
 function filterByUniversity(uniName) {
-  document.getElementById('searchInput').value = uniName;
-  currentChipCourse = '';
-  document.getElementById('courseFilter').value = '';
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  document.querySelector('.chip').classList.add('active');
-  document.getElementById('search').scrollIntoView({ behavior: 'smooth' });
-  performSearch();
+  window.location.href = '/browse.html?university=' + encodeURIComponent(uniName);
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────
+let notifData = [];
+let notifUnread = 0;
+
+async function loadNotifications() {
+  if (!currentUser) return;
+  const token = await getAuthToken();
+  if (!token) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/notifications`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    notifData = data.data || [];
+    notifUnread = data.unread || 0;
+  } catch(e) { /* ignore */ }
+  updateNotifBadge();
+  if (document.getElementById('notifPanel')?.classList.contains('open')) {
+    renderNotifications();
+  }
+}
+
+function updateNotifBadge() {
+  const badge = document.getElementById('notifBadge');
+  if (!badge) return;
+  badge.textContent = notifUnread;
+  badge.style.display = notifUnread > 0 ? 'flex' : 'none';
+}
+
+function toggleNotifPanel(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  const panel = document.getElementById('notifPanel');
+  if (!panel) return;
+  const willOpen = !panel.classList.contains('open');
+  panel.classList.toggle('open', willOpen);
+  if (willOpen) {
+    loadNotifications();
+    renderNotifications();
+  }
+}
+
+function fmtNotifTime(t) {
+  if (!t) return '';
+  let ts = null;
+  if (typeof t === 'object' && t.seconds != null)       ts = t.seconds * 1000;
+  else if (typeof t === 'object' && t._seconds != null) ts = t._seconds * 1000;
+  else if (typeof t === 'string')                       ts = Date.parse(t);
+  if (!ts || isNaN(ts)) return '';
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1)    return 'Just now';
+  if (mins < 60)   return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24)    return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  if (days < 7)    return days + 'd ago';
+  return new Date(ts).toLocaleDateString();
+}
+
+function renderNotifications() {
+  const list = document.getElementById('notifList');
+  if (!list) return;
+  if (!notifData.length) {
+    list.innerHTML = '<div class="notif-empty">No notifications yet.</div>';
+    return;
+  }
+  list.innerHTML = notifData.map(n => `
+    <div class="notif-item ${n.read ? 'read' : 'unread'}" onclick="clickNotif('${n.id}')">
+      <div class="notif-item-title">${esc(n.title)}</div>
+      <div class="notif-item-msg">${esc(n.message)}</div>
+      <div class="notif-item-time">${fmtNotifTime(n.createdAt)}</div>
+    </div>
+  `).join('');
+}
+
+function clickNotif(id) {
+  const n = notifData.find(x => x.id === id);
+  markNotifRead(id);
+  if (n && n.link) window.location.href = n.link;
+}
+
+async function markNotifRead(id) {
+  const token = await getAuthToken();
+  if (!token) return;
+  const item = notifData.find(x => x.id === id);
+  if (item && item.read) return;
+  try {
+    await fetch(`${API_BASE}/api/notifications/${id}/read`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const target = notifData.find(x => x.id === id);
+    if (target) target.read = true;
+    notifUnread = Math.max(0, notifUnread - 1);
+    updateNotifBadge();
+    renderNotifications();
+  } catch(e) { /* ignore */ }
+}
+
+async function markAllNotifRead() {
+  const token = await getAuthToken();
+  if (!token) return;
+  try {
+    await fetch(`${API_BASE}/api/notifications/read-all`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    notifData.forEach(n => { n.read = true; });
+    notifUnread = 0;
+    updateNotifBadge();
+    renderNotifications();
+  } catch(e) { /* ignore */ }
+}
+
+// ── LANDING STATS ─────────────────────────────────────
+async function loadStatsCount() {
+  const statEl = document.getElementById('statPapers');
+  if (!statEl) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/papers?limit=1`);
+    const data = await res.json();
+    if (data.pagination) statEl.textContent = data.pagination.total + '+';
+  } catch(e) { /* keep placeholder */ }
+}
+
+// ── BROWSE PAGE URL PARAMS ────────────────────────────
+function initBrowseFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const q     = params.get('q');
+  const course = params.get('course');
+  const type   = params.get('type');
+  const year   = params.get('year');
+  const univ   = params.get('university');
+  const sort   = params.get('sort');
+  if (q)     document.getElementById('searchInput').value = q;
+  if (course) { document.getElementById('courseFilter').value = course; currentChipCourse = course; setChipActive(course); }
+  if (type)   document.getElementById('typeFilter').value = type;
+  if (year)   document.getElementById('yearFilter').value = year;
+  if (univ)   document.getElementById('univFilter').value = univ;
+  if (sort)   document.getElementById('sortFilter').value = sort;
 }
 
 // ── INIT ──────────────────────────────────────────────
-loadPapers();
-loadTestimonials();
-loadUniversities();
+if (document.getElementById('searchInput')) {
+  initBrowseFromURL();
+  loadPapers();
+}
+if (document.getElementById('testimonialsGrid')) loadTestimonials('recent');
+if (document.getElementById('universitiesGrid')) loadUniversities();
+if (document.getElementById('myUploadsList')) loadMyUploads();
+loadStatsCount();
+
+// Poll unread notification count every 60 seconds while signed in.
+setInterval(() => {
+  if (currentUser && document.getElementById('notifBell')) loadNotifications();
+}, 60000);
 
 // Infinite scroll — auto-load next page when sentinel is visible
 if ('IntersectionObserver' in window) {

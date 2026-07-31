@@ -2,17 +2,28 @@ const express = require('express');
 const admin = require('firebase-admin');
 const { verifyToken, requireAdminAuth } = require('../middleware/auth');
 const { stripDangerous } = require('../middleware/sanitize');
+const { destroyPaperFile } = require('../utils/cloudinary');
+const { createNotification } = require('../utils/notify');
+const { sendEmail } = require('../config/email');
 
-function adminRoutes(db) {
+function adminRoutes(db, cloudinary) {
   const router = express.Router();
 
   // All admin routes require Firebase Auth + admin doc in Firestore
   router.use(verifyToken, requireAdminAuth);
 
-  // GET /api/admin/papers — list all papers with optional status filter
+  // GET /api/admin/check — lightweight admin check for the frontend
+  router.get('/check', (req, res) => {
+    res.json({ isAdmin: true });
+  });
+
+  // GET /api/admin/papers — list papers with optional status filter + pagination
   router.get('/papers', async (req, res, next) => {
     try {
-      const { status = 'all', sort = 'newest' } = req.query;
+      const { status = 'all', sort = 'newest', page = 1, limit = 25, q = '' } = req.query;
+      const pageNum = Math.max(1, parseInt(page));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+      const offset = (pageNum - 1) * limitNum;
 
       let query;
       if (status !== 'all') {
@@ -27,9 +38,28 @@ function adminRoutes(db) {
         query = query.orderBy('createdAt', 'desc');
       }
 
-      const snapshot = await query.limit(200).get();
-      const papers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      res.json(papers);
+      const snapshot = await query.get();
+      const searchTerm = String(q).trim().toLowerCase();
+      const all = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(p => {
+          if (!searchTerm) return true;
+          return [p.title, p.course, p.university, p.type, p.year]
+            .some(field => field && String(field).toLowerCase().includes(searchTerm));
+        });
+      const total = all.length;
+      const papers = all.slice(offset, offset + limitNum);
+
+      res.json({
+        data: papers,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          totalPages: Math.max(1, Math.ceil(total / limitNum)),
+          hasMore: offset + limitNum < total
+        }
+      });
     } catch (err) {
       next(err);
     }
@@ -92,10 +122,19 @@ function adminRoutes(db) {
     }
   });
 
-  // DELETE /api/admin/papers/:id — delete a paper
+  // DELETE /api/admin/papers/:id — delete a paper + its file + bookmarks
   router.delete('/papers/:id', async (req, res, next) => {
     try {
-      await db.collection('papers').doc(req.params.id).delete();
+      const ref = db.collection('papers').doc(req.params.id);
+      const doc = await ref.get();
+      if (doc.exists) {
+        await destroyPaperFile(cloudinary, doc.data());
+        const bookmarks = await db.collection('bookmarks')
+          .where('paperId', '==', req.params.id)
+          .get();
+        await Promise.all(bookmarks.docs.map(b => b.ref.delete()));
+      }
+      await ref.delete();
       res.json({ success: true });
     } catch (err) {
       next(err);
@@ -124,15 +163,48 @@ function adminRoutes(db) {
     }
   });
 
+  // Resolve an uploader's email from the paper doc or the users collection.
+  async function getUploaderEmail(paper) {
+    if (paper.uploaderEmail) return paper.uploaderEmail;
+    if (!paper.uploadedBy) return '';
+    try {
+      const userDoc = await db.collection('users').doc(paper.uploadedBy).get();
+      return userDoc.exists ? (userDoc.data().email || '') : '';
+    } catch (_err) {
+      return '';
+    }
+  }
+
   // PATCH /api/admin/papers/:id/approve — approve a paper
   router.patch('/papers/:id/approve', async (req, res, next) => {
     try {
-      await db.collection('papers').doc(req.params.id).update({
+      const ref = db.collection('papers').doc(req.params.id);
+      const doc = await ref.get();
+      if (!doc.exists) return res.status(404).json({ error: 'Paper not found' });
+      const paper = doc.data();
+
+      await ref.update({
         status: 'approved',
         reviewedBy: req.user.uid,
         reviewedAt: admin.firestore.FieldValue.serverTimestamp()
       });
+
       res.json({ success: true });
+
+      createNotification(db, {
+        uid: paper.uploadedBy,
+        type: 'paper_approved',
+        title: 'Your paper was approved! 🎉',
+        message: `"${paper.title}" is now live on StudyVault.`,
+        link: '/upload.html#myUploads'
+      });
+      getUploaderEmail(paper).then(email => {
+        if (email) sendEmail(
+          'Your paper is live on StudyVault 🎉',
+          `<p>Hi ${paper.uploaderName || 'there'},</p><p>Your upload <strong>"${paper.title}"</strong> has been approved and is now visible to all students.</p><p>Keep contributing!</p>`,
+          email
+        );
+      });
     } catch (err) {
       next(err);
     }
@@ -141,12 +213,33 @@ function adminRoutes(db) {
   // PATCH /api/admin/papers/:id/reject — reject a paper
   router.patch('/papers/:id/reject', async (req, res, next) => {
     try {
-      await db.collection('papers').doc(req.params.id).update({
+      const ref = db.collection('papers').doc(req.params.id);
+      const doc = await ref.get();
+      if (!doc.exists) return res.status(404).json({ error: 'Paper not found' });
+      const paper = doc.data();
+
+      await ref.update({
         status: 'rejected',
         reviewedBy: req.user.uid,
         reviewedAt: admin.firestore.FieldValue.serverTimestamp()
       });
+
       res.json({ success: true });
+
+      createNotification(db, {
+        uid: paper.uploadedBy,
+        type: 'paper_rejected',
+        title: 'Your paper was not approved',
+        message: `"${paper.title}" did not pass review. Contact us if you think this was a mistake.`,
+        link: '/upload.html#myUploads'
+      });
+      getUploaderEmail(paper).then(email => {
+        if (email) sendEmail(
+          'Update on your StudyVault upload',
+          `<p>Hi ${paper.uploaderName || 'there'},</p><p>Your upload <strong>"${paper.title}"</strong> was not approved for the platform.</p><p>If you believe this was a mistake, reply to this email and we will take a look.</p>`,
+          email
+        );
+      });
     } catch (err) {
       next(err);
     }

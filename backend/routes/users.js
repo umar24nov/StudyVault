@@ -71,10 +71,11 @@ function userRoutes(db) {
     try {
       const snapshot = await db.collection('papers')
         .where('uploadedBy', '==', req.user.uid)
-        .orderBy('createdAt', 'desc')
         .get();
 
-      const papers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const papers = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
       res.json(papers);
     } catch (err) {
       next(err);

@@ -10,6 +10,11 @@ function esc(s) {
 let adminUser = null;
 let adminToken = null;
 let allAdminPapers = [];
+let adminPage = 1;
+let adminTotalPages = 1;
+let adminTotal = 0;
+let adminSearch = '';
+let searchTimer = null;
 
 // ── AUTH ──────────────────────────────────────────────
 firebase.auth().onAuthStateChanged(async (user) => {
@@ -80,26 +85,62 @@ async function loadStats() {
 }
 
 // ── PAPERS ────────────────────────────────────────────
-async function loadAdminPapers() {
+async function loadAdminPapers(page = 1) {
   const status = document.getElementById('statusFilter').value;
+  const tbody = document.getElementById('papersTableBody');
+  tbody.innerHTML = '<tr><td colspan="8" class="table-loading">Loading papers...</td></tr>';
   try {
-    const res = await apiFetch(`/api/admin/papers?status=${status}`);
-    allAdminPapers = await res.json();
+    const params = new URLSearchParams({ status, page, q: adminSearch });
+    const res = await apiFetch(`/api/admin/papers?${params}`);
+    const json = await res.json();
+    allAdminPapers = Array.isArray(json) ? json : (json.data || []);
+    adminPage = page;
+    if (json.pagination) {
+      adminTotalPages = json.pagination.totalPages || 1;
+      adminTotal = json.pagination.total || allAdminPapers.length;
+    } else {
+      adminTotalPages = 1;
+      adminTotal = allAdminPapers.length;
+    }
     renderAdminPapers(allAdminPapers);
+    renderAdminPagination();
   } catch (e) {
-    document.getElementById('papersTableBody').innerHTML =
-      '<tr><td colspan="8" class="table-loading">Failed to load papers.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="table-loading">Failed to load papers.</td></tr>';
   }
 }
 
 function filterAdminPapers() {
-  const q = document.getElementById('paperSearch').value.toLowerCase().trim();
-  const filtered = allAdminPapers.filter(p =>
-    (p.title || '').toLowerCase().includes(q) ||
-    (p.course || '').toLowerCase().includes(q) ||
-    (p.university || '').toLowerCase().includes(q)
-  );
-  renderAdminPapers(filtered);
+  adminSearch = document.getElementById('paperSearch').value.trim();
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => loadAdminPapers(1), 350);
+}
+
+function changeAdminPage(page) {
+  if (page < 1 || page > adminTotalPages) return;
+  loadAdminPapers(page);
+  document.getElementById('papersTableWrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderAdminPagination() {
+  const el = document.getElementById('papersPagination');
+  if (!el) return;
+  if (adminTotalPages <= 1 && adminTotal === 0) {
+    el.innerHTML = '';
+    return;
+  }
+  const pages = [];
+  const start = Math.max(1, adminPage - 2);
+  const end = Math.min(adminTotalPages, start + 4);
+  for (let i = start; i <= end; i++) {
+    pages.push(`<button class="pager-btn ${i === adminPage ? 'pager-active' : ''}" onclick="changeAdminPage(${i})">${i}</button>`);
+  }
+  el.innerHTML = `
+    <div class="pager-info">Page ${adminPage} of ${adminTotalPages} &middot; ${adminTotal} papers</div>
+    <div class="pager-controls">
+      <button class="pager-btn" onclick="changeAdminPage(${adminPage - 1})" ${adminPage <= 1 ? 'disabled' : ''}>&#8592; Prev</button>
+      ${pages.join('')}
+      <button class="pager-btn" onclick="changeAdminPage(${adminPage + 1})" ${adminPage >= adminTotalPages ? 'disabled' : ''}>Next &#8594;</button>
+    </div>`;
 }
 
 function renderAdminPapers(papers) {
@@ -178,9 +219,8 @@ async function saveEditPaper() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, type, course, university, year })
     });
-    const p = allAdminPapers.find(x => x.id === editingPaperId);
-    if (p) { Object.assign(p, { title, type, course, university, year }); renderAdminPapers(allAdminPapers); }
     closeEditPaper();
+    loadAdminPapers(adminPage);
     showToast('Paper updated.');
   } catch (e) { showToast('Failed to update.'); }
 }
@@ -188,18 +228,16 @@ async function saveEditPaper() {
 async function approvePaper(id) {
   try {
     await apiFetch(`/api/admin/papers/${id}/approve`, { method: 'PATCH' });
-    const p = allAdminPapers.find(x => x.id === id);
-    if (p) { p.status = 'approved'; renderAdminPapers(allAdminPapers); }
     showToast('Paper approved.');
+    loadAdminPapers(adminPage);
   } catch (e) { showToast('Failed.'); }
 }
 
 async function rejectPaper(id) {
   try {
     await apiFetch(`/api/admin/papers/${id}/reject`, { method: 'PATCH' });
-    const p = allAdminPapers.find(x => x.id === id);
-    if (p) { p.status = 'rejected'; renderAdminPapers(allAdminPapers); }
     showToast('Paper rejected.');
+    loadAdminPapers(adminPage);
   } catch (e) { showToast('Failed.'); }
 }
 
@@ -207,9 +245,8 @@ async function deletePaper(id) {
   if (!confirm('Are you sure you want to delete this paper?')) return;
   try {
     await apiFetch(`/api/admin/papers/${id}`, { method: 'DELETE' });
-    allAdminPapers = allAdminPapers.filter(x => x.id !== id);
-    renderAdminPapers(allAdminPapers);
     showToast('Paper deleted.');
+    loadAdminPapers(adminPage);
   } catch (e) { showToast('Failed.'); }
 }
 
