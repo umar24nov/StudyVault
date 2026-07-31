@@ -101,6 +101,27 @@ function adminRoutes(db) {
     }
   });
 
+  // PATCH /api/admin/papers/:id — update title, course, university, year
+  router.patch('/papers/:id', async (req, res, next) => {
+    try {
+      const { title, course, university, year } = req.body;
+      const update = {};
+      if (typeof title === 'string' && title.trim()) update.title = title.trim().slice(0, 200);
+      if (typeof course === 'string' && course.trim()) update.course = course.trim().slice(0, 100);
+      if (typeof university === 'string') update.university = university.trim().slice(0, 200);
+      if (typeof year === 'string') update.year = year.trim().slice(0, 20);
+
+      if (Object.keys(update).length === 0) {
+        return res.status(400).json({ error: 'Nothing to update.' });
+      }
+
+      await db.collection('papers').doc(req.params.id).update(update);
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // PATCH /api/admin/papers/:id/approve — approve a paper
   router.patch('/papers/:id/approve', async (req, res, next) => {
     try {

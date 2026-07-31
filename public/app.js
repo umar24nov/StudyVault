@@ -416,7 +416,7 @@ async function handleUpload() {
     });
     const data = await res.json();
     if (data.success) {
-      showToast('Thank you! Your contribution has been submitted for review.');
+      showToast('Thank you! Your upload has been sent for review. It will appear once approved.');
       document.getElementById('uploadTitle').value      = '';
       document.getElementById('uploadYear').value       = '';
       document.getElementById('uploadUniv').value       = '';
@@ -481,7 +481,7 @@ async function submitReview() {
       document.getElementById('reviewName').value = '';
       document.getElementById('reviewMsg').value  = '';
       document.getElementById('reviewCharCount').textContent = '0 / 150';
-      showToast('Thanks for your review!');
+      showToast('Thank you! Your review has been sent for review. It will appear once approved.');
       loadTestimonials();
     } else {
       showToast('Could not submit. Try again.');
