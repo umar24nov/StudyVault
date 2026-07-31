@@ -226,6 +226,21 @@ function closePreview() {
   document.getElementById('previewModal').classList.remove('open');
 }
 
+// ── REVIEW VIEW ─────────────────────────────────────
+function openReviewView(btn) {
+  document.getElementById('reviewViewName').textContent = btn.dataset.name || 'Anonymous';
+  document.getElementById('reviewViewStars').innerHTML =
+    '&#9733;'.repeat(parseInt(btn.dataset.stars) || 0) + '&#9734;'.repeat(5 - (parseInt(btn.dataset.stars) || 0));
+  document.getElementById('reviewViewMsg').textContent = btn.dataset.msg || '';
+  document.getElementById('reviewViewStatus').innerHTML =
+    `<span class="status-badge status-${escAttr(btn.dataset.status || 'pending')}">${esc(btn.dataset.status) || 'pending'}</span>`;
+  document.getElementById('reviewViewModal').classList.add('open');
+}
+
+function closeReviewView() {
+  document.getElementById('reviewViewModal').classList.remove('open');
+}
+
 // ── TABS ──────────────────────────────────────────────
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -279,6 +294,7 @@ async function loadAdminReviews() {
         <td><span class="status-badge status-${esc(r.status) || 'pending'}">${esc(r.status) || 'pending'}</span></td>
         <td>
           <div class="table-actions">
+            <button class="btn-sm btn-preview" data-name="${escAttr(r.name || '')}" data-stars="${r.stars || 0}" data-msg="${escAttr(r.message || '')}" data-status="${escAttr(r.status || 'pending')}" onclick="openReviewView(this)" title="View full review">&#128065; View</button>
             ${r.status !== 'approved' ? `<button class="btn-sm btn-approve" onclick="approveReview('${r.id}')">Approve</button>` : ''}
             ${r.status !== 'rejected' ? `<button class="btn-sm btn-reject" onclick="rejectReview('${r.id}')">Reject</button>` : ''}
             <button class="btn-sm btn-delete" onclick="deleteReview('${r.id}')">Delete</button>
