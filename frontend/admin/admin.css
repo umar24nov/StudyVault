@@ -48,6 +48,17 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .admin-badge { background: rgba(255,101,132,0.15); color: var(--accent2); font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; margin-left: 0.5rem; vertical-align: middle; -webkit-text-fill-color: var(--accent2); }
 .admin-nav-right { display: flex; align-items: center; gap: 1rem; }
 .admin-user { font-size: 0.85rem; color: var(--muted); }
+.admin-user-btn { display: flex; align-items: center; gap: 0.55rem; background: none; border: none; cursor: pointer; padding: 0.3rem 0.5rem; border-radius: 10px; transition: background 0.2s; }
+.admin-user-btn:hover { background: rgba(255,255,255,0.05); }
+.admin-avatar, .admin-avatar-circle { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.admin-avatar-circle { background: linear-gradient(135deg, var(--accent), var(--accent3)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; }
+
+/* ADMIN PROFILE MODAL */
+.admin-profile-card { display: flex; align-items: center; gap: 1rem; background: var(--surface2); border: 1px solid var(--border); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; }
+.admin-profile-avatar { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.admin-profile-avatar-circle { background: linear-gradient(135deg, var(--accent), var(--accent3)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 700; }
+.admin-profile-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; }
+.admin-profile-email { font-size: 0.8rem; color: var(--muted); }
 
 /* BUTTONS */
 .btn-primary { background: linear-gradient(135deg, var(--accent), #9b88ff); color: #fff; border: none; cursor: pointer; padding: 0.8rem 2rem; border-radius: 12px; font-size: 1rem; font-weight: 600; font-family: 'DM Sans', sans-serif; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 24px var(--glow); }
@@ -138,7 +149,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .btn-sm-modal { padding: 0.55rem 1.2rem; font-size: 0.85rem; border-radius: 8px; }
 
 /* PREVIEW MODAL */
-.modal-preview { max-width: 960px; }
+.modal-preview { max-width: 720px; }
 .preview-container { margin-top: 0.5rem; height: 65vh; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--bg); }
 .preview-container iframe { width: 100%; height: 100%; border: none; background: #fff; }
 

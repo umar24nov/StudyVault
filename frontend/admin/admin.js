@@ -35,6 +35,17 @@ firebase.auth().onAuthStateChanged(async (user) => {
       document.getElementById('authRestricted').style.display = 'none';
       document.getElementById('authError').textContent = '';
       document.getElementById('adminName').textContent = user.displayName || user.email;
+      const avImg = document.getElementById('adminAvatar');
+      const avCircle = document.getElementById('adminAvatarCircle');
+      if (user.photoURL) {
+        avImg.src = user.photoURL;
+        avImg.hidden = false;
+        avCircle.hidden = true;
+      } else {
+        avCircle.textContent = (user.displayName || 'A').charAt(0).toUpperCase();
+        avCircle.hidden = false;
+        avImg.hidden = true;
+      }
       document.getElementById('adminWelcomeName').textContent = user.displayName || 'Admin';
       document.getElementById('adminWelcomeEmail').textContent = user.email || '';
       loadDashboard();
@@ -57,6 +68,29 @@ function adminSignIn() {
       document.getElementById('authError').textContent = 'Sign in failed. Try again.';
     }
   });
+}
+
+// ── ADMIN PROFILE ─────────────────────────────────────
+function openAdminProfile() {
+  if (!adminUser) return;
+  const av = document.getElementById('adminProfileAvatar');
+  const avc = document.getElementById('adminProfileAvatarCircle');
+  if (adminUser.photoURL) {
+    av.src = adminUser.photoURL;
+    av.hidden = false;
+    avc.hidden = true;
+  } else {
+    avc.textContent = (adminUser.displayName || 'A').charAt(0).toUpperCase();
+    avc.hidden = false;
+    av.hidden = true;
+  }
+  document.getElementById('adminProfileName').textContent = adminUser.displayName || 'Admin';
+  document.getElementById('adminProfileEmail').textContent = adminUser.email || '';
+  document.getElementById('adminProfileModal').classList.add('open');
+}
+
+function closeAdminProfile() {
+  document.getElementById('adminProfileModal').classList.remove('open');
 }
 
 async function apiFetch(path, options = {}) {
@@ -97,6 +131,10 @@ async function loadAdminPapers(page = 1) {
   try {
     const params = new URLSearchParams({ status, page, q: adminSearch });
     const res = await apiFetch(`/api/admin/papers?${params}`);
+    if (!res.ok) {
+      tbody.innerHTML = '<tr><td colspan="8" class="table-loading">Failed to load papers.</td></tr>';
+      return;
+    }
     const json = await res.json();
     allAdminPapers = Array.isArray(json) ? json : (json.data || []);
     adminPage = page;

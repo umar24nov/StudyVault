@@ -275,8 +275,8 @@ nav ul li a:hover, nav ul li button:hover { color: var(--text); }
 .feature-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
 
 /* ── UPLOAD ──────────────────────────────────────── */
-.upload-section { position: relative; z-index: 1; max-width: 900px; margin: 0 auto 6rem; padding: 0 2rem; }
-.upload-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+.upload-section { position: relative; z-index: 1; max-width: 760px; margin: 0 auto 6rem; padding: 0 2rem; }
+.upload-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 2.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center; }
 .upload-left h2 { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 1rem; }
 .upload-left p { color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; font-size: 0.95rem; }
 .upload-perks { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
@@ -480,7 +480,7 @@ footer {
 .modal-close:hover { color: var(--text); }
 
 /* PREVIEW MODAL — wide, no scroll, fixed close button (matches admin panel) */
-.modal-preview { max-width: 960px; max-height: none; overflow: visible; }
+.modal-preview { max-width: 720px; max-height: none; overflow: visible; }
 .preview-container { margin-top: 0.5rem; width: 100%; height: 65vh; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: var(--bg); }
 .preview-container iframe { width: 100%; height: 100%; border: none; background: #fff; }
 .modal-actions { display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.5rem; }

@@ -32,21 +32,28 @@ function adminRoutes(db, cloudinary) {
         query = db.collection('papers');
       }
 
-      if (sort === 'popular') {
-        query = query.orderBy('downloads', 'desc');
-      } else {
-        query = query.orderBy('createdAt', 'desc');
-      }
-
       const snapshot = await query.get();
       const searchTerm = String(q).trim().toLowerCase();
-      const all = snapshot.docs
+      const tsOf = (t) => {
+        if (!t) return 0;
+        if (typeof t === 'object' && t._seconds != null) return t._seconds * 1000;
+        if (typeof t === 'object' && t.seconds != null)  return t.seconds * 1000;
+        if (t instanceof Date) return t.getTime();
+        const d = new Date(t);
+        return isNaN(d.getTime()) ? 0 : d.getTime();
+      };
+      let all = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(p => {
           if (!searchTerm) return true;
           return [p.title, p.course, p.university, p.type, p.year]
             .some(field => field && String(field).toLowerCase().includes(searchTerm));
         });
+      if (sort === 'popular') {
+        all.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
+      } else {
+        all.sort((a, b) => tsOf(b.createdAt) - tsOf(a.createdAt));
+      }
       const total = all.length;
       const papers = all.slice(offset, offset + limitNum);
 

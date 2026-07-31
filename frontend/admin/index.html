@@ -34,7 +34,7 @@
     <h2>Admin Dashboard</h2>
     <p>Sign in with your admin Google account to continue.</p>
     <div class="auth-admin">
-      <strong>Current Admin:</strong> Mohammad Umar
+      <strong>Admin :</strong> Mohammad Umar
     </div>
     <div class="auth-restricted" id="authRestricted" style="display:none">
       Restricted area. Only authorized StudyVault admins can access this dashboard.
@@ -52,7 +52,11 @@
       <div class="logo">Study<span>Vault</span> <span class="admin-badge">Admin</span></div>
     </a>
     <div class="admin-nav-right">
-      <span id="adminName" class="admin-user"></span>
+      <button class="admin-user-btn" onclick="openAdminProfile()" title="My Profile">
+        <img id="adminAvatar" class="admin-avatar" src="" alt="Profile" hidden>
+        <span class="admin-avatar-circle" id="adminAvatarCircle" hidden></span>
+        <span id="adminName" class="admin-user">Admin</span>
+      </button>
       <button class="btn-ghost" onclick="firebase.auth().signOut()">Sign Out</button>
     </div>
   </nav>
@@ -173,6 +177,26 @@
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- ADMIN PROFILE MODAL -->
+<div class="modal-overlay" id="adminProfileModal">
+  <div class="modal modal-review">
+    <button class="modal-close" onclick="closeAdminProfile()">&#10005;</button>
+    <h3>&#128100; My Profile</h3>
+    <div class="admin-profile-card">
+      <img id="adminProfileAvatar" class="admin-profile-avatar" src="" alt="Profile" hidden>
+      <span class="admin-profile-avatar admin-profile-avatar-circle" id="adminProfileAvatarCircle" hidden></span>
+      <div>
+        <div class="admin-profile-name" id="adminProfileName">...</div>
+        <div class="admin-profile-email" id="adminProfileEmail"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary btn-sm-modal" onclick="firebase.auth().signOut()">Sign Out</button>
+      <button class="btn-ghost" onclick="closeAdminProfile()">Close</button>
+    </div>
+  </div>
+</div>
 
 <!-- EDIT PAPER MODAL -->
 <div class="modal-overlay" id="editPaperModal">
