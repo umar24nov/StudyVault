@@ -39,12 +39,12 @@ firebase.auth().onAuthStateChanged(async (user) => {
       if (prof.hasReviewed && sessionStorage.getItem('svRatingPrompt')) {
         sessionStorage.removeItem('svRatingPrompt');
       }
-      if (!prof.level && !prof.course &&
+      if (!prof.course &&
           !sessionStorage.getItem('svOnboardingDone') &&
           !sessionStorage.getItem('svOnboardingSkipped')) {
         showOnboarding();
       }
-      if (prof.level || prof.course) initRecommendations(prof);
+      if (prof.course) initRecommendations(prof);
     }
   } else {
     authToken = null;
@@ -142,10 +142,8 @@ function onObCourseChange() {
 }
 
 async function saveOnboarding() {
-  const level  = document.getElementById('obLevel').value;
   const course = document.getElementById('obCourse').value;
-  if (!level)  { showToast('Please select your level.'); return; }
-  if (!course) { showToast('Please select your course.'); return; }
+  if (!course) { showToast('Please select your interest.'); return; }
   const grade = document.getElementById('obGrade').value;
   const board = document.getElementById('obBoard').value;
   const token = await getAuthToken();
@@ -154,14 +152,14 @@ async function saveOnboarding() {
     const res = await fetch(`${API_BASE}/api/users/me`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ level, course, grade, board })
+      body: JSON.stringify({ course, grade, board })
     });
     const data = await res.json();
     if (data.success) {
       const m = document.getElementById('onboardingModal');
       if (m) m.classList.remove('open');
       sessionStorage.setItem('svOnboardingDone', '1');
-      userProfile = { ...(userProfile || {}), level, course, grade, board };
+      userProfile = { ...(userProfile || {}), course, grade, board };
       showToast('Profile saved — recommendations personalized!');
       initRecommendations(userProfile);
     } else {
