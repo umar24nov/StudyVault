@@ -169,3 +169,10 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
   .filter-search { min-width: unset; width: 100%; }
   .admin-nav { padding: 0 1rem; }
 }
+
+@media (max-width: 480px) {
+  .auth-gate { padding: 1rem; }
+  .auth-card { padding: 2rem 1.2rem; }
+  .auth-card .logo { font-size: 1.4rem; }
+  .logo-img-sm { width: 30px; height: 30px; }
+}

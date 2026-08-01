@@ -99,6 +99,15 @@ document.addEventListener('DOMContentLoaded', () => {
         hamburger.classList.remove('active');
       });
     });
+
+    document.addEventListener('click', (e) => {
+      if (navMenu.classList.contains('open') &&
+          !navMenu.contains(e.target) &&
+          !hamburger.contains(e.target)) {
+        navMenu.classList.remove('open');
+        hamburger.classList.remove('active');
+      }
+    });
   }
 
   // Close modals on overlay click
