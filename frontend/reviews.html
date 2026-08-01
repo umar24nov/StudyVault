@@ -36,9 +36,6 @@
     <img src="assets/logo.svg" alt="StudyVault logo" class="logo-img">
     <div class="logo">Study<span>Vault</span></div>
   </a>
-  <button class="hamburger" id="hamburger" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
   <ul id="navMenu">
     <li><a href="/search.html" class="nav-btn nav-search">Search</a></li>
     <li><a href="/upload.html" class="nav-btn nav-upload">Upload</a></li>
@@ -46,13 +43,18 @@
     <li><a href="/reviews.html">Reviews</a></li>
     <li><a href="#" onclick="openReviewModal()">Rate Us</a></li>
     <li><a href="#" onclick="openContactModal()">Contact Us</a></li>
-    <li id="notifLi" style="display:none">
-      <button class="notif-bell" id="notifBell" onclick="toggleNotifPanel(event)" aria-label="Notifications"><span class="notif-bell-icon">&#128276;</span><span class="notif-bell-label">Notifications</span><span class="notif-badge" id="notifBadge" style="display:none"></span></button>
-    </li>
     <li id="navAuth">
       <button class="nav-btn" id="signInBtn" onclick="signInWithGoogle()">Sign In</button>
     </li>
   </ul>
+  <div class="nav-right">
+    <li id="notifLi" style="display:none">
+      <button class="notif-bell" id="notifBell" onclick="toggleNotifPanel(event)" aria-label="Notifications"><span class="notif-bell-icon">&#128276;</span><span class="notif-bell-label">Notifications</span><span class="notif-badge" id="notifBadge" style="display:none"></span></button>
+    </li>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </nav>
 
 <!-- NOTIFICATION PANEL -->
