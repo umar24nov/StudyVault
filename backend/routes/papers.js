@@ -5,7 +5,7 @@ const { sendEmail } = require('../config/email');
 const { stripDangerous } = require('../middleware/sanitize');
 const { upload } = require('../middleware/upload');
 const { verifyToken, optionalAuth, requireAdminAuth } = require('../middleware/auth');
-const { uploadLimiter, downloadLimiter } = require('../middleware/rateLimit');
+const { uploadLimiter, downloadLimiter, writeLimiter } = require('../middleware/rateLimit');
 const { destroyPaperFile } = require('../utils/cloudinary');
 
 function paperRoutes(db, cloudinary) {
