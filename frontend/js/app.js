@@ -39,6 +39,7 @@ function updateNavAuth(signedIn, user) {
   const authEl = document.getElementById('navAuth');
   const bookmarksLi = document.querySelector('.nav-bookmark-li');
   const notifLi = document.getElementById('notifLi');
+  const notifBellMobile = document.getElementById('notifBellMobile');
   if (signedIn && user) {
     const name = user.displayName || user.email || 'User';
     const initial = name.charAt(0).toUpperCase();
@@ -52,10 +53,12 @@ function updateNavAuth(signedIn, user) {
       </button>`;
     if (bookmarksLi) bookmarksLi.style.display = '';
     if (notifLi) notifLi.style.display = '';
+    if (notifBellMobile) notifBellMobile.style.display = '';
   } else {
     if (authEl) authEl.innerHTML = `<button class="nav-btn" id="signInBtn" onclick="signInWithGoogle()">Sign In</button>`;
     if (bookmarksLi) bookmarksLi.style.display = 'none';
     if (notifLi) notifLi.style.display = 'none';
+    if (notifBellMobile) notifBellMobile.style.display = 'none';
   }
 }
 
@@ -121,8 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', (e) => {
     const panel = document.getElementById('notifPanel');
     const bell  = document.getElementById('notifBell');
+    const bellMobile = document.getElementById('notifBellMobile');
     if (!panel) return;
-    if (panel.classList.contains('open') && !panel.contains(e.target) && bell && !bell.contains(e.target)) {
+    const inBell = (bell && bell.contains(e.target)) || (bellMobile && bellMobile.contains(e.target));
+    if (panel.classList.contains('open') && !panel.contains(e.target) && !inBell) {
       panel.classList.remove('open');
     }
   });
@@ -843,9 +848,15 @@ async function loadNotifications() {
 
 function updateNotifBadge() {
   const badge = document.getElementById('notifBadge');
-  if (!badge) return;
-  badge.textContent = notifUnread;
-  badge.style.display = notifUnread > 0 ? 'flex' : 'none';
+  if (badge) {
+    badge.textContent = notifUnread;
+    badge.style.display = notifUnread > 0 ? 'flex' : 'none';
+  }
+  const badgeMobile = document.getElementById('notifBadgeMobile');
+  if (badgeMobile) {
+    badgeMobile.textContent = notifUnread;
+    badgeMobile.style.display = notifUnread > 0 ? 'flex' : 'none';
+  }
 }
 
 function toggleNotifPanel(e) {
