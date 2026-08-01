@@ -11,6 +11,13 @@ function esc(s) {
 // ── FIREBASE AUTH ────────────────────────────────────
 let currentUser = null;
 let authToken = null;
+let userProfile = null;
+const courseLabels = {
+  school: 'School (10th/12th)', engineering: 'Engineering', cs: 'Computer Science & IT',
+  management: 'Management', medical: 'Medical', law: 'Law', humanities: 'Humanities',
+  commerce: 'Commerce', science: 'Pure Science', architecture: 'Architecture',
+  pharmacy: 'Pharmacy', agriculture: 'Agriculture', education: 'Education'
+};
 
 firebase.auth().onAuthStateChanged(async (user) => {
   currentUser = user;
@@ -26,8 +33,22 @@ firebase.auth().onAuthStateChanged(async (user) => {
     loadNotifications();
     // Re-render cards to show bookmark stars (currentUser was null when cards first rendered)
     if (allPapers.length) renderCards(allPapers);
+    // Load profile, then show onboarding (if new/incomplete) + personalization
+    const prof = await loadUserProfile();
+    if (prof) {
+      if (prof.hasReviewed && sessionStorage.getItem('svRatingPrompt')) {
+        sessionStorage.removeItem('svRatingPrompt');
+      }
+      if (!prof.level && !prof.course &&
+          !sessionStorage.getItem('svOnboardingDone') &&
+          !sessionStorage.getItem('svOnboardingSkipped')) {
+        showOnboarding();
+      }
+      if (prof.level || prof.course) initRecommendations(prof);
+    }
   } else {
     authToken = null;
+    userProfile = null;
     updateNavAuth(false);
     if (allPapers.length) renderCards(allPapers);
     const badge = document.getElementById('notifBadge');
@@ -83,6 +104,119 @@ async function getAuthToken() {
     return await currentUser.getIdToken();
   }
   return null;
+}
+
+// ── PROFILE / ONBOARDING ─────────────────────────────
+async function loadUserProfile() {
+  if (!currentUser) { userProfile = null; return null; }
+  const token = await getAuthToken();
+  if (!token) return null;
+  try {
+    const res = await fetch(`${API_BASE}/api/users/me`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    userProfile = data;
+    return data;
+  } catch(e) {
+    return null;
+  }
+}
+
+function showOnboarding() {
+  const m = document.getElementById('onboardingModal');
+  if (m) m.classList.add('open');
+}
+
+function closeOnboarding() {
+  const m = document.getElementById('onboardingModal');
+  if (m) m.classList.remove('open');
+  sessionStorage.setItem('svOnboardingSkipped', '1');
+}
+
+function onObCourseChange() {
+  const v = document.getElementById('obCourse').value;
+  const row = document.getElementById('obSchoolRow');
+  if (row) row.style.display = v === 'school' ? 'block' : 'none';
+}
+
+async function saveOnboarding() {
+  const level  = document.getElementById('obLevel').value;
+  const course = document.getElementById('obCourse').value;
+  if (!level)  { showToast('Please select your level.'); return; }
+  if (!course) { showToast('Please select your course.'); return; }
+  const grade = document.getElementById('obGrade').value;
+  const board = document.getElementById('obBoard').value;
+  const token = await getAuthToken();
+  if (!token) { showToast('Please sign in first.'); return; }
+  try {
+    const res = await fetch(`${API_BASE}/api/users/me`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ level, course, grade, board })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const m = document.getElementById('onboardingModal');
+      if (m) m.classList.remove('open');
+      sessionStorage.setItem('svOnboardingDone', '1');
+      userProfile = { ...(userProfile || {}), level, course, grade, board };
+      showToast('Profile saved — recommendations personalized!');
+      initRecommendations(userProfile);
+    } else {
+      showToast('Could not save profile. Try again.');
+    }
+  } catch(e) {
+    showToast('Could not reach server.');
+  }
+}
+
+// ── RECOMMENDATIONS ──────────────────────────────────
+function initRecommendations(prof) {
+  if (!prof || !prof.course) return;
+  const sec = document.getElementById('recommendedSection');
+  if (sec) {
+    sec.style.display = '';
+    const sub = document.getElementById('recommendedSub');
+    if (sub) sub.textContent = 'Based on your profile (' + (courseLabels[prof.course] || prof.course) + '), here are papers you might need.';
+    loadRecommended(prof.course);
+  }
+  applyPersonalizedSearch(prof);
+}
+
+async function loadRecommended(course) {
+  const grid = document.getElementById('recommendedGrid');
+  if (!grid) return;
+  grid.innerHTML = '<div class="loading">Loading recommendations...</div>';
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 90000);
+    const res = await fetch(`${API_BASE}/api/papers?course=${encodeURIComponent(course)}&limit=6`, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!res.ok) throw new Error('Server error');
+    const data = await res.json();
+    const items = data.data || data;
+    if (!items.length) {
+      grid.innerHTML = '<div class="no-results">No papers in your field yet — be the first to upload one!</div>';
+      return;
+    }
+    grid.innerHTML = `<div class="results-grid">${items.map(paperCardHTML).join('')}</div>`;
+  } catch(e) {
+    grid.innerHTML = '';
+  }
+}
+
+function applyPersonalizedSearch(prof) {
+  if (!prof || !prof.course) return;
+  if (!document.getElementById('searchInput')) return;
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('course')) return;
+  const cf = document.getElementById('courseFilter');
+  if (cf && [...cf.options].some(o => o.value === prof.course)) cf.value = prof.course;
+  currentChipCourse = prof.course;
+  setChipActive(prof.course);
+  performSearch();
 }
 
 // ── HAMBURGER MENU ────────────────────────────────────
@@ -283,27 +417,18 @@ function updateLoadMore() {
 }
 
 // ── RENDER CARDS ──────────────────────────────────────
-function renderCards(data) {
-  const area = document.getElementById('resultsArea');
-  if (!area) return;
-  if (!data || !data.length) {
-    area.innerHTML = '<div class="no-results">No results found. Try a different search or upload the first one!</div>';
-    return;
-  }
-
+function paperCardHTML(p) {
+  const safeURL = (p.downloadURL || '').replace(/'/g, "\\'");
+  const course  = p.course || '';
+  const univ    = p.university || 'Unknown University';
+  const year    = p.year || '';
+  const type    = p.type || 'pyq';
+  const isBookmarked = bookmarkedIds.has(p.id);
+  const tags    = p.tags || [];
   const typeBadge = { pyq: 'type-pyq', notes: 'type-notes', paper: 'type-paper', booklet: 'type-booklet' };
   const typeLabel = { pyq: 'PYQ', notes: 'Notes', paper: 'Model Paper', booklet: 'Booklet' };
 
-  area.innerHTML = `<div class="results-grid">${data.map(p => {
-    const safeURL = (p.downloadURL || '').replace(/'/g, "\\'");
-    const course  = p.course || '';
-    const univ    = p.university || 'Unknown University';
-    const year    = p.year || '';
-    const type    = p.type || 'pyq';
-    const isBookmarked = bookmarkedIds.has(p.id);
-    const tags    = p.tags || [];
-
-    return `
+  return `
     <div class="result-card">
       <div class="card-top">
         <div class="card-type ${typeBadge[type] || 'type-pyq'}">${typeLabel[type] || type}</div>
@@ -321,17 +446,28 @@ function renderCards(data) {
         <div class="card-actions">
           <span class="dl-count" title="Downloads">${p.downloads || 0} &#11015;&#65039;</span>
           ${safeURL && ['pyq', 'notes', 'paper', 'booklet'].includes(p.type)
-            ? `<button class="preview-btn" data-url="${esc(safeURL)}" data-title="${esc(p.title || 'Preview')}" title="Preview">&#128065;</button>`
+            ? `<button class="preview-btn" data-id="${p.id}" data-url="${esc(safeURL)}" data-title="${esc(p.title || 'Preview')}" title="Preview">&#128065;</button>`
             : ''}
           ${safeURL
-            ? `<a class="dl-btn" href="${esc(safeURL)}" target="_blank" rel="noopener" download onclick="trackDownload('${p.id}')">Download</a>`
+            ? currentUser
+              ? `<a class="dl-btn" href="${esc(safeURL)}" target="_blank" rel="noopener" download onclick="return onDownloadClick('${p.id}')">Download</a>`
+              : `<button class="dl-btn" onclick="onDownloadClick('${p.id}')">Sign in to download</button>`
             : `<button class="dl-btn" onclick="showToast('No file attached yet.')">Download</button>`
           }
         </div>
       </div>
       ${p.uploaderName ? `<div class="card-uploader">Uploaded by ${esc(p.uploaderName)}</div>` : ''}
     </div>`;
-  }).join('')}</div>`;
+}
+
+function renderCards(data) {
+  const area = document.getElementById('resultsArea');
+  if (!area) return;
+  if (!data || !data.length) {
+    area.innerHTML = '<div class="no-results">No results found. Try a different search or upload the first one!</div>';
+    return;
+  }
+  area.innerHTML = `<div class="results-grid">${data.map(paperCardHTML).join('')}</div>`;
 }
 
 // ── SEARCH & FILTER ───────────────────────────────────
@@ -506,11 +642,6 @@ function showFileChosen(name, size) {
 async function handleUpload() {
   const titleEl = document.getElementById('uploadTitle');
   if (!titleEl) return;
-  if (!currentUser) {
-    showToast('Please sign in to upload papers.');
-    signInWithGoogle();
-    return;
-  }
 
   const title  = titleEl.value.trim();
   const course = document.getElementById('uploadCourse').value;
@@ -518,6 +649,8 @@ async function handleUpload() {
   const year   = document.getElementById('uploadYear').value.trim();
   const univ   = document.getElementById('uploadUniv').value.trim();
   const tags   = document.getElementById('uploadTags')?.value.trim() || '';
+  const uploaderName  = document.getElementById('uploadName')?.value.trim() || '';
+  const uploaderEmail = document.getElementById('uploadEmail')?.value.trim() || '';
   const file   = document.getElementById('fileInput').files[0];
 
   if (!title)  { showToast('Please enter a title.'); return; }
@@ -532,7 +665,6 @@ async function handleUpload() {
   }
 
   const token = await getAuthToken();
-  if (!token) { showToast('Authentication error. Please sign in again.'); return; }
 
   const formData = new FormData();
   formData.append('file',       file);
@@ -542,13 +674,15 @@ async function handleUpload() {
   formData.append('year',       year);
   formData.append('university', univ);
   formData.append('tags',       tags);
+  if (uploaderName)  formData.append('uploaderName', uploaderName);
+  if (uploaderEmail) formData.append('uploaderEmail', uploaderEmail);
 
   showToast('Uploading, please wait...');
 
   try {
     const res  = await fetch(`${API_BASE}/api/papers`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       body: formData
     });
     const data = await res.json();
@@ -563,6 +697,7 @@ async function handleUpload() {
       document.getElementById('fileInput').value    = '';
       document.getElementById('fileChosen').textContent = '';
       loadMyUploads();
+      maybeShowRatingPrompt();
     } else {
       showToast('Upload failed: ' + (data.error || 'Unknown error'));
     }
@@ -612,7 +747,7 @@ async function loadMyUploads() {
           <span class="status-badge status-${esc(p.status || 'pending')}">${statusLabel[p.status] || esc(p.status || 'pending')}</span>
           <span class="dl-count">${p.downloads || 0} &#11015;&#65039;</span>
           ${p.status === 'approved' && safeURL
-            ? `<a class="dl-btn" href="${esc(safeURL)}" target="_blank" rel="noopener" download onclick="trackDownload('${p.id}')">Download</a>`
+            ? `<a class="dl-btn" href="${esc(safeURL)}" target="_blank" rel="noopener" download onclick="return onDownloadClick('${p.id}')">Download</a>`
             : ''}
         </div>
       </div>`;
@@ -628,6 +763,8 @@ const starLabels = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent!'];
 
 function openReviewModal() {
   if (!currentUser) { showToast('Please sign in to leave a review.'); signInWithGoogle(); return; }
+  const nameEl = document.getElementById('reviewName');
+  if (nameEl && !nameEl.value && currentUser.displayName) nameEl.value = currentUser.displayName;
   const modal = document.getElementById('reviewModal');
   if (modal) modal.classList.add('open');
 }
@@ -672,7 +809,7 @@ async function submitReview() {
       document.getElementById('reviewName').value = '';
       document.getElementById('reviewMsg').value  = '';
       document.getElementById('reviewCharCount').textContent = '0 / 150';
-      showToast('Thank you! Your review has been sent for review. It will appear once approved.');
+      showToast('Thank you! Your review is now live.');
       loadTestimonials(currentReviewSort);
     } else {
       showToast('Could not submit. Try again.');
@@ -681,9 +818,9 @@ async function submitReview() {
 }
 
 // ── TESTIMONIALS ──────────────────────────────────────
-let currentReviewSort = 'recent';
+let currentReviewSort = 'top';
 
-async function loadTestimonials(sort = 'recent') {
+async function loadTestimonials(sort = 'top') {
   const grid = document.getElementById('testimonialsGrid');
   if (!grid) return;
   currentReviewSort = sort;
@@ -716,17 +853,33 @@ function changeReviewSort(sort) {
 // ── PDF PREVIEW ───────────────────────────────────────
 document.addEventListener('click', function(e) {
   const btn = e.target.closest('.preview-btn');
-  if (btn) openPreview(btn.dataset.url, btn.dataset.title);
+  if (btn) openPreview(btn.dataset.url, btn.dataset.title, btn.dataset.id);
 });
 
-function openPreview(url, title) {
+function openPreview(url, title, id) {
   const modal = document.getElementById('previewModal');
   if (!modal) return;
   // Convert download URL to inline preview URL (remove fl_attachment)
   const previewUrl = url.replace('/fl_attachment/', '/');
   document.getElementById('previewFrame').src = previewUrl;
   document.getElementById('previewTitle').textContent = title || 'Preview';
-  document.getElementById('previewDownload').href = url;
+  const dl = document.getElementById('previewDownload');
+  if (currentUser) {
+    dl.href = url;
+    dl.onclick = function(e) {
+      trackDownload(id);
+      maybeShowRatingPrompt();
+      return true;
+    };
+  } else {
+    dl.href = '#';
+    dl.onclick = function(e) {
+      e.preventDefault();
+      showToast('Please sign in to download papers.');
+      signInWithGoogle();
+      return false;
+    };
+  }
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -744,6 +897,17 @@ function trackDownload(paperId) {
   fetch(`${API_BASE}/api/papers/${paperId}/download`, { method: 'POST' }).catch(() => {});
 }
 
+function onDownloadClick(paperId) {
+  if (!currentUser) {
+    showToast('Please sign in to download papers.');
+    signInWithGoogle();
+    return false;
+  }
+  trackDownload(paperId);
+  maybeShowRatingPrompt();
+  return true;
+}
+
 // ── TOAST ─────────────────────────────────────────────
 let toastTimer;
 function showToast(msg) {
@@ -753,6 +917,26 @@ function showToast(msg) {
   t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── RATING PROMPT (once per session, after first download/upload) ──
+function maybeShowRatingPrompt() {
+  if (!currentUser) return;
+  if (sessionStorage.getItem('svRatingPrompt')) return;
+  if (userProfile && userProfile.hasReviewed) return;
+  sessionStorage.setItem('svRatingPrompt', '1');
+  const card = document.getElementById('ratingPrompt');
+  if (card) card.classList.add('open');
+}
+
+function dismissRatingPrompt() {
+  const card = document.getElementById('ratingPrompt');
+  if (card) card.classList.remove('open');
+}
+
+function rateFromPrompt() {
+  dismissRatingPrompt();
+  openReviewModal();
 }
 
 // ── FOOTER FEEDBACK ───────────────────────────────────
@@ -982,7 +1166,7 @@ if (document.getElementById('searchInput')) {
   initSearchFromURL();
   loadPapers();
 }
-if (document.getElementById('testimonialsGrid')) loadTestimonials('recent');
+if (document.getElementById('testimonialsGrid')) loadTestimonials();
 if (document.getElementById('universitiesGrid')) loadUniversities();
 loadStatsCount();
 

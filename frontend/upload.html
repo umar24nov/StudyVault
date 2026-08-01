@@ -41,7 +41,6 @@
     <li><a href="/upload.html" class="nav-btn nav-upload">Upload</a></li>
     <li class="nav-bookmark-li" style="display:none"><a href="#" id="navBookmarks" onclick="showBookmarks()">Bookmarks</a></li>
     <li><a href="/reviews.html">Reviews</a></li>
-    <li><a href="#" onclick="openReviewModal()">Rate Us</a></li>
     <li><a href="#" onclick="openContactModal()">Contact Us</a></li>
     <li id="notifLi" style="display:none">
       <button class="notif-bell" id="notifBell" onclick="toggleNotifPanel(event)" aria-label="Notifications"><span class="notif-bell-icon">&#128276;</span><span class="notif-bell-label">Notifications</span><span class="notif-badge" id="notifBadge" style="display:none"></span></button>
@@ -79,6 +78,7 @@
       <h2>Share Your Papers. Help Everyone.</h2>
       <p>Have a question paper, notes, or study guide? Upload it to StudyVault and thousands of students across India will benefit.</p>
       <ul class="upload-perks">
+        <li><span class="perk-dot"></span> Upload without signing in</li>
         <li><span class="perk-dot"></span> Earn contribution badges</li>
         <li><span class="perk-dot"></span> Get credited for every download</li>
         <li><span class="perk-dot"></span> PDF, DOC, image formats accepted</li>
@@ -98,16 +98,23 @@
         <div class="file-chosen" id="fileChosen"></div>
         <div class="upload-fields" onclick="event.stopPropagation()">
           <input type="text" class="upload-input" placeholder="Subject / Paper Title" id="uploadTitle">
+          <input type="text" class="upload-input" placeholder="Your name (optional)" id="uploadName">
+          <input type="email" class="upload-input" placeholder="Your email (optional, for status updates)" id="uploadEmail">
           <select class="upload-input" id="uploadCourse">
             <option value="">Select Course</option>
+            <option value="school">School (10th/12th)</option>
             <option value="engineering">Engineering</option>
             <option value="management">Management</option>
             <option value="law">Law</option>
             <option value="medical">Medical</option>
             <option value="humanities">Humanities</option>
             <option value="commerce">Commerce</option>
-            <option value="cs">CS / IT</option>
             <option value="science">Pure Science</option>
+            <option value="cs">CS / IT</option>
+            <option value="architecture">Architecture</option>
+            <option value="pharmacy">Pharmacy</option>
+            <option value="agriculture">Agriculture</option>
+            <option value="education">Education</option>
           </select>
           <select class="upload-input" id="uploadType">
             <option value="pyq">Previous Year Question (PYQ)</option>
@@ -179,6 +186,67 @@
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- RATING PROMPT -->
+<div class="rating-prompt" id="ratingPrompt">
+  <div class="rating-prompt-title">How was StudyVault? &#11088;</div>
+  <div class="rating-prompt-text">Enjoying the papers? A quick rating helps other students trust the platform.</div>
+  <div class="rating-prompt-actions">
+    <button class="rating-prompt-btn rating-prompt-primary" onclick="rateFromPrompt()">Rate us</button>
+    <button class="rating-prompt-btn" onclick="dismissRatingPrompt()">No thanks</button>
+  </div>
+</div>
+
+<!-- ONBOARDING MODAL (profile setup at sign-in) -->
+<div class="modal-overlay" id="onboardingModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeOnboarding()">&#10005;</button>
+    <h3>&#127891; Tell Us About You</h3>
+    <p>Set your level and course so we can recommend the right papers for you.</p>
+    <div class="modal-form-stack">
+      <select class="upload-input" id="obLevel">
+        <option value="">Select your level</option>
+        <option value="undergraduate">Undergraduate (UG)</option>
+        <option value="postgraduate">Postgraduate (PG)</option>
+        <option value="school">School</option>
+        <option value="other">Other</option>
+      </select>
+      <select class="upload-input" id="obCourse" onchange="onObCourseChange()">
+        <option value="">Select your course</option>
+        <option value="school">School (Class 10th / 12th)</option>
+        <option value="engineering">Engineering (B.Tech / B.E)</option>
+        <option value="management">Management (MBA / BBA)</option>
+        <option value="law">Law (LLB / LLM)</option>
+        <option value="medical">Medical (MBBS / BDS)</option>
+        <option value="humanities">Humanities (BA / MA)</option>
+        <option value="commerce">Commerce (B.Com / M.Com)</option>
+        <option value="science">Pure Science (BSc / MSc)</option>
+        <option value="cs">Computer Science / IT (BCA / MCA)</option>
+        <option value="architecture">Architecture (B.Arch)</option>
+        <option value="pharmacy">Pharmacy (B.Pharm)</option>
+        <option value="agriculture">Agriculture (B.Sc Agri)</option>
+        <option value="education">Education (B.Ed / M.Ed)</option>
+      </select>
+      <div class="ob-school-row" id="obSchoolRow" style="display:none">
+        <select class="upload-input" id="obGrade">
+          <option value="">Class</option>
+          <option value="10">Class 10</option>
+          <option value="12">Class 12</option>
+        </select>
+        <select class="upload-input" id="obBoard">
+          <option value="">Board</option>
+          <option value="CBSE">CBSE</option>
+          <option value="ICSE">ICSE</option>
+          <option value="State Board">State Board</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeOnboarding()">Skip for now</button>
+      <button class="btn-primary" onclick="saveOnboarding()">Save &amp; Personalize</button>
+    </div>
+  </div>
+</div>
 
 <!-- REVIEW MODAL -->
 <div class="modal-overlay" id="reviewModal">

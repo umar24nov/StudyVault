@@ -159,8 +159,8 @@ function paperRoutes(db, cloudinary) {
     }
   });
 
-  // POST /api/papers — upload a paper (requires auth)
-  router.post('/', verifyToken, uploadLimiter, upload.single('file'), async (req, res, next) => {
+  // POST /api/papers — upload a paper (auth optional)
+  router.post('/', optionalAuth, uploadLimiter, upload.single('file'), async (req, res, next) => {
     try {
       const { tags } = req.body;
       const title = stripDangerous((req.body.title || '').slice(0, 200));
@@ -168,6 +168,8 @@ function paperRoutes(db, cloudinary) {
       const type = stripDangerous((req.body.type || '').slice(0, 20));
       const year = stripDangerous((req.body.year || '').slice(0, 20));
       const university = stripDangerous((req.body.university || '').slice(0, 200));
+      const uploaderName = stripDangerous((req.body.uploaderName || '').slice(0, 100));
+      const uploaderEmail = stripDangerous((req.body.uploaderEmail || '').slice(0, 200));
       const file = req.file;
 
       if (!file)   return res.status(400).json({ error: 'No file uploaded' });
@@ -208,15 +210,15 @@ function paperRoutes(db, cloudinary) {
         publicId:    result.public_id,
         downloads:   0,
         status:      'pending',
-        uploadedBy:  req.user.uid,
-        uploaderName: req.user.name || req.user.email || 'Anonymous',
-        uploaderEmail: req.user.email || '',
+        uploadedBy:  req.user ? req.user.uid : 'anonymous',
+        uploaderName: req.user ? (req.user.name || req.user.email || uploaderName || 'Anonymous') : (uploaderName || 'Anonymous'),
+        uploaderEmail: req.user ? (req.user.email || uploaderEmail || '') : (uploaderEmail || ''),
         createdAt:   admin.firestore.FieldValue.serverTimestamp()
       });
 
       res.status(201).json({ success: true, id: docRef.id, downloadURL });
 
-      sendEmail(`New paper uploaded: ${title}`, `<p><strong>Title:</strong> ${title}</p><p><strong>Course:</strong> ${course}</p><p><strong>Type:</strong> ${type || 'pyq'}</p><p><strong>Uploaded by:</strong> ${req.user.name || req.user.email || 'Anonymous'}</p>`);
+      sendEmail(`New paper uploaded: ${title}`, `<p><strong>Title:</strong> ${title}</p><p><strong>Course:</strong> ${course}</p><p><strong>Type:</strong> ${type || 'pyq'}</p><p><strong>Uploaded by:</strong> ${req.user ? (req.user.name || req.user.email || 'Anonymous') : (uploaderName || 'Anonymous')}</p>`);
     } catch (err) {
       next(err);
     }

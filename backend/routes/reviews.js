@@ -6,10 +6,10 @@ const { writeLimiter } = require('../middleware/rateLimit');
 function reviewRoutes(db) {
   const router = express.Router();
 
-  // GET /api/reviews — approved reviews, sorted by recency or stars
+  // GET /api/reviews — reviews sorted by stars (5 first) by default, or recency
   router.get('/', async (req, res, next) => {
     try {
-      const sort = req.query.sort === 'top' ? 'top' : 'recent';
+      const sort = req.query.sort === 'recent' ? 'recent' : 'top';
       const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 6));
 
       const snapshot = await db.collection('reviews')
@@ -51,10 +51,16 @@ function reviewRoutes(db) {
       await db.collection('reviews').add({
         name, message,
         stars: starNum,
-        status: 'pending',
+        status: 'approved',
         userId: req.user.uid,
         createdAt: require('firebase-admin').firestore.FieldValue.serverTimestamp()
       });
+
+      // Remember that this user has reviewed, so we don't prompt again
+      await db.collection('users').doc(req.user.uid).set(
+        { hasReviewed: true, updatedAt: require('firebase-admin').firestore.FieldValue.serverTimestamp() },
+        { merge: true }
+      ).catch(() => {});
       res.status(201).json({ success: true });
 
       sendEmail(`New review from ${name}`, `<p><strong>Name:</strong> ${name}</p><p><strong>Stars:</strong> ${'★'.repeat(starNum)}${'☆'.repeat(5 - starNum)} (${starNum}/5)</p><p><strong>Review:</strong></p><p>${message}</p>`);

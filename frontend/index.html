@@ -58,7 +58,6 @@
     <li><a href="/upload.html" class="nav-btn nav-upload">Upload</a></li>
     <li class="nav-bookmark-li" style="display:none"><a href="#" id="navBookmarks" onclick="showBookmarks()">Bookmarks</a></li>
     <li><a href="/reviews.html">Reviews</a></li>
-    <li><a href="#" onclick="openReviewModal()">Rate Us</a></li>
     <li><a href="#" onclick="openContactModal()">Contact Us</a></li>
     <li id="notifLi" style="display:none">
       <button class="notif-bell" id="notifBell" onclick="toggleNotifPanel(event)" aria-label="Notifications"><span class="notif-bell-icon">&#128276;</span><span class="notif-bell-label">Notifications</span><span class="notif-badge" id="notifBadge" style="display:none"></span></button>
@@ -114,6 +113,7 @@
   <div class="section-title">All Disciplines Covered</div>
   <div class="section-sub">From first-year basics to final-year papers &#8212; every course, every university.</div>
   <div class="courses-grid">
+    <div class="course-card" onclick="filterByCourse('school')"><span class="course-icon">&#127979;&#65039;</span><div class="course-name">School</div><div class="course-count">Class 10th / 12th</div></div>
     <div class="course-card" onclick="filterByCourse('engineering')"><span class="course-icon">&#9881;&#65039;</span><div class="course-name">Engineering</div><div class="course-count">B.Tech / B.E</div></div>
     <div class="course-card" onclick="filterByCourse('management')"><span class="course-icon">&#128202;</span><div class="course-name">Management</div><div class="course-count">MBA / BBA</div></div>
     <div class="course-card" onclick="filterByCourse('law')"><span class="course-icon">&#9878;&#65039;</span><div class="course-name">Law</div><div class="course-count">LLB / LLM</div></div>
@@ -127,6 +127,14 @@
     <div class="course-card" onclick="filterByCourse('agriculture')"><span class="course-icon">&#127806;</span><div class="course-name">Agriculture</div><div class="course-count">B.Sc Agri</div></div>
     <div class="course-card" onclick="filterByCourse('education')"><span class="course-icon">&#128218;</span><div class="course-name">Education</div><div class="course-count">B.Ed / M.Ed</div></div>
   </div>
+</section>
+
+<!-- RECOMMENDED FOR YOU (signed-in users with a profile) -->
+<section class="recommended-section" id="recommendedSection" style="display:none">
+  <div class="section-label">Personalized</div>
+  <div class="section-title">Recommended For You</div>
+  <div class="section-sub" id="recommendedSub">Papers picked based on your profile.</div>
+  <div id="recommendedGrid"></div>
 </section>
 
 <!-- FEATURES -->
@@ -330,6 +338,67 @@
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- RATING PROMPT -->
+<div class="rating-prompt" id="ratingPrompt">
+  <div class="rating-prompt-title">How was StudyVault? &#11088;</div>
+  <div class="rating-prompt-text">Enjoying the papers? A quick rating helps other students trust the platform.</div>
+  <div class="rating-prompt-actions">
+    <button class="rating-prompt-btn rating-prompt-primary" onclick="rateFromPrompt()">Rate us</button>
+    <button class="rating-prompt-btn" onclick="dismissRatingPrompt()">No thanks</button>
+  </div>
+</div>
+
+<!-- ONBOARDING MODAL (profile setup at sign-in) -->
+<div class="modal-overlay" id="onboardingModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeOnboarding()">&#10005;</button>
+    <h3>&#127891; Tell Us About You</h3>
+    <p>Set your level and course so we can recommend the right papers for you.</p>
+    <div class="modal-form-stack">
+      <select class="upload-input" id="obLevel">
+        <option value="">Select your level</option>
+        <option value="undergraduate">Undergraduate (UG)</option>
+        <option value="postgraduate">Postgraduate (PG)</option>
+        <option value="school">School</option>
+        <option value="other">Other</option>
+      </select>
+      <select class="upload-input" id="obCourse" onchange="onObCourseChange()">
+        <option value="">Select your course</option>
+        <option value="school">School (Class 10th / 12th)</option>
+        <option value="engineering">Engineering (B.Tech / B.E)</option>
+        <option value="management">Management (MBA / BBA)</option>
+        <option value="law">Law (LLB / LLM)</option>
+        <option value="medical">Medical (MBBS / BDS)</option>
+        <option value="humanities">Humanities (BA / MA)</option>
+        <option value="commerce">Commerce (B.Com / M.Com)</option>
+        <option value="science">Pure Science (BSc / MSc)</option>
+        <option value="cs">Computer Science / IT (BCA / MCA)</option>
+        <option value="architecture">Architecture (B.Arch)</option>
+        <option value="pharmacy">Pharmacy (B.Pharm)</option>
+        <option value="agriculture">Agriculture (B.Sc Agri)</option>
+        <option value="education">Education (B.Ed / M.Ed)</option>
+      </select>
+      <div class="ob-school-row" id="obSchoolRow" style="display:none">
+        <select class="upload-input" id="obGrade">
+          <option value="">Class</option>
+          <option value="10">Class 10</option>
+          <option value="12">Class 12</option>
+        </select>
+        <select class="upload-input" id="obBoard">
+          <option value="">Board</option>
+          <option value="CBSE">CBSE</option>
+          <option value="ICSE">ICSE</option>
+          <option value="State Board">State Board</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeOnboarding()">Skip for now</button>
+      <button class="btn-primary" onclick="saveOnboarding()">Save &amp; Personalize</button>
+    </div>
+  </div>
+</div>
 
 <!-- REVIEW MODAL -->
 <div class="modal-overlay" id="reviewModal">
