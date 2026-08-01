@@ -277,8 +277,27 @@ async function approvePaper(id) {
 }
 
 async function rejectPaper(id) {
+  document.getElementById('rejectReason').value = '';
+  document.getElementById('rejectPaperId').value = id;
+  document.getElementById('rejectModal').classList.add('open');
+}
+
+function closeRejectModal() {
+  document.getElementById('rejectModal').classList.remove('open');
+}
+
+async function confirmRejectPaper() {
+  const id = document.getElementById('rejectPaperId').value;
+  const reason = document.getElementById('rejectReason').value.trim();
+  if (!id) return;
   try {
-    await apiFetch(`/api/admin/papers/${id}/reject`, { method: 'PATCH' });
+    const res = await apiFetch(`/api/admin/papers/${id}/reject`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason })
+    });
+    if (!res.ok) throw new Error();
+    closeRejectModal();
     showToast('Paper rejected.');
     loadAdminPapers(adminPage);
   } catch (e) { showToast('Failed.'); }
@@ -329,10 +348,86 @@ function switchTab(tab) {
   document.getElementById('papersTab').classList.toggle('hidden', tab !== 'papers');
   document.getElementById('usersTab').classList.toggle('hidden', tab !== 'users');
   document.getElementById('reviewsTab').classList.toggle('hidden', tab !== 'reviews');
+  document.getElementById('reportsTab').classList.toggle('hidden', tab !== 'reports');
   document.getElementById('paperFilters').classList.toggle('hidden', tab !== 'papers');
 
   if (tab === 'users') loadAdminUsers();
   if (tab === 'reviews') loadAdminReviews();
+  if (tab === 'reports') loadAdminReports();
+}
+
+// ── REPORTS ───────────────────────────────────────────
+async function loadAdminReports() {
+  try {
+    const res = await apiFetch('/api/admin/reports?status=all');
+    const reports = await res.json();
+    const tbody = document.getElementById('reportsTableBody');
+    if (!reports.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="table-loading">No reports yet.</td></tr>';
+      return;
+    }
+    const fmtTime = (t) => {
+      if (!t) return '';
+      let ts = null;
+      if (typeof t === 'object' && t.seconds != null)       ts = t.seconds * 1000;
+      else if (typeof t === 'object' && t._seconds != null) ts = t._seconds * 1000;
+      else if (typeof t === 'string')                       ts = Date.parse(t);
+      if (!ts || isNaN(ts)) return '';
+      return new Date(ts).toLocaleString();
+    };
+    tbody.innerHTML = reports.map(r => `
+      <tr>
+        <td class="table-title">${esc(r.paperTitle) || 'Untitled'}</td>
+        <td>${esc(r.reporterEmail) || 'Anonymous'}</td>
+        <td class="table-title">
+          <div>${esc(r.reason) || '-'}</div>
+          <div class="table-sub">${fmtTime(r.createdAt)}</div>
+        </td>
+        <td><span class="status-badge status-${esc(r.status) || 'open'}">${esc(r.status) || 'open'}</span></td>
+        <td>
+          <div class="table-actions">
+            ${r.status !== 'resolved' ? `<button class="btn-sm btn-approve" onclick="resolveReport('${r.id}')">Resolve</button>` : ''}
+            <button class="btn-sm btn-delete" onclick="deleteReport('${r.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    document.getElementById('reportsTableBody').innerHTML =
+      '<tr><td colspan="5" class="table-loading">Failed to load reports.</td></tr>';
+  }
+}
+
+async function resolveReport(id) {
+  try {
+    await apiFetch(`/api/admin/reports/${id}/resolve`, { method: 'PATCH' });
+    showToast('Report resolved.');
+    loadAdminReports();
+  } catch (e) { showToast('Failed.'); }
+}
+
+async function deleteReport(id) {
+  if (!confirm('Delete this report?')) return;
+  try {
+    await apiFetch(`/api/admin/reports/${id}`, { method: 'DELETE' });
+    showToast('Report deleted.');
+    loadAdminReports();
+  } catch (e) { showToast('Failed.'); }
+}
+
+// ── DOWNLOAD HISTORY CLEANUP ──────────────────────────
+async function clearDownloadHistory() {
+  const days = prompt('Delete download history older than how many days? (0 = all history)', '30');
+  if (days === null) return;
+  const n = parseInt(days);
+  if (isNaN(n) || n < 0) { showToast('Enter a valid number of days.'); return; }
+  if (!confirm(`Delete download history ${n === 0 ? 'entries' : 'older than ' + n + ' days'}? This cannot be undone.`)) return;
+  try {
+    const q = n > 0 ? `?olderThanDays=${n}` : '';
+    const res = await apiFetch(`/api/admin/downloads${q}`, { method: 'DELETE' });
+    const data = await res.json();
+    showToast(`Deleted ${data.deleted || 0} history entr${data.deleted === 1 ? 'y' : 'ies'}.`);
+  } catch (e) { showToast('Failed.'); }
 }
 
 async function loadAdminUsers() {

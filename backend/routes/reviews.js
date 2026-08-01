@@ -69,6 +69,30 @@ function reviewRoutes(db) {
     }
   });
 
+  // GET /api/reviews/stats — aggregate rating stats
+  router.get('/stats', async (req, res, next) => {
+    try {
+      const snapshot = await db.collection('reviews')
+        .where('status', '==', 'approved')
+        .get();
+      let sum = 0;
+      const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      snapshot.docs.forEach(doc => {
+        const s = doc.data().stars || 0;
+        sum += s;
+        if (counts[s] !== undefined) counts[s]++;
+      });
+      const total = snapshot.size;
+      res.json({
+        total,
+        average: total ? Math.round((sum / total) * 10) / 10 : 0,
+        counts
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return router;
 }
 

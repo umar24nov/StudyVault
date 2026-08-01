@@ -187,10 +187,17 @@ async function loadRecommended(course) {
   const grid = document.getElementById('recommendedGrid');
   if (!grid) return;
   grid.innerHTML = '<div class="loading">Loading recommendations...</div>';
+
+  // Signed-in users get smarter, personalized picks from their profile + download history.
+  const token = await getAuthToken();
+  const url = token
+    ? `${API_BASE}/api/users/me/recommendations`
+    : `${API_BASE}/api/papers?course=${encodeURIComponent(course)}&limit=6`;
+
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 90000);
-    const res = await fetch(`${API_BASE}/api/papers?course=${encodeURIComponent(course)}&limit=6`, { signal: controller.signal });
+    const res = await fetch(url, { signal: controller.signal, headers: token ? { 'Authorization': `Bearer ${token}` } : {} });
     clearTimeout(timeout);
     if (!res.ok) throw new Error('Server error');
     const data = await res.json();
@@ -426,13 +433,26 @@ function paperCardHTML(p) {
   const typeBadge = { pyq: 'type-pyq', notes: 'type-notes', paper: 'type-paper', booklet: 'type-booklet' };
   const typeLabel = { pyq: 'PYQ', notes: 'Notes', paper: 'Model Paper', booklet: 'Booklet' };
 
+  const ratingStars = p.ratingAvg
+    ? '&#9733;'.repeat(Math.max(1, Math.round(p.ratingAvg))) + '&#9734;'.repeat(5 - Math.max(1, Math.round(p.ratingAvg)))
+    : '';
+  const ratingHTML = p.ratingAvg
+    ? `<span class="card-rating" title="${p.ratingCount || 0} rating${p.ratingCount === 1 ? '' : 's'}">
+        <span class="card-rating-stars">${ratingStars}</span>
+        <span class="card-rating-num">${p.ratingAvg}</span>
+      </span>`
+    : '<span class="card-rating card-rating-empty" title="No ratings yet">&#9734; Rate it</span>';
+
   return `
     <div class="result-card">
       <div class="card-top">
         <div class="card-type ${typeBadge[type] || 'type-pyq'}">${typeLabel[type] || type}</div>
-        ${currentUser ? `<button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${p.id}', event)" title="${isBookmarked ? 'Remove bookmark' : 'Bookmark this'}">
-          ${isBookmarked ? '&#9733;' : '&#9734;'}
-        </button>` : ''}
+        <div class="card-top-actions">
+          <button class="report-btn" onclick="openReportModal('${p.id}', '${esc(p.title)}')" title="Report a problem">&#9873;</button>
+          ${currentUser ? `<button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${p.id}', event)" title="${isBookmarked ? 'Remove bookmark' : 'Bookmark this'}">
+            ${isBookmarked ? '&#9733;' : '&#9734;'}
+          </button>` : ''}
+        </div>
       </div>
       <div class="card-title">${esc(p.title)}</div>
       <div class="card-meta">${esc(univ)}${year ? ' · ' + esc(year) : ''}</div>
@@ -453,6 +473,9 @@ function paperCardHTML(p) {
             : `<button class="dl-btn" onclick="showToast('No file attached yet.')">Download</button>`
           }
         </div>
+      </div>
+      <div class="card-rating-row">
+        <button class="card-rating-btn" onclick="openRateModal('${p.id}', '${esc(p.title)}')">${ratingHTML}</button>
       </div>
       ${p.uploaderName ? `<div class="card-uploader">Uploaded by ${esc(p.uploaderName)}</div>` : ''}
     </div>`;
@@ -576,6 +599,7 @@ async function openProfileModal() {
   if (!modal) return;
   modal.classList.add('open');
   loadMyUploads();
+  loadMyDownloads();
 
   const token = await getAuthToken();
   if (!token) return;
@@ -589,8 +613,19 @@ async function openProfileModal() {
     document.getElementById('profileName').textContent = data.name || 'User';
     document.getElementById('profileEmail').textContent = data.email || '';
     document.getElementById('statUploads').textContent = data.stats?.uploads || 0;
+    document.getElementById('statApproved').textContent = data.stats?.approvedUploads || 0;
     document.getElementById('statBookmarks').textContent = data.stats?.bookmarks || 0;
     document.getElementById('statDownloads').textContent = data.stats?.totalDownloads || 0;
+
+    const badgeEl = document.getElementById('profileBadge');
+    if (badgeEl) {
+      if (data.badge) {
+        badgeEl.textContent = '&#127942; ' + data.badge;
+        badgeEl.style.display = 'inline-flex';
+      } else {
+        badgeEl.style.display = 'none';
+      }
+    }
 
     const avatar = document.getElementById('profileAvatar');
     const pic = data.picture || '';
@@ -739,6 +774,7 @@ async function loadMyUploads() {
             ${p.course ? ' · ' + esc(p.course) : ''}
             ${p.year ? ' · ' + esc(p.year) : ''}
             ${p.university ? ' · ' + esc(p.university) : ''}
+            ${p.rejectReason ? '<div class="reject-reason">&#9888;&#65039; ' + esc(p.rejectReason) + '</div>' : ''}
           </div>
         </div>
         <div class="upload-item-side">
@@ -747,11 +783,244 @@ async function loadMyUploads() {
           ${p.status === 'approved' && safeURL
             ? `<a class="dl-btn" href="${esc(safeURL)}" target="_blank" rel="noopener" download onclick="return onDownloadClick('${p.id}')">Download</a>`
             : ''}
+          <button class="upload-edit-btn" onclick="openEditUploadModal('${p.id}')" title="Edit details">&#9999;&#65039;</button>
+          <button class="upload-del-btn" onclick="deleteMyUpload('${p.id}')" title="Delete upload">&#128465;&#65039;</button>
         </div>
       </div>`;
     }).join('');
   } catch(e) {
     list.innerHTML = '<div class="no-results">Could not load your uploads.</div>';
+  }
+}
+
+// ── RECENTLY DOWNLOADED (profile modal) ───────────────
+async function loadMyDownloads() {
+  const list = document.getElementById('profileDownloadsList');
+  if (!list) return;
+  if (!currentUser) {
+    list.innerHTML = '<div class="no-results">Sign in to see your downloads.</div>';
+    return;
+  }
+  const token = await getAuthToken();
+  if (!token) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/users/me/downloads`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const items = await res.json();
+    if (!items.length) {
+      list.innerHTML = '<div class="no-results">Nothing downloaded yet — find a paper and hit Download!</div>';
+      return;
+    }
+    list.innerHTML = items.map(d => `
+      <div class="upload-item">
+        <div class="upload-item-main">
+          <div class="upload-item-title">${esc(d.title) || 'Untitled paper'}</div>
+          <div class="upload-item-meta">
+            ${d.course ? esc(d.course) + ' · ' : ''}
+            ${d.university ? esc(d.university) : ''}
+          </div>
+        </div>
+        <div class="upload-item-side">
+          ${d.downloadURL
+            ? `<a class="dl-btn" href="${esc(d.downloadURL)}" target="_blank" rel="noopener" download>Download</a>`
+            : ''}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div class="no-results">Could not load your downloads.</div>';
+  }
+}
+
+// ── DELETE MY UPLOAD ──────────────────────────────────
+async function deleteMyUpload(paperId) {
+  if (!currentUser) { showToast('Please sign in first.'); return; }
+  if (!confirm('Delete this upload? This cannot be undone.')) return;
+  const token = await getAuthToken();
+  if (!token) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/users/me/uploads/${paperId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Upload deleted.');
+      loadMyUploads();
+    } else {
+      showToast('Could not delete: ' + (data.error || 'unknown error'));
+    }
+  } catch(e) {
+    showToast('Could not reach server.');
+  }
+}
+
+// ── EDIT MY UPLOAD ────────────────────────────────────
+async function openEditUploadModal(paperId) {
+  if (!currentUser) { showToast('Please sign in first.'); return; }
+  const modal = document.getElementById('editUploadModal');
+  if (!modal) return;
+  const token = await getAuthToken();
+  if (!token) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/users/me/uploads`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const papers = await res.json();
+    const p = papers.find(x => x.id === paperId);
+    if (!p) { showToast('Upload not found.'); return; }
+
+    document.getElementById('editUploadId').value = p.id;
+    document.getElementById('editTitle').value = p.title || '';
+    document.getElementById('editCourse').value = p.course || '';
+    document.getElementById('editType').value = p.type || 'pyq';
+    document.getElementById('editYear').value = p.year || '';
+    document.getElementById('editUniv').value = p.university || '';
+    modal.classList.add('open');
+  } catch(e) {
+    showToast('Could not load upload details.');
+  }
+}
+
+function closeEditUploadModal() {
+  const modal = document.getElementById('editUploadModal');
+  if (modal) modal.classList.remove('open');
+}
+
+async function submitEditUpload() {
+  const id = document.getElementById('editUploadId').value;
+  if (!id) return;
+  const title = document.getElementById('editTitle').value.trim();
+  if (!title) { showToast('Title cannot be empty.'); return; }
+  const token = await getAuthToken();
+  if (!token) { showToast('Please sign in first.'); return; }
+  try {
+    const res = await fetch(`${API_BASE}/api/users/me/uploads/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({
+        title,
+        course: document.getElementById('editCourse').value,
+        type: document.getElementById('editType').value,
+        year: document.getElementById('editYear').value.trim(),
+        university: document.getElementById('editUniv').value.trim()
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeEditUploadModal();
+      showToast('Upload updated.');
+      loadMyUploads();
+    } else {
+      showToast('Could not save: ' + (data.error || 'unknown error'));
+    }
+  } catch(e) {
+    showToast('Could not reach server.');
+  }
+}
+
+// ── REPORT PAPER MODAL ────────────────────────────────
+let reportPaperId = '';
+const reportReasonEl = () => document.getElementById('reportReason');
+
+function openReportModal(paperId, title) {
+  reportPaperId = paperId;
+  const titleEl = document.getElementById('reportPaperTitle');
+  if (titleEl) titleEl.textContent = title ? `"${title}"` : '';
+  const modal = document.getElementById('reportModal');
+  if (!modal) return;
+  modal.classList.add('open');
+  const r = reportReasonEl();
+  if (r) {
+    r.value = '';
+    updateReportCount();
+    setTimeout(() => r.focus(), 100);
+  }
+}
+
+function updateReportCount() {
+  const r = reportReasonEl();
+  const count = document.getElementById('reportCharCount');
+  if (r && count) count.textContent = `${r.value.length} / 500`;
+}
+
+async function submitReport() {
+  const reason = (reportReasonEl()?.value || '').trim();
+  if (!reason) { showToast('Please describe the issue.'); return; }
+  const token = await getAuthToken();
+  try {
+    const res = await fetch(`${API_BASE}/api/papers/${reportPaperId}/report`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
+      body: JSON.stringify({ reason })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const modal = document.getElementById('reportModal');
+      if (modal) modal.classList.remove('open');
+      showToast('Report submitted. Our team will review it.');
+    } else {
+      showToast('Could not submit: ' + (data.error || 'try again'));
+    }
+  } catch(e) {
+    showToast('Could not reach server.');
+  }
+}
+
+// ── RATE PAPER MODAL ──────────────────────────────────
+let ratePaperId = '';
+let selectedPaperStar = 0;
+const paperStarLabels = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent!'];
+
+function openRateModal(paperId, title) {
+  if (!currentUser) { showToast('Please sign in to rate papers.'); signInWithGoogle(); return; }
+  ratePaperId = paperId;
+  const titleEl = document.getElementById('ratePaperTitle');
+  if (titleEl) titleEl.textContent = title ? `"${title}"` : '';
+  const modal = document.getElementById('rateModal');
+  if (!modal) return;
+  selectedPaperStar = 0;
+  renderPaperStars(0);
+  const label = document.getElementById('paperStarLabel');
+  if (label) label.textContent = '';
+  modal.classList.add('open');
+}
+
+function selectPaperStar(val) {
+  selectedPaperStar = val;
+  renderPaperStars(val);
+  const label = document.getElementById('paperStarLabel');
+  if (label) label.textContent = paperStarLabels[val];
+}
+
+function renderPaperStars(val) {
+  document.querySelectorAll('#paperStarPicker .star').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+  });
+}
+
+async function submitPaperRating() {
+  if (!selectedPaperStar) { showToast('Please select a star rating.'); return; }
+  const token = await getAuthToken();
+  if (!token) { showToast('Please sign in first.'); return; }
+  try {
+    const res = await fetch(`${API_BASE}/api/papers/${ratePaperId}/rating`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ stars: selectedPaperStar })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const modal = document.getElementById('rateModal');
+      if (modal) modal.classList.remove('open');
+      showToast('Thanks for rating this paper!');
+      if (allPapers.length) renderCards(allPapers);
+    } else {
+      showToast('Could not submit: ' + (data.error || 'try again'));
+    }
+  } catch(e) {
+    showToast('Could not reach server.');
   }
 }
 
@@ -891,8 +1160,12 @@ function closePreview() {
 }
 
 // ── DOWNLOAD TRACKING ─────────────────────────────────
-function trackDownload(paperId) {
-  fetch(`${API_BASE}/api/papers/${paperId}/download`, { method: 'POST' }).catch(() => {});
+async function trackDownload(paperId) {
+  const token = await getAuthToken();
+  fetch(`${API_BASE}/api/papers/${paperId}/download`, {
+    method: 'POST',
+    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+  }).catch(() => {});
 }
 
 function onDownloadClick(paperId) {
@@ -1142,6 +1415,24 @@ async function loadStatsCount() {
   } catch(e) { /* keep placeholder */ }
 }
 
+// ── HERO RATING (aggregate of student reviews) ────────
+async function loadHeroRating() {
+  const starsEl = document.getElementById('heroRatingStars');
+  const textEl = document.getElementById('heroRatingText');
+  if (!starsEl || !textEl) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/reviews/stats`);
+    const stats = await res.json();
+    if (!stats || !stats.total) {
+      textEl.textContent = 'Be the first to review StudyVault!';
+      return;
+    }
+    const full = Math.round(stats.average);
+    starsEl.innerHTML = '&#9733;'.repeat(full) + '&#9734;'.repeat(5 - full);
+    textEl.textContent = `${stats.average.toFixed(1)} / 5 from ${stats.total} student review${stats.total === 1 ? '' : 's'}`;
+  } catch(e) { /* keep placeholder */ }
+}
+
 // ── SEARCH PAGE URL PARAMS ────────────────────────────
 function initSearchFromURL() {
   const params = new URLSearchParams(window.location.search);
@@ -1167,6 +1458,7 @@ if (document.getElementById('searchInput')) {
 if (document.getElementById('testimonialsGrid')) loadTestimonials();
 if (document.getElementById('universitiesGrid')) loadUniversities();
 loadStatsCount();
+loadHeroRating();
 
 // Poll unread notification count every 60 seconds while signed in.
 setInterval(() => {

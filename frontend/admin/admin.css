@@ -133,6 +133,8 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .status-pending  { background: rgba(255,200,80,0.15); color: #ffc850; }
 .status-approved { background: rgba(67,232,176,0.12); color: var(--accent3); }
 .status-rejected { background: rgba(255,101,132,0.12); color: var(--accent2); }
+.status-open     { background: rgba(255,101,132,0.12); color: var(--accent2); }
+.status-resolved { background: rgba(67,232,176,0.12); color: var(--accent3); }
 
 /* TOAST */
 .toast { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; background: var(--surface2); border: 1px solid rgba(67,232,176,0.4); color: var(--accent3); padding: 0.9rem 1.4rem; border-radius: 12px; font-size: 0.9rem; font-weight: 500; transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; }
@@ -147,6 +149,9 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .modal-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 0.65rem 0.9rem; outline: none; }
 .modal-input:focus { border-color: var(--accent); }
 .modal-input option { background: var(--surface); }
+.modal-textarea { resize: vertical; min-height: 110px; }
+.table-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+.btn-clear-history { margin-left: auto; font-size: 0.85rem; padding: 0.5rem 0.9rem; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 0.7rem; margin-top: 1.4rem; }
 .btn-sm-modal { padding: 0.55rem 1.2rem; font-size: 0.85rem; border-radius: 8px; }
 

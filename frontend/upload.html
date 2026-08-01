@@ -277,6 +277,7 @@
       <div>
         <div class="dev-name-lg" id="profileName">Loading...</div>
         <div class="dev-role" id="profileEmail"></div>
+        <div class="profile-badge" id="profileBadge" style="display:none"></div>
       </div>
     </div>
     <div class="dev-stack-grid" id="profileStats">
@@ -295,6 +296,11 @@
         <div class="dev-stack-label">Downloads</div>
         <div class="dev-stack-value" id="statDownloads">0</div>
       </div>
+      <div class="dev-stack-item">
+        <div class="dev-stack-icon">&#9989;</div>
+        <div class="dev-stack-label">Approved</div>
+        <div class="dev-stack-value" id="statApproved">0</div>
+      </div>
     </div>
     <div class="profile-uploads">
       <div class="profile-uploads-title">&#128196; My Uploads <span class="profile-uploads-hint">Track your approval status</span></div>
@@ -302,8 +308,92 @@
         <div class="no-results">Sign in to see your uploads.</div>
       </div>
     </div>
+    <div class="profile-uploads">
+      <div class="profile-uploads-title">&#11015;&#65039; Recently Downloaded</div>
+      <div class="profile-uploads-list" id="profileDownloadsList">
+        <div class="no-results">Sign in to see your downloads.</div>
+      </div>
+    </div>
     <div class="modal-actions" style="flex-wrap:wrap;gap:0.6rem">
       <button class="btn-primary" onclick="signOut()" style="background:linear-gradient(135deg,#ff6584,#ff4757)">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('reportModal').classList.remove('open')">&#10005;</button>
+    <h3>&#128680; Report Paper</h3>
+    <p class="modal-sub" id="reportPaperTitle"></p>
+    <div class="modal-form-stack">
+      <textarea class="upload-input modal-textarea" id="reportReason" rows="4" maxlength="500" oninput="updateReportCount()" placeholder="Tell us what's wrong — wrong file, broken download, copyright, inappropriate content..."></textarea>
+    </div>
+    <div id="reportCharCount" class="review-char-count">0 / 500</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="document.getElementById('reportModal').classList.remove('open')">Cancel</button>
+      <button class="btn-primary" onclick="submitReport()" style="background:linear-gradient(135deg,#ff6584,#ff4757)">Submit Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- RATE PAPER MODAL -->
+<div class="modal-overlay" id="rateModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('rateModal').classList.remove('open')">&#10005;</button>
+    <h3>&#11088; Rate this Paper</h3>
+    <p class="modal-sub" id="ratePaperTitle"></p>
+    <div class="star-picker" id="paperStarPicker">
+      <span class="star" data-val="1" onclick="selectPaperStar(1)">&#9733;</span>
+      <span class="star" data-val="2" onclick="selectPaperStar(2)">&#9733;</span>
+      <span class="star" data-val="3" onclick="selectPaperStar(3)">&#9733;</span>
+      <span class="star" data-val="4" onclick="selectPaperStar(4)">&#9733;</span>
+      <span class="star" data-val="5" onclick="selectPaperStar(5)">&#9733;</span>
+    </div>
+    <div id="paperStarLabel" class="star-label"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="document.getElementById('rateModal').classList.remove('open')">Cancel</button>
+      <button class="btn-primary" onclick="submitPaperRating()">Submit Rating</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT UPLOAD MODAL -->
+<div class="modal-overlay" id="editUploadModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeEditUploadModal()">&#10005;</button>
+    <h3>&#9999;&#65039; Edit Upload</h3>
+    <input type="hidden" id="editUploadId">
+    <div class="modal-form-stack">
+      <input type="text" class="upload-input" id="editTitle" placeholder="Subject / Paper Title">
+      <select class="upload-input" id="editCourse">
+        <option value="">Select Course</option>
+        <option value="school">School (10th/12th)</option>
+        <option value="engineering">Engineering</option>
+        <option value="management">Management</option>
+        <option value="law">Law</option>
+        <option value="medical">Medical</option>
+        <option value="humanities">Humanities</option>
+        <option value="commerce">Commerce</option>
+        <option value="science">Pure Science</option>
+        <option value="cs">CS / IT</option>
+        <option value="architecture">Architecture</option>
+        <option value="pharmacy">Pharmacy</option>
+        <option value="agriculture">Agriculture</option>
+        <option value="education">Education</option>
+      </select>
+      <select class="upload-input" id="editType">
+        <option value="pyq">Previous Year Question (PYQ)</option>
+        <option value="notes">Notes</option>
+        <option value="paper">Model Paper</option>
+        <option value="booklet">&#128218; Booklet / Book</option>
+      </select>
+      <input type="text" class="upload-input" id="editYear" placeholder="Year (e.g. 2023)">
+      <input type="text" class="upload-input" id="editUniv" placeholder="University name">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeEditUploadModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitEditUpload()">Save Changes</button>
     </div>
   </div>
 </div>

@@ -29,7 +29,11 @@ function paperRoutes(db, cloudinary) {
       }
 
       const snapshot = await query.get();
-      let papers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      let papers = snapshot.docs.map(doc => {
+        const d = doc.data();
+        const rc = d.ratingCount || 0;
+        return { id: doc.id, ...d, ratingAvg: rc ? Math.round(((d.ratingSum || 0) / rc) * 10) / 10 : null };
+      });
 
       // In-memory filters (avoid extra composite indexes)
       if (course) {
@@ -153,7 +157,8 @@ function paperRoutes(db, cloudinary) {
       if (data.status !== 'approved') {
         return res.status(404).json({ error: 'Paper not found' });
       }
-      res.json({ id: doc.id, ...data });
+      const rc = data.ratingCount || 0;
+      res.json({ id: doc.id, ...data, ratingAvg: rc ? Math.round(((data.ratingSum || 0) / rc) * 10) / 10 : null });
     } catch (err) {
       next(err);
     }
@@ -264,16 +269,106 @@ function paperRoutes(db, cloudinary) {
   });
 
   // POST /api/papers/:id/download — increment download counter
-  router.post('/:id/download', downloadLimiter, async (req, res, next) => {
+  router.post('/:id/download', optionalAuth, downloadLimiter, async (req, res, next) => {
     try {
       const ref = db.collection('papers').doc(req.params.id);
       const doc = await ref.get();
       if (!doc.exists || doc.data().status !== 'approved') {
         return res.status(404).json({ error: 'Paper not found' });
       }
+      const paper = doc.data();
       await ref.update({
         downloads: admin.firestore.FieldValue.increment(1)
       });
+
+      // Record download history for signed-in users (for "Recently downloaded" + smarter recs)
+      if (req.user) {
+        db.collection('downloads').add({
+          userId: req.user.uid,
+          paperId: req.params.id,
+          title: paper.title || '',
+          course: paper.course || '',
+          university: paper.university || '',
+          downloadURL: paper.downloadURL || '',
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        }).catch(() => {});
+      }
+
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // POST /api/papers/:id/report — report a paper (auth optional, rate limited)
+  router.post('/:id/report', optionalAuth, writeLimiter, async (req, res, next) => {
+    try {
+      const reason = String((req.body && req.body.reason) || '').trim().slice(0, 500);
+      if (!reason) return res.status(400).json({ error: 'Please describe the issue.' });
+
+      const doc = await db.collection('papers').doc(req.params.id).get();
+      if (!doc.exists) return res.status(404).json({ error: 'Paper not found' });
+      const paper = doc.data();
+
+      await db.collection('reports').add({
+        paperId: req.params.id,
+        paperTitle: paper.title || '',
+        userId: req.user ? req.user.uid : '',
+        reporterEmail: req.user ? (req.user.email || '') : '',
+        reason,
+        status: 'open',
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      res.status(201).json({ success: true });
+
+      sendEmail(`Report on "${paper.title || 'a paper'}"`, `<p>A user reported a paper:</p><p><strong>Paper:</strong> ${paper.title || 'Unknown'}</p><p><strong>Reason:</strong></p><p>${reason}</p>`);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // POST /api/papers/:id/rating — rate a paper (1-5 stars, auth required)
+  router.post('/:id/rating', verifyToken, writeLimiter, async (req, res, next) => {
+    try {
+      const starNum = parseInt((req.body && req.body.stars) || 0);
+      if (starNum < 1 || starNum > 5) {
+        return res.status(400).json({ error: 'Stars must be between 1 and 5' });
+      }
+
+      const paperRef = db.collection('papers').doc(req.params.id);
+      const paperDoc = await paperRef.get();
+      if (!paperDoc.exists) return res.status(404).json({ error: 'Paper not found' });
+
+      // Upsert the user's rating, then update the paper's aggregate atomically
+      const ratingQuery = await db.collection('ratings')
+        .where('userId', '==', req.user.uid)
+        .where('paperId', '==', req.params.id)
+        .limit(1)
+        .get();
+
+      await db.runTransaction(async (tx) => {
+        const pSnap = await tx.get(paperRef);
+        const pData = pSnap.data() || {};
+        const count = pData.ratingCount || 0;
+        const sum = pData.ratingSum || 0;
+
+        if (!ratingQuery.empty) {
+          const existing = ratingQuery.docs[0].data();
+          const delta = starNum - (existing.stars || 0);
+          await tx.update(ratingQuery.docs[0].ref, { stars: starNum, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+          await tx.update(paperRef, { ratingCount: count, ratingSum: sum + delta });
+        } else {
+          await tx.set(paperRef, { ratingCount: count + 1, ratingSum: sum + starNum }, { merge: true });
+          await tx.set(db.collection('ratings').doc(), {
+            userId: req.user.uid,
+            paperId: req.params.id,
+            stars: starNum,
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      });
+
       res.json({ success: true });
     } catch (err) {
       next(err);

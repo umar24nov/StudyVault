@@ -49,7 +49,7 @@ app.use('/api/papers',    paperRoutes(db, cloudinary));
 app.use('/api/reviews',   reviewRoutes(db));
 app.use('/api/feedback',  feedbackRoutes(db));
 app.use('/api/bookmarks', bookmarkRoutes(db));
-app.use('/api/users',     userRoutes(db));
+app.use('/api/users',     userRoutes(db, cloudinary));
 app.use('/api/admin',     adminRoutes(db, cloudinary));
 app.use('/api/notifications', notificationRoutes(db));
 

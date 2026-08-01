@@ -103,6 +103,7 @@
     <button class="tab active" data-tab="papers" onclick="switchTab('papers')">Papers</button>
     <button class="tab" data-tab="users" onclick="switchTab('users')">Users</button>
     <button class="tab" data-tab="reviews" onclick="switchTab('reviews')">Reviews</button>
+    <button class="tab" data-tab="reports" onclick="switchTab('reports')">Reports</button>
   </div>
 
   <!-- FILTERS -->
@@ -114,6 +115,7 @@
       <option value="rejected">Rejected</option>
     </select>
     <input type="text" class="filter-search" id="paperSearch" placeholder="Search papers..." oninput="filterAdminPapers()">
+    <button class="btn-ghost btn-clear-history" onclick="clearDownloadHistory()" title="Delete download history entries">&#128465;&#65039; Clear Download History</button>
   </div>
 
   <!-- PAPERS TABLE -->
@@ -170,6 +172,24 @@
         </thead>
       <tbody id="reviewsTableBody">
         <tr><td colspan="4" class="table-loading">Loading reviews...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- REPORTS TABLE -->
+  <div class="table-wrap hidden" id="reportsTab">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Paper</th>
+          <th>Reporter</th>
+          <th>Reason</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="reportsTableBody">
+        <tr><td colspan="5" class="table-loading">Loading reports...</td></tr>
       </tbody>
     </table>
   </div>
@@ -236,6 +256,22 @@
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeEditPaper()">Cancel</button>
       <button class="btn-primary btn-sm-modal" onclick="saveEditPaper()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- REJECT PAPER MODAL (with reason) -->
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeRejectModal()">&#10005;</button>
+    <h3>&#9888;&#65039; Reject Paper</h3>
+    <input type="hidden" id="rejectPaperId">
+    <p style="color:var(--muted);font-size:0.85rem">The reason is shown to the uploader so they can fix and resubmit.</p>
+    <label class="modal-label">Reason</label>
+    <textarea class="modal-input modal-textarea" id="rejectReason" rows="4" maxlength="500" placeholder="e.g. Duplicate of an existing paper, wrong file, poor quality scan..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeRejectModal()">Cancel</button>
+      <button class="btn-primary btn-sm-modal" onclick="confirmRejectPaper()" style="background:linear-gradient(135deg,#ff6584,#ff4757)">Reject Paper</button>
     </div>
   </div>
 </div>

@@ -217,7 +217,7 @@ function adminRoutes(db, cloudinary) {
     }
   });
 
-  // PATCH /api/admin/papers/:id/reject — reject a paper
+  // PATCH /api/admin/papers/:id/reject — reject a paper (with optional reason)
   router.patch('/papers/:id/reject', async (req, res, next) => {
     try {
       const ref = db.collection('papers').doc(req.params.id);
@@ -225,25 +225,33 @@ function adminRoutes(db, cloudinary) {
       if (!doc.exists) return res.status(404).json({ error: 'Paper not found' });
       const paper = doc.data();
 
+      const reason = String((req.body && req.body.reason) || '').trim().slice(0, 500);
+
       await ref.update({
         status: 'rejected',
+        rejectReason: reason,
         reviewedBy: req.user.uid,
         reviewedAt: admin.firestore.FieldValue.serverTimestamp()
       });
 
       res.json({ success: true });
 
+      const reasonLine = reason
+        ? `<p><strong>Reason:</strong> ${reason}</p>`
+        : '';
       createNotification(db, {
         uid: paper.uploadedBy,
         type: 'paper_rejected',
         title: 'Your paper was not approved',
-        message: `"${paper.title}" did not pass review. Contact us if you think this was a mistake.`,
+        message: reason
+          ? `"${paper.title}" did not pass review: ${reason}`
+          : `"${paper.title}" did not pass review. Contact us if you think this was a mistake.`,
         link: '/upload.html#myUploads'
       });
       getUploaderEmail(paper).then(email => {
         if (email) sendEmail(
           'Update on your StudyVault upload',
-          `<p>Hi ${paper.uploaderName || 'there'},</p><p>Your upload <strong>"${paper.title}"</strong> was not approved for the platform.</p><p>If you believe this was a mistake, reply to this email and we will take a look.</p>`,
+          `<p>Hi ${paper.uploaderName || 'there'},</p><p>Your upload <strong>"${paper.title}"</strong> was not approved for the platform.</p>${reasonLine}<p>You can edit the details and try again, or reply to this email if you believe this was a mistake.</p>`,
           email
         );
       });
@@ -309,6 +317,61 @@ function adminRoutes(db, cloudinary) {
   router.delete('/feedback/:id', async (req, res, next) => {
     try {
       await db.collection('feedback').doc(req.params.id).delete();
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // DELETE /api/admin/downloads — clear download history (optionally older than N days)
+  router.delete('/downloads', async (req, res, next) => {
+    try {
+      let query = db.collection('downloads');
+      const days = parseInt(req.query.olderThanDays);
+      if (days > 0) {
+        const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+        query = query.where('createdAt', '<=', cutoff);
+      }
+      const snapshot = await query.limit(500).get();
+      await Promise.all(snapshot.docs.map(d => d.ref.delete()));
+      res.json({ success: true, deleted: snapshot.size });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /api/admin/reports — list reported papers
+  router.get('/reports', async (req, res, next) => {
+    try {
+      const { status = 'open' } = req.query;
+      const snapshot = status === 'all'
+        ? await db.collection('reports').orderBy('createdAt', 'desc').limit(200).get()
+        : await db.collection('reports').where('status', '==', status).orderBy('createdAt', 'desc').limit(200).get();
+      const reports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      res.json(reports);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // PATCH /api/admin/reports/:id/resolve — mark a report resolved
+  router.patch('/reports/:id/resolve', async (req, res, next) => {
+    try {
+      await db.collection('reports').doc(req.params.id).update({
+        status: 'resolved',
+        handledBy: req.user.uid,
+        resolvedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // DELETE /api/admin/reports/:id — remove a report
+  router.delete('/reports/:id', async (req, res, next) => {
+    try {
+      await db.collection('reports').doc(req.params.id).delete();
       res.json({ success: true });
     } catch (err) {
       next(err);
