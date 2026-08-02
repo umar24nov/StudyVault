@@ -44,7 +44,11 @@ function makeMockCollection() {
     }),
     add: stub().mockResolvedValue({ id: 'new-id' }),
     get: stub().mockImplementation(async () => ({
-      docs: colDocs.map(d => ({ id: d.id, data: () => d.data })),
+      docs: colDocs.map(d => ({
+        id: d.id,
+        data: () => d.data,
+        ref: { delete: stub().mockResolvedValue(undefined) }
+      })),
       size: colDocs.length,
       empty: colDocs.length === 0
     })),
@@ -61,7 +65,19 @@ function setupMocks() {
   const pass = (req, res, next) => next();
 
   const FieldValue = { serverTimestamp: stub().mockReturnValue('ts'), increment: stub().mockImplementation(n => n) };
-  const db = { collection: stub().mockImplementation(() => makeMockCollection()), FieldValue };
+  const db = {
+    collection: stub().mockImplementation(() => makeMockCollection()),
+    FieldValue,
+    runTransaction: stub().mockImplementation(async (fn) => {
+      const tx = {
+        get: (ref) => (ref && ref.get ? ref.get() : Promise.resolve({ exists: false, data: () => ({}) })),
+        update: (ref, data) => { if (ref && ref.update) ref.update(data); },
+        set: (ref, data, opts) => { if (ref && ref.set) ref.set(data, opts); },
+        delete: (ref) => { if (ref && ref.delete) ref.delete(); },
+      };
+      return fn(tx);
+    })
+  };
 
   const adminMock = {
     apps: [],
@@ -86,7 +102,7 @@ function setupMocks() {
   const rateMock = { apiLimiter: pass, uploadLimiter: pass, writeLimiter: pass, downloadLimiter: pass };
 
   const authMiddleware = (req, res, next) => { req.user = { uid: 'u1', email: 't@t.com', name: 'T' }; next(); };
-  const authMock = { verifyToken: authMiddleware, optionalAuth: authMiddleware, requireAdminAuth: pass, requireAdmin: pass };
+  const authMock = { verifyToken: authMiddleware, optionalAuth: authMiddleware, requireAdminAuth: authMiddleware, requireAdmin: authMiddleware };
 
   const sanitizeMock = { sanitizeBody: pass, stripDangerous: (s) => s };
 
@@ -323,5 +339,253 @@ describe('GET /api/admin', () => {
     assert.ok(res.body.pagination);
     assert.equal(res.body.pagination.page, 1);
     assert.equal(res.body.pagination.limit, 25);
+  });
+});
+
+// ── New endpoint coverage (ratings, reports, profile, admin) ──
+
+describe('POST /api/papers/:id/report', () => {
+  it('rejects an empty reason', async () => {
+    docOverride = { exists: true, title: 'X', status: 'approved' };
+    try {
+      const res = await request(app, 'POST', '/api/papers/p1/report', { reason: '' });
+      assert.equal(res.status, 400);
+    } finally {
+      docOverride = null;
+    }
+  });
+
+  it('returns 404 for a missing paper', async () => {
+    docOverride = { exists: false, title: 'X' };
+    try {
+      const res = await request(app, 'POST', '/api/papers/nope/report', { reason: 'Wrong file' });
+      assert.equal(res.status, 404);
+    } finally {
+      docOverride = null;
+    }
+  });
+
+  it('creates a report', async () => {
+    docOverride = { exists: true, title: 'DBMS Notes', status: 'approved' };
+    try {
+      const res = await request(app, 'POST', '/api/papers/p1/report', { reason: 'Duplicate content' });
+      assert.equal(res.status, 201);
+      assert.equal(res.body.success, true);
+    } finally {
+      docOverride = null;
+    }
+  });
+});
+
+describe('POST /api/papers/:id/rating', () => {
+  it('rejects stars out of range', async () => {
+    docOverride = { exists: true, title: 'X', status: 'approved' };
+    try {
+      const res = await request(app, 'POST', '/api/papers/p1/rating', { stars: 7 });
+      assert.equal(res.status, 400);
+    } finally {
+      docOverride = null;
+    }
+  });
+
+  it('returns 404 for a missing paper', async () => {
+    colDocs = [];
+    docOverride = { exists: false, title: 'X' };
+    try {
+      const res = await request(app, 'POST', '/api/papers/nope/rating', { stars: 3 });
+      assert.equal(res.status, 404);
+    } finally {
+      docOverride = null;
+    }
+  });
+
+  it('records a new rating and updates aggregates', async () => {
+    colDocs = [];
+    docOverride = { exists: true, title: 'X', status: 'approved' };
+    try {
+      const res = await request(app, 'POST', '/api/papers/p1/rating', { stars: 5 });
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+    } finally {
+      docOverride = null;
+    }
+  });
+});
+
+describe('GET /api/reviews/stats', () => {
+  it('returns aggregate totals and average', async () => {
+    colDocs = [
+      { id: 'r1', data: { status: 'approved', stars: 5 } },
+      { id: 'r2', data: { status: 'approved', stars: 3 } },
+    ];
+    const res = await request(app, 'GET', '/api/reviews/stats');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.total, 2);
+    assert.equal(res.body.average, 4);
+    assert.equal(res.body.counts[5], 1);
+    assert.equal(res.body.counts[3], 1);
+  });
+});
+
+describe('GET /api/users/me', () => {
+  it('returns profile with stats and badge', async () => {
+    colDocs = [
+      { id: 'p1', data: { id: 'p1', uploadedBy: 'u1', status: 'approved', downloads: 10 } },
+      { id: 'p2', data: { id: 'p2', uploadedBy: 'u1', status: 'approved', downloads: 5 } },
+    ];
+    const res = await request(app, 'GET', '/api/users/me');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.uid, 'u1');
+    assert.equal(res.body.stats.uploads, 2);
+    assert.equal(res.body.stats.approvedUploads, 2);
+    assert.equal(res.body.stats.totalDownloads, 15);
+    assert.equal(res.body.badge, '');
+  });
+
+  it('awards Active Contributor badge at 100 downloads', async () => {
+    colDocs = [
+      { id: 'p1', data: { id: 'p1', uploadedBy: 'u1', status: 'approved', downloads: 100 } },
+    ];
+    const res = await request(app, 'GET', '/api/users/me');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.badge, 'Active Contributor');
+  });
+});
+
+describe('GET /api/users/me/downloads', () => {
+  it('returns history sorted newest-first without userId', async () => {
+    colDocs = [
+      { id: 'd1', data: { userId: 'u1', paperId: 'p1', title: 'Old', course: 'eng', createdAt: { _seconds: 100 } } },
+      { id: 'd2', data: { userId: 'u1', paperId: 'p2', title: 'New', course: 'cs', createdAt: { _seconds: 200 } } },
+    ];
+    const res = await request(app, 'GET', '/api/users/me/downloads');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.length, 2);
+    assert.equal(res.body[0].id, 'd2');
+    assert.equal('userId' in res.body[0], false);
+  });
+});
+
+describe('GET /api/users/me/recommendations', () => {
+  it('returns an array of recommended papers', async () => {
+    colDocs = [
+      { id: 'p1', data: { id: 'p1', title: 'DBMS PYQ', course: 'engineering', type: 'pyq', status: 'approved', downloads: 3 } },
+    ];
+    const res = await request(app, 'GET', '/api/users/me/recommendations');
+    assert.equal(res.status, 200);
+    assert.ok(Array.isArray(res.body));
+    assert.ok(res.body.length >= 1);
+  });
+});
+
+describe('PUT /api/users/me/uploads/:id', () => {
+  it('updates own upload metadata', async () => {
+    docOverride = { exists: true, title: 'Old', uploadedBy: 'u1', course: 'eng' };
+    try {
+      const res = await request(app, 'PUT', '/api/users/me/uploads/p1', { title: 'New', course: 'cs' });
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+    } finally {
+      docOverride = null;
+    }
+  });
+
+  it('forbids editing someone else upload', async () => {
+    docOverride = { exists: true, title: 'Old', uploadedBy: 'other', course: 'eng' };
+    try {
+      const res = await request(app, 'PUT', '/api/users/me/uploads/p1', { title: 'New' });
+      assert.equal(res.status, 403);
+    } finally {
+      docOverride = null;
+    }
+  });
+});
+
+describe('DELETE /api/users/me/uploads/:id', () => {
+  it('deletes own upload', async () => {
+    colDocs = [];
+    docOverride = { exists: true, title: 'Old', uploadedBy: 'u1', course: 'eng' };
+    try {
+      const res = await request(app, 'DELETE', '/api/users/me/uploads/p1');
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+    } finally {
+      docOverride = null;
+    }
+  });
+
+  it('forbids deleting someone else upload', async () => {
+    colDocs = [];
+    docOverride = { exists: true, title: 'Old', uploadedBy: 'other', course: 'eng' };
+    try {
+      const res = await request(app, 'DELETE', '/api/users/me/uploads/p1');
+      assert.equal(res.status, 403);
+    } finally {
+      docOverride = null;
+    }
+  });
+});
+
+describe('GET /api/admin/reports', () => {
+  it('lists reports newest-first', async () => {
+    colDocs = [
+      { id: 'rep1', data: { paperTitle: 'X', reason: 'bad', status: 'open', createdAt: { _seconds: 100 } } },
+      { id: 'rep2', data: { paperTitle: 'Y', reason: 'dup', status: 'open', createdAt: { _seconds: 200 } } },
+    ];
+    const res = await request(app, 'GET', '/api/admin/reports?status=all');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.length, 2);
+    assert.equal(res.body[0].id, 'rep2');
+  });
+});
+
+describe('PATCH /api/admin/reports/:id/resolve', () => {
+  it('resolves a report', async () => {
+    const res = await request(app, 'PATCH', '/api/admin/reports/rep1/resolve');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.success, true);
+  });
+});
+
+describe('DELETE /api/admin/reports/:id', () => {
+  it('deletes a report', async () => {
+    const res = await request(app, 'DELETE', '/api/admin/reports/rep1');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.success, true);
+  });
+});
+
+describe('DELETE /api/admin/downloads', () => {
+  it('clears download history and reports count', async () => {
+    colDocs = [
+      { id: 'd1', data: { userId: 'u1', paperId: 'p1' } },
+    ];
+    const res = await request(app, 'DELETE', '/api/admin/downloads');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.success, true);
+    assert.equal(res.body.deleted, 1);
+  });
+});
+
+describe('PATCH /api/admin/papers/:id/reject', () => {
+  it('rejects a paper with a reason', async () => {
+    docOverride = { exists: true, title: 'X', uploadedBy: 'u1', status: 'pending' };
+    try {
+      const res = await request(app, 'PATCH', '/api/admin/papers/p1/reject', { reason: 'Duplicate' });
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+    } finally {
+      docOverride = null;
+    }
+  });
+
+  it('returns 404 for a missing paper', async () => {
+    docOverride = { exists: false, title: 'X' };
+    try {
+      const res = await request(app, 'PATCH', '/api/admin/papers/nope/reject', { reason: 'bad' });
+      assert.equal(res.status, 404);
+    } finally {
+      docOverride = null;
+    }
   });
 });
