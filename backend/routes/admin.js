@@ -344,10 +344,23 @@ function adminRoutes(db, cloudinary) {
   router.get('/reports', async (req, res, next) => {
     try {
       const { status = 'open' } = req.query;
-      const snapshot = status === 'all'
-        ? await db.collection('reports').orderBy('createdAt', 'desc').limit(200).get()
-        : await db.collection('reports').where('status', '==', status).orderBy('createdAt', 'desc').limit(200).get();
-      const reports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // Equality query only (no composite index), sorted in memory.
+      let query = db.collection('reports');
+      if (status !== 'all') query = query.where('status', '==', status);
+      const snapshot = await query.limit(300).get();
+
+      const tsOf = (t) => {
+        if (!t) return 0;
+        if (typeof t === 'object' && t._seconds != null) return t._seconds * 1000;
+        if (typeof t === 'object' && t.seconds != null)  return t.seconds * 1000;
+        if (t instanceof Date) return t.getTime();
+        const d = new Date(t);
+        return isNaN(d.getTime()) ? 0 : d.getTime();
+      };
+
+      const reports = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .sort((a, b) => tsOf(b.createdAt) - tsOf(a.createdAt));
       res.json(reports);
     } catch (err) {
       next(err);

@@ -620,7 +620,7 @@ async function openProfileModal() {
     const badgeEl = document.getElementById('profileBadge');
     if (badgeEl) {
       if (data.badge) {
-        badgeEl.textContent = '&#127942; ' + data.badge;
+        badgeEl.innerHTML = '&#127942; ' + esc(data.badge);
         badgeEl.style.display = 'inline-flex';
       } else {
         badgeEl.style.display = 'none';

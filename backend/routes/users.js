@@ -166,16 +166,28 @@ function userRoutes(db, cloudinary) {
   // GET /api/users/me/downloads — recent download history for this user
   router.get('/me/downloads', verifyToken, async (req, res, next) => {
     try {
+      // Equality query only (no composite index), sorted in memory.
       const snapshot = await db.collection('downloads')
         .where('userId', '==', req.user.uid)
-        .orderBy('createdAt', 'desc')
-        .limit(30)
+        .limit(200)
         .get();
 
-      const downloads = snapshot.docs.map(doc => {
-        const { userId, ...rest } = doc.data();
-        return { id: doc.id, ...rest };
-      });
+      const tsOf = (t) => {
+        if (!t) return 0;
+        if (typeof t === 'object' && t._seconds != null) return t._seconds * 1000;
+        if (typeof t === 'object' && t.seconds != null)  return t.seconds * 1000;
+        if (t instanceof Date) return t.getTime();
+        const d = new Date(t);
+        return isNaN(d.getTime()) ? 0 : d.getTime();
+      };
+
+      const downloads = snapshot.docs
+        .map(doc => {
+          const { userId, ...rest } = doc.data();
+          return { id: doc.id, ...rest };
+        })
+        .sort((a, b) => tsOf(b.createdAt) - tsOf(a.createdAt))
+        .slice(0, 30);
       res.json(downloads);
     } catch (err) {
       next(err);
@@ -189,7 +201,7 @@ function userRoutes(db, cloudinary) {
       const uid = req.user.uid;
       const [userDoc, historySnap, papersSnap] = await Promise.all([
         db.collection('users').doc(uid).get(),
-        db.collection('downloads').where('userId', '==', uid).orderBy('createdAt', 'desc').limit(15).get(),
+        db.collection('downloads').where('userId', '==', uid).limit(100).get(),
         db.collection('papers').where('status', '==', 'approved').get()
       ]);
       const profile = userDoc.exists ? userDoc.data() : {};
