@@ -173,6 +173,11 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
   .filter-bar { flex-direction: column; }
   .filter-search { min-width: unset; width: 100%; }
   .admin-nav { padding: 0 1rem; }
+
+  /* PREVIEW MODAL — compact on phones so it fits the screen */
+  .modal-preview { padding: 1.5rem 1rem 1.25rem; }
+  .preview-container { height: 45vh; }
+  .modal-actions { margin-top: 1rem; }
 }
 
 @media (max-width: 480px) {
