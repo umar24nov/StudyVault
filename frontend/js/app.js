@@ -1426,7 +1426,7 @@ async function loadLandingResources() {
   let mode = 'popular';
 
   try {
-    // 1) Most frequently visited (top downloads) and 2) latest approved uploads, in parallel.
+    // Most frequently visited (top downloads) and latest approved uploads, in parallel.
     const [popRes, newRes] = await Promise.all([
       fetch(`${API_BASE}/api/papers?sort=popular&limit=6`),
       fetch(`${API_BASE}/api/papers?sort=newest&limit=6`)
@@ -1435,24 +1435,25 @@ async function loadLandingResources() {
     const popular = (popData.data || []).filter(p => (p.downloads || 0) > 0);
     const newest  = newData.data || [];
 
-    // Popular papers first, then fill with the latest approved uploads so
-    // freshly approved papers (0 downloads yet) are still visible.
-    const seen = new Set();
-    const merged = [];
-    for (const p of popular) { if (!seen.has(p.id)) { seen.add(p.id); merged.push(p); } }
-    for (const p of newest)  { if (!seen.has(p.id)) { seen.add(p.id); merged.push(p); } }
-    items = merged.slice(0, 8);
-    mode = popular.length ? 'popular' : 'recent';
+    // Until the site builds up enough downloads, show the latest approved
+    // uploads. Once 4+ papers have downloads, switch to most visited only.
+    if (popular.length >= 4) {
+      items = popular;
+      mode = 'popular';
+    } else {
+      items = newest;
+      mode = 'recent';
+    }
 
     if (!items.length) {
       grid.innerHTML = '<div class="no-results">No resources yet &#8212; be the first to upload one!</div>';
       return;
     }
 
-    if (label) label.textContent = mode === 'popular' ? 'Popular & New' : 'Just Added';
-    if (title) title.textContent = mode === 'popular' ? 'Latest & Popular Resources' : 'Recently Uploaded Resources';
+    if (label) label.textContent = mode === 'popular' ? 'Popular' : 'Just Added';
+    if (title) title.textContent = mode === 'popular' ? 'Most Visited Resources' : 'Recently Uploaded Resources';
     if (sub) sub.textContent = mode === 'popular'
-      ? 'The most downloaded papers, plus the freshest uploads from the community.'
+      ? 'The resources students download the most.'
       : 'Fresh uploads from the community.';
 
     grid.innerHTML = `<div class="results-grid">${items.map(paperCardHTML).join('')}</div>`;
@@ -1461,7 +1462,7 @@ async function loadLandingResources() {
     if (wrap) {
       wrap.style.display = 'block';
       const btn = document.getElementById('trendingLoadMoreBtn');
-      if (btn) btn.onclick = () => { location.href = '/search.html'; };
+      if (btn) btn.onclick = () => { location.href = `/search.html${mode === 'popular' ? '?sort=popular' : ''}`; };
     }
   } catch(e) {
     grid.innerHTML = '<div class="no-results">Could not load resources.</div>';
