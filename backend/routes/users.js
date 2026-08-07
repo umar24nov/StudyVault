@@ -3,6 +3,9 @@ const admin = require('firebase-admin');
 const { verifyToken } = require('../middleware/auth');
 const { stripDangerous } = require('../middleware/sanitize');
 const { destroyPaperFile } = require('../utils/cloudinary');
+const { authLimiter } = require('../middleware/rateLimit');
+const { validate } = require('../middleware/validate');
+const { profileUpdateSchema, paperPatchSchema } = require('../middleware/schemas');
 
 // Contributor badges based on approved uploads + total downloads.
 function computeBadge(approvedUploads, totalDownloads) {
@@ -69,7 +72,7 @@ function userRoutes(db, cloudinary) {
   });
 
   // PUT /api/users/me — update profile
-  router.put('/me', verifyToken, async (req, res, next) => {
+  router.put('/me', verifyToken, validate(profileUpdateSchema), async (req, res, next) => {
     try {
       const { name, university, course, level, grade, board } = req.body;
       const uid = req.user.uid;
@@ -111,7 +114,7 @@ function userRoutes(db, cloudinary) {
   });
 
   // PUT /api/users/me/uploads/:id — edit an upload's metadata (owner only)
-  router.put('/me/uploads/:id', verifyToken, async (req, res, next) => {
+  router.put('/me/uploads/:id', verifyToken, validate(paperPatchSchema), async (req, res, next) => {
     try {
       const ref = db.collection('papers').doc(req.params.id);
       const doc = await ref.get();
@@ -255,7 +258,7 @@ function userRoutes(db, cloudinary) {
   });
 
   // POST /api/users/me/register — create/update user on first login
-  router.post('/me/register', verifyToken, async (req, res, next) => {
+  router.post('/me/register', verifyToken, authLimiter, async (req, res, next) => {
     try {
       const uid = req.user.uid;
       const userDoc = await db.collection('users').doc(uid).get();

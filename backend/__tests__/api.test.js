@@ -96,10 +96,11 @@ function setupMocks() {
       if (req.headers['x-test-upload'] === 'true')
         req.file = { path: '/tmp/t.pdf', originalname: 't.pdf', size: 1024 };
       next();
-    } }
+    } },
+    verifyMagicBytes: pass
   };
 
-  const rateMock = { apiLimiter: pass, uploadLimiter: pass, writeLimiter: pass, downloadLimiter: pass };
+  const rateMock = { apiLimiter: pass, uploadLimiter: pass, writeLimiter: pass, downloadLimiter: pass, authLimiter: pass };
 
   const authMiddleware = (req, res, next) => { req.user = { uid: 'u1', email: 't@t.com', name: 'T' }; next(); };
   const authMock = { verifyToken: authMiddleware, optionalAuth: authMiddleware, requireAdminAuth: authMiddleware, requireAdmin: authMiddleware };

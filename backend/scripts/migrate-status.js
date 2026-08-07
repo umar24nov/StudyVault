@@ -1,5 +1,5 @@
 require('dotenv').config();
-const admin = require('firebase-admin');
+const admin = require('../config/firebaseAdmin');
 
 function normalizeKey(pk) {
   return pk

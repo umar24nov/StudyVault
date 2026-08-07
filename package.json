@@ -19,15 +19,18 @@
   "author": "Mohammad Umar",
   "license": "MIT",
   "dependencies": {
-    "cloudinary": "^2.9.0",
+    "cloudinary": "^2.10.0",
     "cors": "^2.8.6",
-    "dotenv": "^17.3.1",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^7.5.0",
-    "firebase-admin": "^13.7.0",
+    "firebase-admin": "^14.2.0",
     "helmet": "^8.3.0",
-    "multer": "^2.1.0",
+    "multer": "^2.2.0",
     "resend": "^6.18.1",
     "zod": "^3.24.0"
+  },
+  "overrides": {
+    "@google-cloud/storage": "10.3.0"
   }
 }

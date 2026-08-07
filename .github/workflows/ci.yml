@@ -39,7 +39,7 @@ jobs:
         env:
           FIREBASE_PROJECT_ID: test-project
           FIREBASE_CLIENT_EMAIL: test@test.iam.gserviceaccount.com
-          FIREBASE_PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----\nREDACTED\n-----END PRIVATE KEY-----\n"
+          FIREBASE_PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----\nplaceholder-private-key-for-tests\n-----END PRIVATE KEY-----\n"
           CLOUDINARY_CLOUD_NAME: test
           CLOUDINARY_API_KEY: test
           CLOUDINARY_API_SECRET: test

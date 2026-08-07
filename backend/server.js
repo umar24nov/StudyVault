@@ -18,6 +18,10 @@ const cloudinary = initCloudinary(env);
 const app = express();
 app.set('trust proxy', 1);  // Trust first proxy (needed for Render)
 
+// ── Request correlation ID + structured logging ───────
+const { requestId, log } = require('./middleware/logger');
+app.use(requestId);
+
 // ── Security middleware ────────────────────────────────
 app.use(helmet());
 app.use(cors({
@@ -77,17 +81,29 @@ app.get('/favicon.ico', (req, res) => {
 
 app.get('/', (req, res) => res.json({ status: 'StudyVault API is running!' }));
 
+// ── 404 handler for unknown /api routes ────────────────
+app.use((req, res) => res.status(404).json({ error: 'Not found' }));
+
 // ── Global error handler (must be last) ────────────────
 const { errorHandler } = require('./middleware/errorHandler');
 app.use(errorHandler);
 
 // ── Graceful shutdown ──────────────────────────────────
 function shutdown(signal) {
-  console.log(`\n${signal} received. Shutting down gracefully...`);
+  log('info', 'shutdown', { signal });
   process.exit(0);
 }
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT',  () => shutdown('SIGINT'));
+
+// ── Crash safety: log and exit cleanly ─────────────────
+process.on('uncaughtException', (err) => {
+  log('error', 'uncaught_exception', { message: err.message, stack: err.stack });
+  shutdown('UNCAUGHT_EXCEPTION');
+});
+process.on('unhandledRejection', (reason) => {
+  log('error', 'unhandled_rejection', { reason: reason instanceof Error ? reason.stack : String(reason) });
+});
 
 // ── Start server ───────────────────────────────────────
 const PORT = env.PORT;

@@ -3,9 +3,11 @@ const fs = require('fs');
 const admin = require('firebase-admin');
 const { sendEmail } = require('../config/email');
 const { stripDangerous } = require('../middleware/sanitize');
-const { upload } = require('../middleware/upload');
+const { upload, verifyMagicBytes } = require('../middleware/upload');
 const { verifyToken, optionalAuth, requireAdminAuth } = require('../middleware/auth');
 const { uploadLimiter, downloadLimiter, writeLimiter } = require('../middleware/rateLimit');
+const { validate } = require('../middleware/validate');
+const { paperUploadSchema, reportSchema, ratingSchema } = require('../middleware/schemas');
 const { destroyPaperFile } = require('../utils/cloudinary');
 
 function paperRoutes(db, cloudinary) {
@@ -165,7 +167,7 @@ function paperRoutes(db, cloudinary) {
   });
 
   // POST /api/papers — upload a paper (auth optional)
-  router.post('/', optionalAuth, uploadLimiter, upload.single('file'), async (req, res, next) => {
+  router.post('/', optionalAuth, uploadLimiter, upload.single('file'), verifyMagicBytes, validate(paperUploadSchema), async (req, res, next) => {
     try {
       const { tags } = req.body;
       const title = stripDangerous((req.body.title || '').slice(0, 200));
@@ -301,10 +303,9 @@ function paperRoutes(db, cloudinary) {
   });
 
   // POST /api/papers/:id/report — report a paper (auth optional, rate limited)
-  router.post('/:id/report', optionalAuth, writeLimiter, async (req, res, next) => {
+  router.post('/:id/report', optionalAuth, writeLimiter, validate(reportSchema), async (req, res, next) => {
     try {
-      const reason = String((req.body && req.body.reason) || '').trim().slice(0, 500);
-      if (!reason) return res.status(400).json({ error: 'Please describe the issue.' });
+      const reason = req.body.reason;
 
       const doc = await db.collection('papers').doc(req.params.id).get();
       if (!doc.exists) return res.status(404).json({ error: 'Paper not found' });
@@ -329,12 +330,9 @@ function paperRoutes(db, cloudinary) {
   });
 
   // POST /api/papers/:id/rating — rate a paper (1-5 stars, auth required)
-  router.post('/:id/rating', verifyToken, writeLimiter, async (req, res, next) => {
+  router.post('/:id/rating', verifyToken, writeLimiter, validate(ratingSchema), async (req, res, next) => {
     try {
-      const starNum = parseInt((req.body && req.body.stars) || 0);
-      if (starNum < 1 || starNum > 5) {
-        return res.status(400).json({ error: 'Stars must be between 1 and 5' });
-      }
+      const starNum = req.body.stars;
 
       const paperRef = db.collection('papers').doc(req.params.id);
       const paperDoc = await paperRef.get();

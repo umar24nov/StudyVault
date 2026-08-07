@@ -2,6 +2,8 @@ const express = require('express');
 const { sendEmail } = require('../config/email');
 const { verifyToken } = require('../middleware/auth');
 const { writeLimiter } = require('../middleware/rateLimit');
+const { validate } = require('../middleware/validate');
+const { reviewSchema } = require('../middleware/schemas');
 
 function reviewRoutes(db) {
   const router = express.Router();
@@ -36,17 +38,10 @@ function reviewRoutes(db) {
   });
 
   // POST /api/reviews — requires auth (default pending)
-  router.post('/', verifyToken, writeLimiter, async (req, res, next) => {
+  router.post('/', verifyToken, writeLimiter, validate(reviewSchema), async (req, res, next) => {
     try {
       const { name, message, stars } = req.body;
-      if (!name || !message || !stars)
-        return res.status(400).json({ error: 'All fields required' });
-      if (name.length > 100) return res.status(400).json({ error: 'Name must be under 100 characters' });
-      if (message.length > 500) return res.status(400).json({ error: 'Message must be under 500 characters' });
-
-      const starNum = parseInt(stars);
-      if (starNum < 1 || starNum > 5)
-        return res.status(400).json({ error: 'Stars must be between 1 and 5' });
+      const starNum = stars;
 
       await db.collection('reviews').add({
         name, message,

@@ -5,6 +5,9 @@ const { stripDangerous } = require('../middleware/sanitize');
 const { destroyPaperFile } = require('../utils/cloudinary');
 const { createNotification } = require('../utils/notify');
 const { sendEmail } = require('../config/email');
+const { authLimiter } = require('../middleware/rateLimit');
+const { validate } = require('../middleware/validate');
+const { paperPatchSchema, rejectReasonSchema } = require('../middleware/schemas');
 
 function adminRoutes(db, cloudinary) {
   const router = express.Router();
@@ -13,7 +16,7 @@ function adminRoutes(db, cloudinary) {
   router.use(verifyToken, requireAdminAuth);
 
   // GET /api/admin/check — lightweight admin check for the frontend
-  router.get('/check', (req, res) => {
+  router.get('/check', authLimiter, (req, res) => {
     res.json({ isAdmin: true });
   });
 
@@ -149,7 +152,7 @@ function adminRoutes(db, cloudinary) {
   });
 
   // PATCH /api/admin/papers/:id — update title, course, university, year
-  router.patch('/papers/:id', async (req, res, next) => {
+  router.patch('/papers/:id', validate(paperPatchSchema), async (req, res, next) => {
     try {
       const { title, type, course, university, year } = req.body;
       const update = {};
@@ -218,14 +221,14 @@ function adminRoutes(db, cloudinary) {
   });
 
   // PATCH /api/admin/papers/:id/reject — reject a paper (with optional reason)
-  router.patch('/papers/:id/reject', async (req, res, next) => {
+  router.patch('/papers/:id/reject', validate(rejectReasonSchema), async (req, res, next) => {
     try {
       const ref = db.collection('papers').doc(req.params.id);
       const doc = await ref.get();
       if (!doc.exists) return res.status(404).json({ error: 'Paper not found' });
       const paper = doc.data();
 
-      const reason = String((req.body && req.body.reason) || '').trim().slice(0, 500);
+      const reason = (req.body && req.body.reason) || '';
 
       await ref.update({
         status: 'rejected',
