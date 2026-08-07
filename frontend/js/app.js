@@ -31,6 +31,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
     }).catch(() => {});
     loadBookmarks();
     loadNotifications();
+    loadMyUploads();
     // Re-render cards to show bookmark stars (currentUser was null when cards first rendered)
     if (allPapers.length) renderCards(allPapers);
     // Load profile, then show onboarding (if new/incomplete) + personalization
@@ -599,7 +600,6 @@ async function openProfileModal() {
   if (!modal) return;
   modal.classList.add('open');
   loadMyUploads();
-  loadMyDownloads();
 
   const token = await getAuthToken();
   if (!token) return;
@@ -790,46 +790,6 @@ async function loadMyUploads() {
     }).join('');
   } catch(e) {
     list.innerHTML = '<div class="no-results">Could not load your uploads.</div>';
-  }
-}
-
-// ── RECENTLY DOWNLOADED (profile modal) ───────────────
-async function loadMyDownloads() {
-  const list = document.getElementById('profileDownloadsList');
-  if (!list) return;
-  if (!currentUser) {
-    list.innerHTML = '<div class="no-results">Sign in to see your downloads.</div>';
-    return;
-  }
-  const token = await getAuthToken();
-  if (!token) return;
-  try {
-    const res = await fetch(`${API_BASE}/api/users/me/downloads`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const items = await res.json();
-    if (!items.length) {
-      list.innerHTML = '<div class="no-results">Nothing downloaded yet — find a paper and hit Download!</div>';
-      return;
-    }
-    list.innerHTML = items.map(d => `
-      <div class="upload-item">
-        <div class="upload-item-main">
-          <div class="upload-item-title">${esc(d.title) || 'Untitled paper'}</div>
-          <div class="upload-item-meta">
-            ${d.course ? esc(d.course) + ' · ' : ''}
-            ${d.university ? esc(d.university) : ''}
-          </div>
-        </div>
-        <div class="upload-item-side">
-          ${d.downloadURL
-            ? `<a class="dl-btn" href="${esc(d.downloadURL)}" target="_blank" rel="noopener" download>Download</a>`
-            : ''}
-        </div>
-      </div>
-    `).join('');
-  } catch(e) {
-    list.innerHTML = '<div class="no-results">Could not load your downloads.</div>';
   }
 }
 
