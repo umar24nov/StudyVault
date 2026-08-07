@@ -53,11 +53,12 @@
     </a>
     <div class="admin-nav-right">
       <button class="admin-user-btn" onclick="openAdminProfile()" title="My Profile">
-        <img id="adminAvatar" class="admin-avatar" src="" alt="Profile" hidden>
-        <span class="admin-avatar-circle" id="adminAvatarCircle" hidden></span>
-        <span id="adminName" class="admin-user">Admin</span>
+        <span class="admin-avatar-wrap">
+          <img id="adminAvatar" class="admin-avatar" src="" alt="Profile" hidden>
+          <span class="admin-avatar-circle" id="adminAvatarCircle" hidden></span>
+        </span>
+        <span class="admin-user-label">Profile</span>
       </button>
-      <button class="btn-ghost" onclick="firebase.auth().signOut()">Sign Out</button>
     </div>
   </nav>
 

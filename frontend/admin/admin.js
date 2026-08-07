@@ -34,7 +34,6 @@ firebase.auth().onAuthStateChanged(async (user) => {
       document.getElementById('dashboard').classList.remove('hidden');
       document.getElementById('authRestricted').style.display = 'none';
       document.getElementById('authError').textContent = '';
-      document.getElementById('adminName').textContent = user.displayName || user.email;
       const avImg = document.getElementById('adminAvatar');
       const avCircle = document.getElementById('adminAvatarCircle');
       if (user.photoURL) {

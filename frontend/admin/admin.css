@@ -46,10 +46,11 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .admin-nav .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; background: linear-gradient(135deg, var(--accent), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .admin-nav .logo span { color: var(--accent2); -webkit-text-fill-color: var(--accent2); }
 .admin-badge { background: rgba(255,101,132,0.15); color: var(--accent2); font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; margin-left: 0.5rem; vertical-align: middle; -webkit-text-fill-color: var(--accent2); }
-.admin-nav-right { display: flex; align-items: center; gap: 1rem; }
-.admin-user { font-size: 0.85rem; color: var(--muted); }
-.admin-user-btn { display: flex; align-items: center; gap: 0.55rem; background: none; border: none; cursor: pointer; padding: 0.3rem 0.5rem; border-radius: 10px; transition: background 0.2s; }
+.admin-nav-right { display: flex; align-items: center; gap: 0.5rem; }
+.admin-user-btn { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; background: none; border: none; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 10px; transition: background 0.2s; }
 .admin-user-btn:hover { background: rgba(255,255,255,0.05); }
+.admin-user-label { font-size: 0.7rem; color: var(--muted); line-height: 1; }
+.admin-avatar-wrap { display: flex; }
 .admin-avatar, .admin-avatar-circle { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .admin-avatar-circle { background: linear-gradient(135deg, var(--accent), var(--accent3)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; }
 .admin-avatar[hidden], .admin-avatar-circle[hidden],
@@ -180,10 +181,8 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
   .admin-nav { padding: 0 0.8rem; }
   .admin-nav .logo { font-size: 1.05rem; }
   .admin-badge { display: none; }
-  .admin-user { display: none; }
-  .admin-nav-right .btn-ghost { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
-  .tab-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .tab { white-space: nowrap; flex-shrink: 0; }
+  .tab-bar { display: flex; }
+  .tab { flex: 1; text-align: center; white-space: nowrap; padding: 0.6rem 0.3rem; font-size: 0.82rem; }
 
   /* Tables become stacked cards — no horizontal scroll */
   .table-wrap { overflow: visible; }
