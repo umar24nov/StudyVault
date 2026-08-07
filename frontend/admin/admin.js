@@ -196,14 +196,14 @@ function renderAdminPapers(papers) {
     const previewUrl = (p.downloadURL || '').replace('/fl_attachment/', '/');
     return `
     <tr>
-      <td class="table-title" title="${escAttr(p.title || '')}">${esc(p.title) || 'Untitled'}</td>
-      <td>${esc(p.course) || '-'}</td>
-      <td>${esc(p.type) || '-'}</td>
-      <td>${esc(p.year) || '-'}</td>
-      <td><span class="status-badge status-${esc(p.status) || 'pending'}">${esc(p.status) || 'pending'}</span></td>
-      <td>${p.downloads || 0}</td>
-      <td>${esc(p.uploaderName) || '-'}</td>
-      <td>
+      <td class="table-title" data-label="Title" title="${escAttr(p.title || '')}">${esc(p.title) || 'Untitled'}</td>
+      <td data-label="Course">${esc(p.course) || '-'}</td>
+      <td data-label="Type">${esc(p.type) || '-'}</td>
+      <td data-label="Year">${esc(p.year) || '-'}</td>
+      <td data-label="Status"><span class="status-badge status-${esc(p.status) || 'pending'}">${esc(p.status) || 'pending'}</span></td>
+      <td data-label="Downloads">${p.downloads || 0}</td>
+      <td data-label="Uploaded By">${esc(p.uploaderName) || '-'}</td>
+      <td data-label="Actions">
         <div class="table-actions">
           ${p.downloadURL ? `<button class="btn-sm btn-preview" data-url="${escAttr(previewUrl)}" data-title="${escAttr(p.title || '')}" onclick="openPreview(this)" title="Preview">&#128065; Preview</button>` : ''}
           <button class="btn-sm btn-edit" data-edit-id="${p.id}" data-title="${escAttr(p.title || '')}" data-type="${escAttr(p.type || '')}" data-course="${escAttr(p.course || '')}" data-univ="${escAttr(p.university || p.univ || '')}" data-year="${escAttr(p.year || '')}" onclick="openEditPaper(this)">Edit</button>
@@ -377,14 +377,14 @@ async function loadAdminReports() {
     };
     tbody.innerHTML = reports.map(r => `
       <tr>
-        <td class="table-title">${esc(r.paperTitle) || 'Untitled'}</td>
-        <td>${esc(r.reporterEmail) || 'Anonymous'}</td>
-        <td class="table-title">
+        <td class="table-title" data-label="Paper">${esc(r.paperTitle) || 'Untitled'}</td>
+        <td data-label="Reporter">${esc(r.reporterEmail) || 'Anonymous'}</td>
+        <td class="table-title" data-label="Reason">
           <div>${esc(r.reason) || '-'}</div>
           <div class="table-sub">${fmtTime(r.createdAt)}</div>
         </td>
-        <td><span class="status-badge status-${esc(r.status) || 'open'}">${esc(r.status) || 'open'}</span></td>
-        <td>
+        <td data-label="Status"><span class="status-badge status-${esc(r.status) || 'open'}">${esc(r.status) || 'open'}</span></td>
+        <td data-label="Actions">
           <div class="table-actions">
             ${r.status !== 'resolved' ? `<button class="btn-sm btn-approve" onclick="resolveReport('${r.id}')">Resolve</button>` : ''}
             <button class="btn-sm btn-delete" onclick="deleteReport('${r.id}')">Delete</button>
@@ -441,9 +441,9 @@ async function loadAdminUsers() {
     }
     tbody.innerHTML = users.map(u => `
       <tr>
-        <td>${esc(u.name) || '-'}</td>
-        <td>${esc(u.email) || '-'}</td>
-        <td>${fmtDate(u.joinedAt)}</td>
+        <td data-label="Name">${esc(u.name) || '-'}</td>
+        <td data-label="Email">${esc(u.email) || '-'}</td>
+        <td data-label="Joined">${fmtDate(u.joinedAt)}</td>
       </tr>
     `).join('');
   } catch (e) {
@@ -463,11 +463,11 @@ async function loadAdminReviews() {
     }
     tbody.innerHTML = reviews.map(r => `
       <tr>
-        <td>${esc(r.name) || '-'}</td>
-        <td>${'&#9733;'.repeat(r.stars)}${'&#9734;'.repeat(5 - r.stars)}</td>
-        <td class="table-title">${esc(r.message) || ''}</td>
-        <td><span class="status-badge status-${esc(r.status) || 'pending'}">${esc(r.status) || 'pending'}</span></td>
-        <td>
+        <td data-label="Name">${esc(r.name) || '-'}</td>
+        <td data-label="Stars">${'&#9733;'.repeat(r.stars)}${'&#9734;'.repeat(5 - r.stars)}</td>
+        <td class="table-title" data-label="Message">${esc(r.message) || ''}</td>
+        <td data-label="Status"><span class="status-badge status-${esc(r.status) || 'pending'}">${esc(r.status) || 'pending'}</span></td>
+        <td data-label="Actions">
           <div class="table-actions">
             <button class="btn-sm btn-preview" data-name="${escAttr(r.name || '')}" data-stars="${r.stars || 0}" data-msg="${escAttr(r.message || '')}" data-status="${escAttr(r.status || 'pending')}" onclick="openReviewView(this)" title="View full review">&#128065; View</button>
             ${r.status !== 'approved' ? `<button class="btn-sm btn-approve" onclick="approveReview('${r.id}')">Approve</button>` : ''}
