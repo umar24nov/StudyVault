@@ -93,8 +93,9 @@
         onclick="document.getElementById('fileInput').click()">
         <div class="upload-icon">&#128228;</div>
         <h3>Drop your file here</h3>
-        <p>or click to browse &middot; PDF, DOC, JPG, PNG</p>
-        <div class="upload-size-hint">&#128204; Max file size: <strong>15 MB</strong></div>
+        <p>or click anywhere in this box to browse</p>
+        <button type="button" class="upload-browse-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">&#128193; Choose File</button>
+        <div class="upload-size-hint">&#128204; PDF &middot; DOC &middot; JPG &middot; PNG &nbsp;&middot;&nbsp; Max file size: <strong>15 MB</strong></div>
         <div class="file-chosen" id="fileChosen"></div>
         <div class="upload-fields" onclick="event.stopPropagation()">
           <input type="text" class="upload-input" placeholder="Subject / Paper Title" id="uploadTitle">

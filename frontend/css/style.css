@@ -290,11 +290,13 @@ nav ul li a:hover, nav ul li button:hover { color: var(--text); }
 .upload-perks { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
 .upload-perks li { display: flex; align-items: center; gap: 0.6rem; font-size: 0.88rem; color: var(--muted); }
 .perk-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); flex-shrink: 0; }
-.upload-dropzone { border: 2px dashed rgba(108,99,255,0.3); border-radius: 16px; padding: 1.5rem; text-align: center; cursor: pointer; transition: all 0.2s; }
-.upload-dropzone:hover, .upload-dropzone.drag-over { border-color: var(--accent); background: rgba(108,99,255,0.05); }
-.upload-icon { font-size: 2rem; margin-bottom: 0.8rem; }
-.upload-dropzone h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
-.upload-dropzone > p { color: var(--muted); font-size: 0.82rem; margin-bottom: 1.2rem; }
+.upload-dropzone { border: 2px dashed var(--accent); border-radius: 16px; padding: 1.8rem 1.5rem; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(108,99,255,0.05); }
+.upload-dropzone:hover, .upload-dropzone.drag-over { border-color: var(--accent); background: rgba(108,99,255,0.12); box-shadow: 0 0 0 4px rgba(108,99,255,0.12); }
+.upload-icon { font-size: 1.6rem; margin-bottom: 0.8rem; width: 62px; height: 62px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(108,99,255,0.16); border: 1px solid rgba(108,99,255,0.35); }
+.upload-dropzone h3 { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.3rem; }
+.upload-dropzone > p { color: var(--muted); font-size: 0.82rem; margin-bottom: 0.8rem; }
+.upload-browse-btn { background: linear-gradient(135deg, var(--accent), #9b88ff); color: #fff; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; padding: 0.6rem 1.6rem; border-radius: 100px; cursor: pointer; margin-bottom: 0.9rem; transition: opacity 0.2s, transform 0.2s; }
+.upload-browse-btn:hover { opacity: 0.88; transform: translateY(-1px); }
 .upload-fields { display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 1rem; }
 .upload-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; padding: 0.6rem 0.9rem; outline: none; width: 100%; }
 .upload-input:focus { border-color: var(--accent); }
@@ -496,6 +498,10 @@ footer {
 /* ── RECOMMENDED ─────────────────────────────────── */
 .recommended-section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto 6rem; padding: 0 2rem; }
 .recommended-section .results-grid { margin-top: 0.5rem; }
+
+/* ── TRENDING / RECENT RESOURCES ─────────────────── */
+.trending-section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto 6rem; padding: 0 2rem; }
+.trending-section .section-sub { margin-bottom: 1.5rem; }
 
 /* ── MODAL ───────────────────────────────────────── */
 .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); align-items: center; justify-content: center; }
@@ -701,6 +707,9 @@ footer {
   .ob-school-row { flex-direction: column; }
   .rating-prompt { bottom: 1rem; left: 1rem; }
 
+  /* TRENDING / RECENT RESOURCES */
+  .trending-section { padding: 0 1.2rem; }
+
   /* TESTIMONIALS */
   .testimonials-section { padding: 0 1.2rem; }
   .testimonials-grid { grid-template-columns: 1fr; }
@@ -767,11 +776,7 @@ footer {
 .upload-del-btn:hover { color: #ff6b6b; border-color: #ff6b6b; background: rgba(255,107,107,0.1); }
 .reject-reason { margin-top: 0.3rem; color: #ff6b6b; font-size: 0.75rem; }
 
-/* ── HERO RATING ───────────────────────────────────── */
-.hero-rating { margin-top: 1.8rem; display: flex; align-items: center; justify-content: center; gap: 0.7rem; flex-wrap: wrap; animation: fadeInUp 0.6s ease both; animation-delay: 0.2s; }
-.hero-rating-stars { color: #f5c518; font-size: 1.05rem; letter-spacing: 2px; }
-.hero-rating-text { color: var(--muted); font-size: 0.85rem; }
-
+/* ── VERY SMALL SCREENS (≤400px) ───────────────────── */
 @media (max-width: 400px) {
   .footer-inner { grid-template-columns: 1fr; }
   .courses-grid { grid-template-columns: repeat(2, 1fr); }

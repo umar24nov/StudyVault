@@ -1415,22 +1415,52 @@ async function loadStatsCount() {
   } catch(e) { /* keep placeholder */ }
 }
 
-// ── HERO RATING (aggregate of student reviews) ────────
-async function loadHeroRating() {
-  const starsEl = document.getElementById('heroRatingStars');
-  const textEl = document.getElementById('heroRatingText');
-  if (!starsEl || !textEl) return;
+// ── LANDING RESOURCES (popular, falls back to recent) ──
+async function loadLandingResources() {
+  const grid = document.getElementById('trendingGrid');
+  if (!grid) return;
+  const label = document.getElementById('trendingLabel');
+  const title = document.getElementById('trendingTitle');
+  const sub   = document.getElementById('trendingSub');
+  let items = [];
+  let mode = 'popular';
+
   try {
-    const res = await fetch(`${API_BASE}/api/reviews/stats`);
-    const stats = await res.json();
-    if (!stats || !stats.total) {
-      textEl.textContent = 'Be the first to review StudyVault!';
+    // 1) Most frequently visited (top downloads). Only count papers that have downloads.
+    let res = await fetch(`${API_BASE}/api/papers?sort=popular&limit=6`);
+    let data = await res.json();
+    items = (data.data || []).filter(p => (p.downloads || 0) > 0);
+
+    // 2) New site, no downloads yet — show the most recently uploaded resources instead.
+    if (!items.length) {
+      res = await fetch(`${API_BASE}/api/papers?sort=newest&limit=6`);
+      data = await res.json();
+      items = data.data || [];
+      mode = 'recent';
+    }
+
+    if (!items.length) {
+      grid.innerHTML = '<div class="no-results">No resources yet &#8212; be the first to upload one!</div>';
       return;
     }
-    const full = Math.round(stats.average);
-    starsEl.innerHTML = '&#9733;'.repeat(full) + '&#9734;'.repeat(5 - full);
-    textEl.textContent = `${stats.average.toFixed(1)} / 5 from ${stats.total} student review${stats.total === 1 ? '' : 's'}`;
-  } catch(e) { /* keep placeholder */ }
+
+    if (label) label.textContent = mode === 'popular' ? 'Popular' : 'Just Added';
+    if (title) title.textContent = mode === 'popular' ? 'Most Visited Resources' : 'Recently Uploaded Resources';
+    if (sub) sub.textContent = mode === 'popular'
+      ? 'The resources students download the most.'
+      : 'Fresh uploads from the community.';
+
+    grid.innerHTML = `<div class="results-grid">${items.map(paperCardHTML).join('')}</div>`;
+
+    const wrap = document.getElementById('trendingLoadMoreWrap');
+    if (wrap) {
+      wrap.style.display = 'block';
+      const btn = document.getElementById('trendingLoadMoreBtn');
+      if (btn) btn.onclick = () => { location.href = `/search.html${mode === 'popular' ? '?sort=popular' : ''}`; };
+    }
+  } catch(e) {
+    grid.innerHTML = '<div class="no-results">Could not load resources.</div>';
+  }
 }
 
 // ── SEARCH PAGE URL PARAMS ────────────────────────────
@@ -1458,7 +1488,7 @@ if (document.getElementById('searchInput')) {
 if (document.getElementById('testimonialsGrid')) loadTestimonials();
 if (document.getElementById('universitiesGrid')) loadUniversities();
 loadStatsCount();
-loadHeroRating();
+if (document.getElementById('trendingGrid')) loadLandingResources();
 
 // Poll unread notification count every 60 seconds while signed in.
 setInterval(() => {

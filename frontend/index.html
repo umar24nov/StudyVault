@@ -97,10 +97,6 @@
     <button class="btn-primary" onclick="location.href='/search.html'">Search Papers &#8595;</button>
     <button class="btn-secondary" onclick="location.href='/upload.html'">Contribute Resource</button>
   </div>
-  <div class="hero-rating" id="heroRating">
-    <span class="hero-rating-stars" id="heroRatingStars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-    <span class="hero-rating-text" id="heroRatingText">Loading student reviews...</span>
-  </div>
 </section>
 
 <!-- STATS -->
@@ -110,6 +106,17 @@
   <div class="stat"><div class="stat-num">&#128200;</div><div class="stat-lbl">Boost Your Performance</div></div>
   <div class="stat"><div class="stat-num">&#127470;&#127475;</div><div class="stat-lbl">Made for India</div></div>
 </div>
+
+<!-- POPULAR / RECENT RESOURCES -->
+<section class="trending-section" id="trendingSection">
+  <div class="section-label" id="trendingLabel">Popular</div>
+  <div class="section-title" id="trendingTitle">Most Visited Resources</div>
+  <div class="section-sub" id="trendingSub">The resources students download the most.</div>
+  <div id="trendingGrid"><div class="loading">Loading resources...</div></div>
+  <div class="load-more-wrap" id="trendingLoadMoreWrap" style="display:none">
+    <button class="load-more-btn" id="trendingLoadMoreBtn">Load More &#8594;</button>
+  </div>
+</section>
 
 <!-- COURSES -->
 <section class="courses-section" id="courses">
