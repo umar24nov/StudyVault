@@ -1426,28 +1426,33 @@ async function loadLandingResources() {
   let mode = 'popular';
 
   try {
-    // 1) Most frequently visited (top downloads). Only count papers that have downloads.
-    let res = await fetch(`${API_BASE}/api/papers?sort=popular&limit=6`);
-    let data = await res.json();
-    items = (data.data || []).filter(p => (p.downloads || 0) > 0);
+    // 1) Most frequently visited (top downloads) and 2) latest approved uploads, in parallel.
+    const [popRes, newRes] = await Promise.all([
+      fetch(`${API_BASE}/api/papers?sort=popular&limit=6`),
+      fetch(`${API_BASE}/api/papers?sort=newest&limit=6`)
+    ]);
+    const [popData, newData] = await Promise.all([popRes.json(), newRes.json()]);
+    const popular = (popData.data || []).filter(p => (p.downloads || 0) > 0);
+    const newest  = newData.data || [];
 
-    // 2) New site, no downloads yet — show the most recently uploaded resources instead.
-    if (!items.length) {
-      res = await fetch(`${API_BASE}/api/papers?sort=newest&limit=6`);
-      data = await res.json();
-      items = data.data || [];
-      mode = 'recent';
-    }
+    // Popular papers first, then fill with the latest approved uploads so
+    // freshly approved papers (0 downloads yet) are still visible.
+    const seen = new Set();
+    const merged = [];
+    for (const p of popular) { if (!seen.has(p.id)) { seen.add(p.id); merged.push(p); } }
+    for (const p of newest)  { if (!seen.has(p.id)) { seen.add(p.id); merged.push(p); } }
+    items = merged.slice(0, 8);
+    mode = popular.length ? 'popular' : 'recent';
 
     if (!items.length) {
       grid.innerHTML = '<div class="no-results">No resources yet &#8212; be the first to upload one!</div>';
       return;
     }
 
-    if (label) label.textContent = mode === 'popular' ? 'Popular' : 'Just Added';
-    if (title) title.textContent = mode === 'popular' ? 'Most Visited Resources' : 'Recently Uploaded Resources';
+    if (label) label.textContent = mode === 'popular' ? 'Popular & New' : 'Just Added';
+    if (title) title.textContent = mode === 'popular' ? 'Latest & Popular Resources' : 'Recently Uploaded Resources';
     if (sub) sub.textContent = mode === 'popular'
-      ? 'The resources students download the most.'
+      ? 'The most downloaded papers, plus the freshest uploads from the community.'
       : 'Fresh uploads from the community.';
 
     grid.innerHTML = `<div class="results-grid">${items.map(paperCardHTML).join('')}</div>`;
@@ -1456,7 +1461,7 @@ async function loadLandingResources() {
     if (wrap) {
       wrap.style.display = 'block';
       const btn = document.getElementById('trendingLoadMoreBtn');
-      if (btn) btn.onclick = () => { location.href = `/search.html${mode === 'popular' ? '?sort=popular' : ''}`; };
+      if (btn) btn.onclick = () => { location.href = '/search.html'; };
     }
   } catch(e) {
     grid.innerHTML = '<div class="no-results">Could not load resources.</div>';
