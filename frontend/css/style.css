@@ -495,13 +495,11 @@ footer {
 .ob-school-row { display: flex; gap: 0.8rem; }
 .ob-school-row .upload-input { flex: 1; }
 
-/* ── RECOMMENDED ─────────────────────────────────── */
-.recommended-section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto 6rem; padding: 0 2rem; }
-.recommended-section .results-grid { margin-top: 0.5rem; }
-
 /* ── TRENDING / RECENT RESOURCES ─────────────────── */
 .trending-section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto 6rem; padding: 0 2rem; }
-.trending-section .section-sub { margin-bottom: 1.5rem; }
+.trending-section .section-sub { margin-bottom: 1rem; }
+.landing-sort-row { display: flex; justify-content: center; margin-bottom: 2rem; }
+.landing-sort-row .filter-select { min-width: 220px; }
 
 /* ── MODAL ───────────────────────────────────────── */
 .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); align-items: center; justify-content: center; }
@@ -702,8 +700,6 @@ footer {
   .features { padding: 0 1.2rem; }
   .features-grid { grid-template-columns: 1fr; }
 
-  /* RECOMMENDED */
-  .recommended-section { padding: 0 1.2rem; }
   .ob-school-row { flex-direction: column; }
   .rating-prompt { bottom: 1rem; left: 1rem; }
 

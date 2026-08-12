@@ -174,43 +174,12 @@ async function saveOnboarding() {
 // ── RECOMMENDATIONS ──────────────────────────────────
 function initRecommendations(prof) {
   if (!prof || !prof.course) return;
-  const sec = document.getElementById('recommendedSection');
-  if (sec) {
-    sec.style.display = '';
-    const sub = document.getElementById('recommendedSub');
-    if (sub) sub.textContent = 'Based on your profile (' + (courseLabels[prof.course] || prof.course) + '), here are papers you might need.';
-    loadRecommended(prof.course);
+  const sortEl = document.getElementById('landingSort');
+  if (sortEl && sortEl.value !== 'recommended') {
+    sortEl.value = 'recommended';
+    loadLandingResources();
   }
   applyPersonalizedSearch(prof);
-}
-
-async function loadRecommended(course) {
-  const grid = document.getElementById('recommendedGrid');
-  if (!grid) return;
-  grid.innerHTML = '<div class="loading">Loading recommendations...</div>';
-
-  // Signed-in users get smarter, personalized picks from their profile + download history.
-  const token = await getAuthToken();
-  const url = token
-    ? `${API_BASE}/api/users/me/recommendations`
-    : `${API_BASE}/api/papers?course=${encodeURIComponent(course)}&limit=6`;
-
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 90000);
-    const res = await fetch(url, { signal: controller.signal, headers: token ? { 'Authorization': `Bearer ${token}` } : {} });
-    clearTimeout(timeout);
-    if (!res.ok) throw new Error('Server error');
-    const data = await res.json();
-    const items = data.data || data;
-    if (!items.length) {
-      grid.innerHTML = '<div class="no-results">No papers in your field yet — be the first to upload one!</div>';
-      return;
-    }
-    grid.innerHTML = `<div class="results-grid">${items.map(paperCardHTML).join('')}</div>`;
-  } catch(e) {
-    grid.innerHTML = '';
-  }
 }
 
 function applyPersonalizedSearch(prof) {
@@ -1375,57 +1344,82 @@ async function loadStatsCount() {
   } catch(e) { /* keep placeholder */ }
 }
 
-// ── LANDING RESOURCES (popular, falls back to recent) ──
+// ── LANDING RESOURCES (sortable: recent / recommended / most downloaded) ──
 async function loadLandingResources() {
   const grid = document.getElementById('trendingGrid');
   if (!grid) return;
   const label = document.getElementById('trendingLabel');
   const title = document.getElementById('trendingTitle');
   const sub   = document.getElementById('trendingSub');
-  let items = [];
-  let mode = 'popular';
+  const wrap  = document.getElementById('trendingLoadMoreWrap');
+  const btn   = document.getElementById('trendingLoadMoreBtn');
+  const sort  = document.getElementById('landingSort')?.value || 'recent';
+
+  const setMeta = (l, t, s) => {
+    if (label) label.textContent = l;
+    if (title) title.textContent = t;
+    if (sub)   sub.textContent = s;
+  };
 
   try {
-    // Most frequently visited (top downloads) and latest approved uploads, in parallel.
-    const [popRes, newRes] = await Promise.all([
-      fetch(`${API_BASE}/api/papers?sort=popular&limit=6`),
-      fetch(`${API_BASE}/api/papers?sort=newest&limit=6`)
-    ]);
-    const [popData, newData] = await Promise.all([popRes.json(), newRes.json()]);
-    const popular = (popData.data || []).filter(p => (p.downloads || 0) > 0);
-    const newest  = newData.data || [];
-
-    // Until the site builds up enough downloads, show the latest approved
-    // uploads. Once 4+ papers have downloads, switch to most visited only.
-    if (popular.length >= 4) {
-      items = popular;
-      mode = 'popular';
-    } else {
-      items = newest;
-      mode = 'recent';
-    }
-
-    if (!items.length) {
-      grid.innerHTML = '<div class="no-results">No resources yet &#8212; be the first to upload one!</div>';
+    // ── Recommended For You (personalized picks) ──
+    if (sort === 'recommended') {
+      const profCourse = userProfile && userProfile.course;
+      if (!profCourse) {
+        setMeta('Personalized', 'Recommended For You', 'Sign in and set your course to get picks tailored to you.');
+        const cta = currentUser
+          ? '<button class="btn-primary" style="margin-top:.75rem" onclick="showOnboarding()">Set up my profile</button>'
+          : '<button class="btn-primary" style="margin-top:.75rem" onclick="signInWithGoogle()">Sign in to personalize</button>';
+        grid.innerHTML = `<div class="no-results">No recommendations yet.${cta}</div>`;
+        if (wrap) wrap.style.display = 'none';
+        return;
+      }
+      setMeta('Personalized', 'Recommended For You', 'Based on your profile (' + (courseLabels[profCourse] || profCourse) + '), here are papers you might need.');
+      const token = await getAuthToken();
+      const url = token
+        ? `${API_BASE}/api/users/me/recommendations`
+        : `${API_BASE}/api/papers?course=${encodeURIComponent(profCourse)}&limit=6`;
+      const res = await fetch(url, { headers: token ? { 'Authorization': `Bearer ${token}` } : {} });
+      if (!res.ok) throw new Error('Server error');
+      const data = await res.json();
+      const items = data.data || data;
+      if (!items.length) {
+        grid.innerHTML = '<div class="no-results">No papers in your field yet &#8212; be the first to upload one!</div>';
+        if (wrap) wrap.style.display = 'none';
+        return;
+      }
+      grid.innerHTML = `<div class="results-grid">${items.map(paperCardHTML).join('')}</div>`;
+      if (wrap) {
+        wrap.style.display = 'block';
+        if (btn) btn.onclick = () => { location.href = `/search.html?course=${encodeURIComponent(profCourse)}`; };
+      }
       return;
     }
 
-    if (label) label.textContent = mode === 'popular' ? 'Popular' : 'Just Added';
-    if (title) title.textContent = mode === 'popular' ? 'Most Visited Resources' : 'Recently Uploaded Resources';
-    if (sub) sub.textContent = mode === 'popular'
-      ? 'The resources students download the most.'
-      : 'Fresh uploads from the community.';
-
+    // ── Recently Uploaded / Most Downloaded ──
+    const mode = sort === 'popular' ? 'popular' : 'newest';
+    if (mode === 'popular') {
+      setMeta('Popular', 'Most Visited Resources', 'The resources students download the most.');
+    } else {
+      setMeta('Just Added', 'Recently Uploaded Resources', 'Fresh uploads from the community.');
+    }
+    const res = await fetch(`${API_BASE}/api/papers?sort=${mode}&limit=6`);
+    if (!res.ok) throw new Error('Server error');
+    const data = await res.json();
+    const items = data.data || [];
+    if (!items.length) {
+      grid.innerHTML = '<div class="no-results">No resources yet &#8212; be the first to upload one!</div>';
+      if (wrap) wrap.style.display = 'none';
+      return;
+    }
     grid.innerHTML = `<div class="results-grid">${items.map(paperCardHTML).join('')}</div>`;
-
-    const wrap = document.getElementById('trendingLoadMoreWrap');
     if (wrap) {
       wrap.style.display = 'block';
-      const btn = document.getElementById('trendingLoadMoreBtn');
-      if (btn) btn.onclick = () => { location.href = `/search.html${mode === 'popular' ? '?sort=popular' : ''}`; };
+      if (btn) btn.onclick = () => { location.href = `/search.html?sort=${mode}`; };
     }
   } catch(e) {
     grid.innerHTML = '<div class="no-results">Could not load resources.</div>';
+    if (wrap) wrap.style.display = 'none';
   }
 }
 

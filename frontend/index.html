@@ -107,11 +107,18 @@
   <div class="stat"><div class="stat-num">&#127470;&#127475;</div><div class="stat-lbl">Made for India</div></div>
 </div>
 
-<!-- POPULAR / RECENT RESOURCES -->
+<!-- RESOURCES (sortable: recent / recommended / most downloaded) -->
 <section class="trending-section" id="trendingSection">
-  <div class="section-label" id="trendingLabel">Popular</div>
-  <div class="section-title" id="trendingTitle">Most Visited Resources</div>
-  <div class="section-sub" id="trendingSub">The resources students download the most.</div>
+  <div class="section-label" id="trendingLabel">Just Added</div>
+  <div class="section-title" id="trendingTitle">Recently Uploaded Resources</div>
+  <div class="section-sub" id="trendingSub">Fresh uploads from the community.</div>
+  <div class="landing-sort-row">
+    <select class="filter-select" id="landingSort" onchange="loadLandingResources()" aria-label="Sort resources">
+      <option value="recent">Recently Uploaded</option>
+      <option value="recommended">Recommended For You</option>
+      <option value="popular">Most Downloaded</option>
+    </select>
+  </div>
   <div id="trendingGrid"><div class="loading">Loading resources...</div></div>
   <div class="load-more-wrap" id="trendingLoadMoreWrap" style="display:none">
     <button class="load-more-btn" id="trendingLoadMoreBtn">Load More &#8594;</button>
@@ -138,14 +145,6 @@
     <div class="course-card" onclick="filterByCourse('agriculture')"><span class="course-icon">&#127806;</span><div class="course-name">Agriculture</div><div class="course-count">B.Sc Agri</div></div>
     <div class="course-card" onclick="filterByCourse('education')"><span class="course-icon">&#128218;</span><div class="course-name">Education</div><div class="course-count">B.Ed / M.Ed</div></div>
   </div>
-</section>
-
-<!-- RECOMMENDED FOR YOU (signed-in users with a profile) -->
-<section class="recommended-section" id="recommendedSection" style="display:none">
-  <div class="section-label">Personalized</div>
-  <div class="section-title">Recommended For You</div>
-  <div class="section-sub" id="recommendedSub">Papers picked based on your profile.</div>
-  <div id="recommendedGrid"></div>
 </section>
 
 <!-- FEATURES -->
